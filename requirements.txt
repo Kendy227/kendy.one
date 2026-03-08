@@ -1,0 +1,12 @@
+flask
+flask-dance
+flask-session
+requests
+PyMySQL
+redis
+oauthlib
+requests-oauthlib
+google-auth
+google-auth-oauthlib
+google-auth-httplib2
+bcrypt
