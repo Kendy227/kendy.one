@@ -1,0 +1,445 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <link rel="icon" href="https://kendyenterprises.in/image/logo-knd.png">
+    <title>Kendy Enterprises | Authentication Portal</title>
+    <!-- Tailwind for layout, custom CSS for advanced animations -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap');
+
+        :root {
+            --primary: #00FFAA;
+            --primary-hover: #00B4D8;
+            --glass-bg: rgba(255, 255, 255, 0.03);
+            --glass-border: rgba(255, 255, 255, 0.1);
+        }
+
+        body {
+            font-family: 'Inter', sans-serif;
+            background: #000000;
+            color: #FFFFFF;
+            overflow: hidden;
+            height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        /* Animated Background Orbs */
+        .orb {
+            position: absolute;
+            border-radius: 50%;
+            filter: blur(80px);
+            z-index: -1;
+            animation: float 20s infinite alternate ease-in-out;
+        }
+
+        .orb-1 { width: 400px; height: 400px; background: rgba(6, 182, 212, 0.15); top: -100px; left: -100px; }
+        .orb-2 { width: 300px; height: 300px; background: rgba(245, 158, 11, 0.1); bottom: -50px; right: -50px; animation-delay: -5s; }
+
+        @keyframes float {
+            0% { transform: translate(0, 0); }
+            100% { transform: translate(100px, 50px); }
+        }
+
+        /* Glassmorphism Card */
+        .glass-card {
+            background: linear-gradient(rgba(0, 0, 0, 0.4), rgba(0, 0, 0, 0.4)), url('https://xtremetopup.in/image/background.jpeg');
+            background-size: cover;
+            background-position: center;
+            background-repeat: no-repeat;
+            backdrop-filter: blur(20px);
+            border: 1px solid var(--glass-border);
+            border-radius: 24px;
+            box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.5);
+            width: 100%;
+            max-width: 420px;
+            padding: 40px;
+            position: relative;
+            overflow: hidden;
+            transition: all 0.6s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+
+        /* State Transitions */
+        .form-state {
+            display: none;
+            opacity: 0;
+            transform: translateY(20px);
+            transition: all 0.5s ease;
+        }
+
+        .form-state.active {
+            display: block;
+            opacity: 1;
+            transform: translateY(0);
+        }
+
+        /* Input Styling */
+        .input-group input {
+            background: rgba(255, 255, 255, 0.05);
+            border: 1px solid var(--glass-border);
+            transition: all 0.3s ease;
+        }
+
+        .input-group input:focus {
+            border-color: var(--primary);
+            background: rgba(255, 255, 255, 0.08);
+            box-shadow: 0 0 0 4px rgba(99, 102, 241, 0.1);
+            outline: none;
+        }
+
+        /* Custom Buttons */
+        .btn-primary {
+            background: var(--primary);
+            transition: all 0.3s ease;
+        }
+
+        .btn-primary:hover {
+            background: var(--primary-hover);
+            transform: translateY(-1px);
+            box-shadow: 0 10px 15px -3px rgba(99, 102, 241, 0.3);
+        }
+
+        /* Smooth tab switch effect */
+        .fade-out {
+            opacity: 0;
+            transform: scale(0.95);
+        }
+    </style>
+</head>
+<body>
+
+    <!-- Background Decoration -->
+    <div class="orb orb-1"></div>
+    <div class="orb orb-2"></div>
+
+    <div class="glass-card" id="auth-card">
+        
+        <!-- HEADER -->
+        <div class="text-center mb-8">
+            <div class="inline-flex items-center justify-center w-12 h-12 rounded-xl bg-cyan-500/20 text-cyan-400 mb-4">
+                <svg xmlns="http://www.w3.org/2000/svg" class="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 11c0 3.517-1.009 6.799-2.753 9.571m-3.44-2.04l.054-.09A10.003 10.003 0 0012 20a10.003 10.003 0 006.235-2.397l.054.09L15.56 20.572M12 11V3m0 8c2.11 0 4-.89 4-2s-1.89-2-4-2-4 .89-4 2 1.89 2 4 2z" />
+                </svg>
+            </div>
+            <h1 class="text-2xl font-bold tracking-tight" id="main-title">Welcome <br>to<br> KENDY ENTERPRISES.</h1>
+            <p class="text-gray-400 text-sm mt-1" id="main-subtitle">We're glad you're here. Discover quality, value, support today.</p>
+        </div>
+
+        <!-- LOGIN STATE -->
+        <div id="login-form" class="form-state active">
+            <form onsubmit="handleLogin(event)">
+                <div class="space-y-4">
+                    
+                    <div class="input-group">
+                        <label class="block text-xs font-medium uppercase tracking-wider text-slate-500 mb-1.5 ml-1">Email</label>
+                        <input type="email" id="login-email" placeholder="your email" class="w-full px-4 py-3 rounded-xl text-sm" required>
+                    </div>
+                    <div class="input-group">
+                        <div class="flex justify-between items-center mb-1.5 ml-1">
+                            <label class="text-xs font-medium uppercase tracking-wider text-gray-400">Password</label>
+                            <button type="button" onclick="switchState('forgot')" class="text-xs text-cyan-400 hover:text-cyan-300">Forgot?</button>
+                        </div>
+                        <div class="relative">
+                            <input type="password" id="login-password" placeholder="••••••••" class="w-full px-4 py-3 pr-12 rounded-xl text-sm" required>
+                            <button type="button" onclick="togglePassword('login-password')" class="absolute inset-y-0 right-0 pr-3 flex items-center text-gray-400 hover:text-gray-600">
+                                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"></path>
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"></path>
+                                </svg>
+                            </button>
+                        </div>
+                    </div>
+                    <button type="submit" class="btn-primary w-full py-3.5 rounded-xl font-semibold text-sm mt-2">Sign in</button>
+                    <!-- Google Sign-In -->
+                    <div class="my-2">
+                        <a href="/login/google" class="w-full inline-flex items-center justify-center gap-3 py-3 rounded-xl bg-white text-slate-900 font-semibold hover:shadow">
+                            <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 48 48"><path fill="#EA4335" d="M24 9.5c3.9 0 6.6 1.7 8.1 3.1l6-5.8C35.6 3.9 30.2 1.5 24 1.5 14.6 1.5 6.9 7.8 3.6 16.6l7.3 5.6C12.5 16 17.7 9.5 24 9.5z"/><path fill="#4285F4" d="M46.5 24c0-1.6-.1-3.2-.4-4.7H24v9.1h12.6c-.5 2.8-2 5.3-4.3 6.9l6.9 5.4C43.8 36.9 46.5 30.9 46.5 24z"/><path fill="#FBBC05" d="M10.9 29.8c-.6-1.7-1-3.5-1-5.3 0-1.8.4-3.6 1-5.3L3.6 13.6C1.3 17.8 0 21.8 0 26c0 4.2 1.3 8.2 3.6 12.4l7.3-8.6z"/><path fill="#34A853" d="M24 46.5c6.2 0 11.6-2.1 15.9-5.8l-7.6-6.1c-2 1.4-4.6 2.3-8.3 2.3-6.3 0-11.6-4.5-13.4-10.5L3.6 31.4C6.9 40.2 14.6 46.5 24 46.5z"/></svg>
+                            Continue with Google
+                        </a>
+                    </div>
+                </div>
+            </form>
+            <p class="text-center text-gray-400 text-sm mt-8">
+                Don't have an account? 
+                <button onclick="switchState('register')" class="text-cyan-400 hover:text-cyan-300 font-medium">Create one</button>
+            </p>
+        </div>
+
+        <!-- REGISTER STATE -->
+        <div id="register-form" class="form-state">
+            <form onsubmit="handleRegister(event)">
+                <div class="space-y-4">
+                    
+                    <div class="input-group">
+                        <label class="block text-xs font-medium uppercase tracking-wider text-slate-500 mb-1.5 ml-1">Full Name</label>
+                        <input type="text" id="reg-name" placeholder="John Doe" class="w-full px-4 py-3 rounded-xl text-sm" required>
+                    </div>
+                    <div class="input-group">
+                        <label class="block text-xs font-medium uppercase tracking-wider text-slate-500 mb-1.5 ml-1">Email Address</label>
+                        <input type="email" id="reg-email" placeholder="name@company.com" class="w-full px-4 py-3 rounded-xl text-sm" required>
+                    </div>
+                    <div class="input-group">
+                        <label class="block text-xs font-medium uppercase tracking-wider text-slate-500 mb-1.5 ml-1">Phone Number</label>
+                        <input type="tel" id="reg-phone" placeholder="+919876543210" class="w-full px-4 py-3 rounded-xl text-sm" required>
+                    </div>
+                    <div class="input-group">
+                        <label class="block text-xs font-medium uppercase tracking-wider text-slate-500 mb-1.5 ml-1">Create Password</label>
+                        <div class="relative">
+                            <input type="password" id="reg-password" placeholder="••••••••" class="w-full px-4 py-3 pr-12 rounded-xl text-sm" required>
+                            <button type="button" onclick="togglePassword('reg-password')" class="absolute inset-y-0 right-0 pr-3 flex items-center text-gray-400 hover:text-gray-600">
+                                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"></path>
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"></path>
+                                </svg>
+                            </button>
+                        </div>
+                    </div>
+                    <button type="submit" class="btn-primary w-full py-3.5 rounded-xl font-semibold text-sm mt-2">Send OTP</button>
+                <!-- Google Sign-In (register) -->
+                    <div class="my-2">
+                        <a href="/login/google" class="w-full inline-flex items-center justify-center gap-3 py-3 rounded-xl bg-white text-slate-900 font-semibold hover:shadow">
+                            <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 48 48"><path fill="#EA4335" d="M24 9.5c3.9 0 6.6 1.7 8.1 3.1l6-5.8C35.6 3.9 30.2 1.5 24 1.5 14.6 1.5 6.9 7.8 3.6 16.6l7.3 5.6C12.5 16 17.7 9.5 24 9.5z"/><path fill="#4285F4" d="M46.5 24c0-1.6-.1-3.2-.4-4.7H24v9.1h12.6c-.5 2.8-2 5.3-4.3 6.9l6.9 5.4C43.8 36.9 46.5 30.9 46.5 24z"/><path fill="#FBBC05" d="M10.9 29.8c-.6-1.7-1-3.5-1-5.3 0-1.8.4-3.6 1-5.3L3.6 13.6C1.3 17.8 0 21.8 0 26c0 4.2 1.3 8.2 3.6 12.4l7.3-8.6z"/><path fill="#34A853" d="M24 46.5c6.2 0 11.6-2.1 15.9-5.8l-7.6-6.1c-2 1.4-4.6 2.3-8.3 2.3-6.3 0-11.6-4.5-13.4-10.5L3.6 31.4C6.9 40.2 14.6 46.5 24 46.5z"/></svg>
+                            Continue with Google
+                        </a>
+                    </div>
+                </div>
+            </form>
+            <p class="text-center text-slate-500 text-sm mt-8">
+                Already have an account? 
+                <button onclick="switchState('login')" class="text-indigo-400 hover:text-indigo-300 font-medium">Sign in</button>
+            </p>
+        </div>
+
+        <!-- OTP VERIFICATION STATE -->
+        <div id="otp-form" class="form-state">
+            <form onsubmit="handleVerifyOTP(event)">
+                <div class="space-y-4">
+                    <div class="text-center mb-4">
+                        <p class="text-slate-400 text-sm">We've sent an OTP to your email. Please enter it below.</p>
+                    </div>
+                    <div class="input-group">
+                        <label class="block text-xs font-medium uppercase tracking-wider text-slate-500 mb-1.5 ml-1">OTP Code</label>
+                        <input type="text" id="otp-code" placeholder="123456" class="w-full px-4 py-3 rounded-xl text-sm text-center" required maxlength="6">
+                    </div>
+                    <button type="submit" class="btn-primary w-full py-3.5 rounded-xl font-semibold text-sm mt-2">Verify & Register</button>
+                </div>
+            </form>
+            <p class="text-center text-slate-500 text-sm mt-8">
+                Didn't receive OTP? 
+                <button onclick="resendOTP()" class="text-indigo-400 hover:text-indigo-300 font-medium">Resend</button>
+            </p>
+        </div>
+
+        <!-- FORGOT PASSWORD STATE -->
+        <div id="forgot-form" class="form-state">
+            <form onsubmit="handleForgot(event)">
+                <div class="space-y-4">
+                    <div class="input-group">
+                        <label class="block text-xs font-medium uppercase tracking-wider text-slate-500 mb-1.5 ml-1">Registered Email</label>
+                        <input type="email" id="forgot-email" placeholder="name@company.com" class="w-full px-4 py-3 rounded-xl text-sm" required>
+                    </div>
+                    <button type="submit" class="btn-primary w-full py-3.5 rounded-xl font-semibold text-sm mt-2">Send Reset Link</button>
+                </div>
+            </form>
+            <p class="text-center text-slate-500 text-sm mt-8">
+                Remember your password? 
+                <button onclick="switchState('login')" class="text-indigo-400 hover:text-indigo-300 font-medium">Back to login</button>
+            </p>
+        </div>
+
+        <!-- LOADING OVERLAY (Hidden by default) -->
+        <div id="loading-overlay" class="absolute inset-0 bg-slate-900/80 backdrop-blur-md flex flex-col items-center justify-center z-50 pointer-events-none opacity-0 transition-opacity duration-300">
+            <div class="w-10 h-10 border-4 border-indigo-500/30 border-t-indigo-500 rounded-full animate-spin mb-4"></div>
+            <p id="loading-text" class="text-sm font-medium text-slate-200"></p>
+        </div>
+
+    </div>
+
+    <script>
+        const titles = {
+            login: { main: "Welcome to KENDY ENTERPRISES.", sub: "We're glad you're here. Discover quality, value, support today." },
+            register: { main: "Create account", sub: "Join our community today" },
+            otp: { main: "Verify Email", sub: "Enter the OTP sent to your email" },
+            forgot: { main: "Reset password", sub: "We'll send you recovery instructions" }
+        };
+
+        let pendingRegistration = null;
+
+        function switchState(state) {
+            const card = document.getElementById('auth-card');
+            const states = ['login-form', 'register-form', 'otp-form', 'forgot-form'];
+            const activeForm = document.querySelector('.form-state.active');
+            
+            // Start exit animation
+            activeForm.style.opacity = '0';
+            activeForm.style.transform = 'scale(0.95)';
+            
+            setTimeout(() => {
+                // Hide current
+                states.forEach(s => document.getElementById(s).classList.remove('active'));
+                
+                // Update text content
+                document.getElementById('main-title').innerText = titles[state].main;
+                document.getElementById('main-subtitle').innerText = titles[state].sub;
+                
+                // Show new state
+                const nextForm = document.getElementById(`${state}-form`);
+                nextForm.classList.add('active');
+                
+                // Trigger entry animation
+                setTimeout(() => {
+                    nextForm.style.opacity = '1';
+                    nextForm.style.transform = 'translateY(0)';
+                }, 50);
+            }, 300);
+        }
+
+        async function handleLogin(event) {
+            event.preventDefault();
+            const email = document.getElementById('login-email').value;
+            const password = document.getElementById('login-password').value;
+            
+            showLoading('Logging in...');
+            
+            try {
+                const resp = await fetch('/login', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ email, password })
+                });
+                const data = await resp.json();
+                if (data.success) {
+                    window.location.href = '/';
+                } else {
+                    alert(data.error);
+                }
+            } catch (err) {
+                alert('Network error');
+            }
+            hideLoading();
+        }
+
+        async function handleRegister(event) {
+            event.preventDefault();
+            const name = document.getElementById('reg-name').value;
+            const email = document.getElementById('reg-email').value;
+            const password = document.getElementById('reg-password').value;
+            
+            const phone = document.getElementById('reg-phone').value;
+            pendingRegistration = { name, email, password, phone };
+            
+            showLoading('Sending OTP...');
+            
+            try {
+                const resp = await fetch('/send_otp', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ email })
+                });
+                const data = await resp.json();
+                if (data.success) {
+                    switchState('otp');
+                } else {
+                    alert(data.error);
+                }
+            } catch (err) {
+                alert('Network error');
+            }
+            hideLoading();
+        }
+
+        async function handleVerifyOTP(event) {
+            event.preventDefault();
+            const otp = document.getElementById('otp-code').value;
+            
+            showLoading('Verifying...');
+            
+            try {
+                const resp = await fetch('/verify_otp', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ email: pendingRegistration.email, otp, ...pendingRegistration })
+                });
+                const data = await resp.json();
+                if (data.success) {
+                    alert('Registration successful!');
+                    switchState('login');
+                    pendingRegistration = null;
+                } else {
+                    alert(data.error);
+                }
+            } catch (err) {
+                alert('Network error');
+            }
+            hideLoading();
+        }
+
+        async function resendOTP() {
+            if (!pendingRegistration) return;
+            
+            showLoading('Resending OTP...');
+            
+            try {
+                const resp = await fetch('/send_otp', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ email: pendingRegistration.email })
+                });
+                const data = await resp.json();
+                if (data.success) {
+                    alert('OTP resent');
+                } else {
+                    alert(data.error);
+                }
+            } catch (err) {
+                alert('Network error');
+            }
+            hideLoading();
+        }
+
+        async function handleForgot(event) {
+            event.preventDefault();
+            const email = document.getElementById('forgot-email').value;
+            
+            showLoading('Sending reset link...');
+            
+            try {
+                const resp = await fetch('/forgot_password', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ email })
+                });
+                const data = await resp.json();
+                alert(data.message);
+            } catch (err) {
+                alert('Network error');
+            }
+            hideLoading();
+        }
+
+        function showLoading(text) {
+            const overlay = document.getElementById('loading-overlay');
+            const loadingText = document.getElementById('loading-text');
+            loadingText.innerText = text;
+            overlay.classList.remove('pointer-events-none');
+            overlay.classList.add('opacity-100');
+        }
+
+        function hideLoading() {
+            const overlay = document.getElementById('loading-overlay');
+            overlay.classList.remove('opacity-100');
+            overlay.classList.add('pointer-events-none');
+        }
+
+        function togglePassword(inputId) {
+            const input = document.getElementById(inputId);
+            const type = input.getAttribute('type') === 'password' ? 'text' : 'password';
+            input.setAttribute('type', type);
+        }
+    </script>
+</body>
+</html>

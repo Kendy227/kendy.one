@@ -1,0 +1,89 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Admin - Maintenance Mode</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap');
+        
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: #0f172a;
+            color: #f8fafc;
+        }
+
+        .glass-card {
+            background: rgba(17, 24, 39, 0.7);
+            backdrop-filter: blur(12px);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+        }
+    </style>
+</head>
+<body class="min-h-screen p-8">
+    <div class="max-w-4xl mx-auto">
+        <div class="mb-8">
+            <h1 class="text-3xl font-bold mb-2">Maintenance Mode Control</h1>
+            <p class="text-slate-400">Enable or disable maintenance mode for the entire application.</p>
+        </div>
+
+        <div class="glass-card p-8 rounded-2xl">
+            <div class="flex items-center justify-between mb-6">
+                <div>
+                    <h2 class="text-xl font-semibold mb-1">System Status</h2>
+                    <p class="text-slate-400 text-sm">Current maintenance mode status</p>
+                </div>
+                <div class="flex items-center gap-2">
+                    <div class="w-3 h-3 rounded-full {{ 'bg-green-500' if not maintenance_on else 'bg-red-500' }}"></div>
+                    <span class="text-sm font-medium {{ 'text-green-400' if not maintenance_on else 'text-red-400' }}">
+                        {{ 'Active' if maintenance_on else 'Normal' }}
+                    </span>
+                </div>
+            </div>
+
+            {% if maintenance_on %}
+            <div class="bg-red-500/10 border border-red-500/20 rounded-lg p-4 mb-6">
+                <div class="flex items-center gap-3">
+                    <svg class="w-5 h-5 text-red-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-2.5L13.732 4c-.77-.833-1.964-.833-2.732 0L3.732 16.5c-.77.833.192 2.5 1.732 2.5z"/>
+                    </svg>
+                    <div>
+                        <p class="text-red-400 font-medium">Maintenance Mode is Currently Active</p>
+                        <p class="text-red-300 text-sm">All non-admin users will see the maintenance page.</p>
+                    </div>
+                </div>
+            </div>
+            {% endif %}
+
+            <form method="post" class="space-y-4">
+                {% if not maintenance_on %}
+                <button type="submit" name="action" value="enable" 
+                        class="w-full bg-red-600 hover:bg-red-500 text-white font-bold py-3 px-6 rounded-lg transition-colors">
+                    Enable Maintenance Mode
+                </button>
+                {% else %}
+                <button type="submit" name="action" value="disable" 
+                        class="w-full bg-green-600 hover:bg-green-500 text-white font-bold py-3 px-6 rounded-lg transition-colors">
+                    Disable Maintenance Mode
+                </button>
+                {% endif %}
+            </form>
+
+            <div class="mt-8 p-4 bg-slate-800/50 rounded-lg">
+                <h3 class="text-lg font-semibold mb-2">What happens during maintenance mode?</h3>
+                <ul class="text-slate-400 text-sm space-y-1">
+                    <li>• All users (except admins) are redirected to a maintenance page</li>
+                    <li>• Admin panel remains accessible for system management</li>
+                    <li>• API endpoints may still function for critical operations</li>
+                    <li>• Use this for system updates, database maintenance, or emergency fixes</li>
+                </ul>
+            </div>
+        </div>
+
+        <div class="mt-8 text-center">
+            <a href="/admin" class="text-slate-400 hover:text-white transition-colors">← Back to Admin Dashboard</a>
+        </div>
+    </div>
+</body>
+</html>

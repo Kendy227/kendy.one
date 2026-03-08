@@ -1,0 +1,416 @@
+{% extends "admin/layout.html" %}
+
+{% block title %}Users Management{% endblock %}
+
+{% block page_title %}
+    <div class="d-flex justify-content-between align-items-center w-100">
+        <div class="d-flex align-items-center">
+            <h4 class="mb-0 me-4">Users Management</h4>
+            <div class="form-check form-switch mt-1" title="Automatically refresh page after saving changes">
+                <input class="form-check-input" type="checkbox" id="autoRefreshToggle" checked>
+                <label class="form-check-label small text-muted" for="autoRefreshToggle">Auto-Refresh</label>
+            </div>
+        </div>
+        <button class="btn btn-primary btn-sm px-3 shadow-sm" data-bs-toggle="modal" data-bs-target="#addUserModal">
+            <i class="fas fa-plus me-1"></i> Add User
+        </button>
+    </div>
+{% endblock %}
+
+{% block content %}
+<div class="container-fluid">
+    <div class="card mb-4 border-0 shadow-sm">
+        <div class="card-body p-3">
+            <form id="searchForm" method="GET" action="{{ url_for('admin_users') }}" class="row g-2 align-items-end">
+                <div class="col-md-8">
+                    <label class="form-label small fw-bold text-muted text-uppercase">Search Database</label>
+                    <div class="input-group">
+                        <span class="input-group-text bg-white border-end-0">
+                            <i class="fas fa-search text-muted"></i>
+                        </span>
+                        <input type="text" class="form-control border-start-0 ps-0" name="search" placeholder="Search by username, email, or phone..." value="{{ search }}">
+                    </div>
+                </div>
+                <div class="col-md-4 d-flex gap-2">
+                    <button type="submit" class="btn btn-primary flex-grow-1">
+                        Filter Results
+                    </button>
+                    <a href="{{ url_for('admin_users') }}" class="btn btn-light border text-secondary" title="Reset">
+                        <i class="fas fa-redo"></i>
+                    </a>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <div class="card border-0 shadow-sm">
+        <div class="card-body p-0">
+            <div class="table-responsive">
+                <table class="table table-hover align-middle mb-0">
+                    <thead class="bg-light">
+                        <tr>
+                            <th class="ps-3">ID</th>
+                            <th>User Details</th>
+                            <th>Phone</th>
+                            <th>Financials</th>
+                            <th>Account Type</th>
+                            <th>Orders</th>
+                            <th>Joined</th>
+                            <th class="text-end pe-3">Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for user in users %}
+                            <tr>
+                                <td class="ps-3 text-muted">#{{ user.id }}</td>
+                                <td>
+                                    <div class="fw-bold text-dark">{{ user.username }}</div>
+                                    <div class="small text-muted">{{ user.email or 'No email' }}</div>
+                                </td>
+                                <td>{{ user.phone or '—' }}</td>
+                                <td>
+                                    <div class="small"><span class="text-muted">₹ Bal:</span> ₹{{ "%.2f"|format(user.balance) }}</div>
+                                    <div class="small"><span class="text-muted">BRL Bal:</span> BRL{{ "%.2f"|format(user.brl_balance or 0) }}</div>
+                                    <div class="small"><span class="text-muted">KND:</span> {{ "%.2f"|format(user.knd_coin) }}</div>
+                                </td>
+                                <td>
+                                    {% if user.is_admin %}
+                                        <span class="badge rounded-pill bg-danger-soft text-danger border border-danger">Admin</span>
+                                    {% elif user.is_reseller %}
+                                        <span class="badge rounded-pill bg-info-soft text-info border border-info">Reseller</span>
+                                    {% else %}
+                                        <span class="badge rounded-pill bg-light text-dark border">User</span>
+                                    {% endif %}
+                                </td>
+                                <td>
+                                    <span class="badge bg-primary">{{ user.total_orders or 0 }}</span>
+                                </td>
+                                <td class="small">{{ user.created_at.strftime('%d %b %Y') }}</td>
+                                <td class="text-end pe-3">
+                                    <div class="btn-group">
+                                        <button class="btn btn-outline-primary btn-sm" onclick="editUser({{ user.id }})" title="Edit User">
+                                            <i class="fas fa-user-edit"></i>
+                                        </button>
+                                        <button class="btn btn-outline-warning btn-sm" onclick="viewBalance({{ user.id }})" title="Adjust Balance">
+                                            <i class="fas fa-wallet"></i>
+                                        </button>
+                                    </div>
+                                </td>
+                            </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+
+            {% if not users %}
+                <div class="text-center py-5">
+                    <img src="https://cdn-icons-png.flaticon.com/512/5087/5087579.png" width="60" class="opacity-25 mb-3">
+                    <p class="text-muted">No users found matching your search.</p>
+                </div>
+            {% endif %}
+
+            {% if total_pages > 1 %}
+            <div class="p-3 border-top">
+                <nav>
+                    <ul class="pagination pagination-sm justify-content-center mb-0">
+                        {% if page > 1 %}
+                            <li class="page-item"><a class="page-link" href="?page=1&search={{ search }}">First</a></li>
+                            <li class="page-item"><a class="page-link" href="?page={{ page - 1 }}&search={{ search }}"><i class="fas fa-chevron-left"></i></a></li>
+                        {% endif %}
+
+                        {% for p in range(max(1, page - 2), min(total_pages + 1, page + 3)) %}
+                            <li class="page-item {% if p == page %}active{% endif %}">
+                                <a class="page-link" href="?page={{ p }}&search={{ search }}">{{ p }}</a>
+                            </li>
+                        {% endfor %}
+
+                        {% if page < total_pages %}
+                            <li class="page-item"><a class="page-link" href="?page={{ page + 1 }}&search={{ search }}"><i class="fas fa-chevron-right"></i></a></li>
+                            <li class="page-item"><a class="page-link" href="?page={{ total_pages }}&search={{ search }}">Last</a></li>
+                        {% endif %}
+                    </ul>
+                </nav>
+            </div>
+            {% endif %}
+        </div>
+    </div>
+</div>
+
+<!-- Add User Modal -->
+<div class="modal fade" id="addUserModal" tabindex="-1">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content">
+            <div class="modal-header border-bottom">
+                <h5 class="modal-title"><i class="fas fa-user-plus me-2"></i>Add New User</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body">
+                <form id="addUserForm" class="row g-3">
+                    <div class="col-md-6">
+                        <label class="form-label small fw-bold">Username *</label>
+                        <input type="text" class="form-control" id="addUsername" required placeholder="Enter username">
+                    </div>
+                    <div class="col-md-6">
+                        <label class="form-label small fw-bold">Email *</label>
+                        <input type="email" class="form-control" id="addEmail" required placeholder="Enter email">
+                    </div>
+                    <div class="col-md-6">
+                        <label class="form-label small fw-bold">Phone</label>
+                        <input type="tel" class="form-control" id="addPhone" placeholder="Enter phone number">
+                    </div>
+                    <div class="col-md-6">
+                        <label class="form-label small fw-bold">Password *</label>
+                        <input type="password" class="form-control" id="addPassword" required placeholder="Enter password">
+                    </div>
+                    <div class="col-md-6">
+                        <label class="form-label small fw-bold">Balance (₹)</label>
+                        <input type="number" class="form-control" id="addBalance" placeholder="0.00" value="0.00" step="0.01">
+                    </div>
+                    <div class="col-md-6">
+                        <label class="form-label small fw-bold">Account Type</label>
+                        <select class="form-select" id="addUserType">
+                            <option value="0">Regular User</option>
+                            <option value="1">Reseller</option>
+                        </select>
+                    </div>
+                    <div class="col-12">
+                        <div class="form-check">
+                            <input class="form-check-input" type="checkbox" id="addIsAdmin">
+                            <label class="form-check-label" for="addIsAdmin">
+                                Admin User
+                            </label>
+                        </div>
+                    </div>
+                </form>
+            </div>
+            <div class="modal-footer border-top">
+                <button type="button" class="btn btn-light" data-bs-dismiss="modal">Cancel</button>
+                <button type="button" class="btn btn-primary" id="btnAddUser" onclick="addNewUser()">
+                    <span id="addUserSpinner" class="spinner-border spinner-border-sm me-2 d-none" role="status"></span>
+                    Add User
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Edit User Modal -->
+<div class="modal fade" id="editUserModal" tabindex="-1">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content">
+            <div class="modal-header border-bottom">
+                <h5 class="modal-title"><i class="fas fa-user-edit me-2"></i>Edit User</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body">
+                <form id="editUserForm" class="row g-3">
+                    <div class="col-md-6">
+                        <label class="form-label small fw-bold">Username</label>
+                        <input type="text" class="form-control" id="editUsername">
+                    </div>
+                    <div class="col-md-6">
+                        <label class="form-label small fw-bold">Email</label>
+                        <input type="email" class="form-control" id="editEmail">
+                    </div>
+                    <div class="col-md-6">
+                        <label class="form-label small fw-bold">Phone</label>
+                        <input type="tel" class="form-control" id="editPhone">
+                    </div>
+                    <div class="col-md-6">
+                        <label class="form-label small fw-bold">Password (leave blank to keep current)</label>
+                        <input type="password" class="form-control" id="editPassword" placeholder="Enter new password">
+                    </div>
+                    <div class="col-md-6">
+                        <label class="form-label small fw-bold">Balance (₹)</label>
+                        <input type="number" class="form-control" id="editBalance" step="0.01">
+                    </div>
+                    <div class="col-md-6">
+                        <label class="form-label small fw-bold">BRL Balance (Reseller)</label>
+                        <input type="number" class="form-control" id="editBrlBalance" step="0.01">
+                    </div>
+                    <div class="col-md-6">
+                        <label class="form-label small fw-bold">KND Coin</label>
+                        <input type="number" class="form-control" id="editKndCoin" step="0.01">
+                    </div>
+                    <div class="col-md-6">
+                        <label class="form-label small fw-bold">Account Type</label>
+                        <select class="form-select" id="editUserType">
+                            <option value="0">Regular User</option>
+                            <option value="1">Reseller</option>
+                        </select>
+                    </div>
+                    <div class="col-12">
+                        <div class="form-check">
+                            <input class="form-check-input" type="checkbox" id="editIsAdmin">
+                            <label class="form-check-label" for="editIsAdmin">
+                                Admin User
+                            </label>
+                        </div>
+                    </div>
+                </form>
+            </div>
+            <div class="modal-footer border-top">
+                <button type="button" class="btn btn-light" data-bs-dismiss="modal">Cancel</button>
+                <button type="button" class="btn btn-primary" id="btnSaveEdit" onclick="saveUserChanges()">
+                    <span id="saveEditSpinner" class="spinner-border spinner-border-sm me-2 d-none" role="status"></span>
+                    Save Changes
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+
+{% endblock %}
+
+{% block extra_js %}
+<script>
+let currentEditUserId = null;
+
+function handleActionSuccess(modalId) {
+    const shouldRefresh = document.getElementById('autoRefreshToggle').checked;
+    const modalElement = document.getElementById(modalId);
+    const modalInstance = bootstrap.Modal.getInstance(modalElement) || new bootstrap.Modal(modalElement);
+
+    if (shouldRefresh) {
+        setTimeout(() => {
+            location.reload();
+        }, 500);
+    } else {
+        modalInstance.hide();
+    }
+}
+
+function setBtnLoading(btnId, spinnerId, isLoading) {
+    const btn = document.getElementById(btnId);
+    const spinner = document.getElementById(spinnerId);
+    if (!btn || !spinner) return;
+    
+    btn.disabled = isLoading;
+    isLoading ? spinner.classList.remove('d-none') : spinner.classList.add('d-none');
+}
+
+// Add New User
+function addNewUser() {
+    setBtnLoading('btnAddUser', 'addUserSpinner', true);
+    
+    const data = {
+        username: document.getElementById('addUsername').value,
+        email: document.getElementById('addEmail').value,
+        phone: document.getElementById('addPhone').value || null,
+        password: document.getElementById('addPassword').value,
+        balance: parseFloat(document.getElementById('addBalance').value) || 0.00,
+        is_reseller: parseInt(document.getElementById('addUserType').value),
+        is_admin: document.getElementById('addIsAdmin').checked ? 1 : 0
+    };
+    
+    fetch('/api/admin/user', {
+        method: 'POST',
+        headers: {'Content-Type': 'application/json'},
+        body: JSON.stringify(data)
+    })
+    .then(r => r.json())
+    .then(response => {
+        setBtnLoading('btnAddUser', 'addUserSpinner', false);
+        if (response.success) {
+            alert('User added successfully!');
+            document.getElementById('addUserForm').reset();
+            handleActionSuccess('addUserModal');
+        } else {
+            alert('Error: ' + response.error);
+        }
+    })
+    .catch(err => {
+        setBtnLoading('btnAddUser', 'addUserSpinner', false);
+        console.error(err);
+        alert('An error occurred');
+    });
+}
+
+// Edit User
+function editUser(userId) {
+    currentEditUserId = userId;
+    fetch(`/api/admin/user/${userId}`)
+        .then(r => r.json())
+        .then(data => {
+            if (data.success) {
+                const user = data.user;
+                document.getElementById('editUsername').value = user.username;
+                document.getElementById('editEmail').value = user.email;
+                document.getElementById('editPhone').value = user.phone || '';
+                document.getElementById('editPassword').value = '';
+                document.getElementById('editBalance').value = user.balance;
+                document.getElementById('editBrlBalance').value = user.brl_balance || 0;
+                document.getElementById('editKndCoin').value = user.knd_coin;
+                document.getElementById('editUserType').value = user.is_reseller;
+                document.getElementById('editIsAdmin').checked = user.is_admin;
+                
+                let modal = new bootstrap.Modal(document.getElementById('editUserModal'));
+                modal.show();
+            } else {
+                alert('Error loading user: ' + data.error);
+            }
+        })
+        .catch(err => {
+            console.error(err);
+            alert('Error loading user');
+        });
+}
+
+function saveUserChanges() {
+    setBtnLoading('btnSaveEdit', 'saveEditSpinner', true);
+    
+    const data = {
+        username: document.getElementById('editUsername').value,
+        email: document.getElementById('editEmail').value,
+        phone: document.getElementById('editPhone').value || null,
+        password: document.getElementById('editPassword').value || null,
+        balance: parseFloat(document.getElementById('editBalance').value),
+        brl_balance: parseFloat(document.getElementById('editBrlBalance').value),
+        knd_coin: parseFloat(document.getElementById('editKndCoin').value),
+        is_reseller: parseInt(document.getElementById('editUserType').value),
+        is_admin: document.getElementById('editIsAdmin').checked ? 1 : 0
+    };
+    
+    fetch(`/api/admin/user/${currentEditUserId}`, {
+        method: 'PUT',
+        headers: {'Content-Type': 'application/json'},
+        body: JSON.stringify(data)
+    })
+    .then(r => r.json())
+    .then(response => {
+        setBtnLoading('btnSaveEdit', 'saveEditSpinner', false);
+        if (response.success) {
+            alert('User updated successfully!');
+            handleActionSuccess('editUserModal');
+        } else {
+            alert('Error: ' + response.error);
+        }
+    })
+    .catch(err => {
+        setBtnLoading('btnSaveEdit', 'saveEditSpinner', false);
+        console.error(err);
+        alert('An error occurred');
+    });
+}
+
+// Balance adjustment
+function viewBalance(userId) {
+    alert('Balance adjustment feature coming soon');
+}
+</script>
+
+<style>
+    .bg-danger-soft { background-color: rgba(220, 53, 69, 0.1); }
+    .bg-info-soft { background-color: rgba(13, 202, 240, 0.1); }
+    .table thead th { 
+        font-size: 0.75rem; 
+        text-transform: uppercase; 
+        letter-spacing: 0.5px; 
+        font-weight: 700;
+        color: #6c757d;
+        border-top: none;
+    }
+    .btn-group .btn { border-radius: 8px !important; margin: 0 2px; }
+    .card { border-radius: 12px; overflow: hidden; }
+</style>
+{% endblock %}

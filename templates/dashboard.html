@@ -1,0 +1,533 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <link rel="icon" href="https://kendyenterprises.in/image/logo-knd.png">
+    <title>Kendy Enterprises | Dashboard</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap');
+
+        :root {
+            --primary: #00FFAA;
+            --glass-bg: rgba(255, 255, 255, 0.03);
+            --glass-border: rgba(255, 255, 255, 0.1);
+        }
+
+        body {
+            font-family: 'Inter', sans-serif;
+            background: #000000;
+            color: #FFFFFF;
+            min-height: 100vh;
+            overflow-x: hidden;
+        }
+
+        /* Animated Background Orbs */
+        .orb {
+            position: fixed;
+            border-radius: 50%;
+            filter: blur(100px);
+            z-index: -1;
+            animation: float 25s infinite alternate ease-in-out;
+        }
+        .orb-1 { width: 500px; height: 500px; background: rgba(0, 255, 170, 0.1); top: -200px; left: -100px; }
+        .orb-2 { width: 400px; height: 400px; background: rgba(255, 0, 255, 0.08); bottom: -100px; right: -50px; }
+
+        @keyframes float {
+            0% { transform: translate(0, 0) scale(1); }
+            100% { transform: translate(50px, 100px) scale(1.1); }
+        }
+
+        .glass-panel {
+            background: var(--glass-bg);
+            backdrop-filter: blur(16px);
+            border: 1px solid var(--glass-border);
+            border-radius: 20px;
+        }
+
+        .sidebar-link {
+            transition: all 0.3s ease;
+            position: relative;
+        }
+
+        .sidebar-link.active {
+            background: rgba(99, 102, 241, 0.15);
+            color: #818cf8;
+        }
+
+        .sidebar-link.active::before {
+            content: '';
+            position: absolute;
+            left: 0;
+            top: 20%;
+            height: 60%;
+            width: 4px;
+            background: var(--primary);
+            border-radius: 0 4px 4px 0;
+        }
+
+        .sidebar-link:not(.active):hover {
+            background: rgba(255, 255, 255, 0.05);
+        }
+
+        .tab-content {
+            display: none;
+            animation: fadeIn 0.4s ease-out forwards;
+        }
+
+        .tab-content.active {
+            display: block;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .status-badge {
+            padding: 4px 10px;
+            border-radius: 99px;
+            font-size: 11px;
+            font-weight: 600;
+        }
+
+        .status-success { background: rgba(16, 185, 129, 0.1); color: #34d399; border: 1px solid rgba(16, 185, 129, 0.2); }
+        .status-pending { background: rgba(245, 158, 11, 0.1); color: #fbbf24; border: 1px solid rgba(245, 158, 11, 0.2); }
+        .status-processing { background: rgba(59, 130, 246, 0.1); color: #60a5fa; border: 1px solid rgba(59, 130, 246, 0.2); }
+        .status-failed { background: rgba(239, 68, 68, 0.1); color: #f87171; border: 1px solid rgba(239, 68, 68, 0.2); }
+        .status-refunded { background: rgba(139, 69, 19, 0.1); color: #a16207; border: 1px solid rgba(139, 69, 19, 0.2); }
+
+        .badge-role {
+            padding: 2px 8px;
+            border-radius: 6px;
+            font-size: 10px;
+            font-weight: 700;
+            text-transform: uppercase;
+        }
+
+        /* Custom Scrollbar */
+        ::-webkit-scrollbar { width: 6px; }
+        ::-webkit-scrollbar-track { background: transparent; }
+        ::-webkit-scrollbar-thumb { background: rgba(255, 255, 255, 0.1); border-radius: 10px; }
+    </style>
+</head>
+<body class="min-h-screen pb-12">
+    {% include 'header.html' %}
+
+    <div class="orb orb-1"></div>
+    <div class="orb orb-2"></div>
+
+    <div class="max-w-7xl mx-auto flex flex-col lg:flex-row gap-8">
+        
+        <!-- SIDEBAR -->
+        <aside class="w-full lg:w-72 space-y-4">
+            <!-- User Profile Glass -->
+            <div class="glass-panel p-6">
+                <div class="flex items-center space-x-4 mb-4">
+                    <img src="https://api.dicebear.com/7.x/avataaars/svg?seed={{ user.username if user.username else 'user' }}" class="w-14 h-14 rounded-2xl bg-indigo-500/20 p-1 border border-white/10">
+                    <div class="overflow-hidden">
+                        <h2 class="font-bold text-sm truncate">{{ user.username if user.username else 'User' }}</h2>
+                        <div class="flex gap-1 mt-1 flex-wrap">
+                            {% if user.is_admin %}
+                            <span class="badge-role bg-indigo-500/20 text-indigo-400 border border-indigo-500/30">Administrator</span>
+                            {% endif %}
+                            {% if user.is_reseller %}
+                            <span class="badge-role bg-emerald-500/20 text-emerald-400 border border-emerald-500/30">Verified Reseller</span>
+                            {% endif %}
+                            {% if not user.is_admin and not user.is_reseller %}
+                            <span class="badge-role bg-slate-500/20 text-slate-400 border border-slate-500/30">Member</span>
+                            {% endif %}
+                        </div>
+                    </div>
+                </div>
+                <div class="pt-4 border-t border-white/5">
+                    <p class="text-[10px] uppercase text-slate-500 font-bold tracking-widest mb-1">Current Balance</p>
+                    <div class="flex items-end justify-between">
+                        <h3 class="text-2xl font-bold"><span id="dashCurrencySymbol">{% if user.is_reseller %}BRL{% else %}₹{% endif %}</span>{{ "%.2f"|format(user.brl_balance if user.is_reseller else (user.balance if user.balance else 0.00)) }}</h3>
+                        <button onclick="window.location.href='/add_fund'" class="text-xs text-indigo-400 hover:text-indigo-300 transition-colors">Top Up</button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Navigation Menu -->
+            <nav class="glass-panel overflow-hidden py-2">
+                <button onclick="showTab('dashboard')" id="btn-dashboard" class="sidebar-link active w-full flex items-center space-x-3 px-6 py-4 text-sm font-medium">
+                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2H6a2 2 0 01-2-2V6zM14 6a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2V6zM4 16a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2H6a2 2 0 01-2-2v-2zM14 16a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2v-2z"/></svg>
+                    <span>Overview</span>
+                </button>
+                <button onclick="showTab('orders')" id="btn-orders" class="sidebar-link w-full flex items-center space-x-3 px-6 py-4 text-sm font-medium">
+                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 11V7a4 4 0 00-8 0v4M5 9h14l1 12H4L5 9z"/></svg>
+                    <span>My Orders</span>
+                </button>
+                <button onclick="showTab('transactions')" id="btn-transactions" class="sidebar-link w-full flex items-center space-x-3 px-6 py-4 text-sm font-medium">
+                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
+                    <span>Transactions</span>
+                </button>
+                <button onclick="showTab('profile')" id="btn-profile" class="sidebar-link w-full flex items-center space-x-3 px-6 py-4 text-sm font-medium">
+                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z"/><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/></svg>
+                    <span>Settings</span>
+                </button>
+                <div class="border-t border-white/5 my-2"></div>
+                <button onclick="window.location.href='/logout'" class="sidebar-link w-full flex items-center space-x-3 px-6 py-4 text-sm font-medium text-rose-400 hover:bg-rose-500/10">
+                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1"/></svg>
+                    <span>Sign Out</span>
+                </button>
+            </nav>
+        </aside>
+
+        <!-- CONTENT -->
+        <main class="flex-1 space-y-6">
+            
+            <!-- OVERVIEW TAB -->
+            <section id="dashboard" class="tab-content active space-y-6">
+                <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+                    <div class="glass-panel p-6 flex flex-col justify-between h-32">
+                        <span class="text-xs font-bold text-slate-500 uppercase tracking-widest">Total Orders</span>
+                        <div class="flex justify-between items-end">
+                            <h4 class="text-3xl font-bold">{{ stats.total_orders if stats else 0 }}</h4>
+                            <span class="text-xs text-emerald-400 font-medium">+{{ "%.1f"|format(stats.monthly_growth if stats and stats.monthly_growth else 0) }}% vs last month</span>
+                        </div>
+                    </div>
+                    <div class="glass-panel p-6 flex flex-col justify-between h-32">
+                        <span class="text-xs font-bold text-slate-500 uppercase tracking-widest">Total Spent</span>
+                        <div class="flex justify-between items-end">
+                            <h4 class="text-3xl font-bold">{% if user.is_reseller %}BRL{% else %}₹{% endif %}{{ "%.2f"|format(stats.total_spent if stats and stats.total_spent else 0.00) }}</h4>
+                            <span class="text-xs text-indigo-400 font-medium">Avg. {% if user.is_reseller %}BRL{% else %}₹{% endif %}{{ "%.2f"|format(stats.avg_order if stats and stats.avg_order else 0.00) }}/order</span>
+                        </div>
+                    </div>
+                    <div class="glass-panel p-6 flex flex-col justify-between h-32">
+                        <span class="text-xs font-bold text-slate-500 uppercase tracking-widest">Pending Orders</span>
+                        <div class="flex justify-between items-end">
+                            <h4 class="text-3xl font-bold">{{ stats.pending_orders if stats else 0 }}</h4>
+                            <div class="w-8 h-8 rounded-full bg-amber-500/20 flex items-center justify-center">
+                                <div class="w-2 h-2 rounded-full bg-amber-500 animate-pulse"></div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="glass-panel overflow-hidden">
+                    <div class="p-6 border-b border-white/5 flex justify-between items-center">
+                        <h3 class="font-bold">Latest Orders</h3>
+                        <button onclick="showTab('orders')" class="text-xs text-indigo-400 hover:underline">View All</button>
+                    </div>
+                    <div class="overflow-x-auto">
+                        <table class="w-full text-left text-sm">
+                            <thead class="bg-white/5 text-slate-500 text-[10px] uppercase font-bold tracking-widest">
+                                <tr>
+                                    <th class="px-6 py-4">Product</th>
+                                    <th class="px-6 py-4">User ID</th>
+                                    <th class="px-6 py-4">Price</th>
+                                    <th class="px-6 py-4">Status</th>
+                                    <th class="px-6 py-4">Date</th>
+                                </tr>
+                            </thead>
+                            <tbody class="divide-y divide-white/5">
+                                {% if recent_orders %}
+                                {% for order in recent_orders %}
+                                <tr>
+                                    <td class="px-6 py-4 font-medium">{{ order.product_name }}</td>
+                                    <td class="px-6 py-4 text-slate-400">{{ order.userid }}{% if order.zoneid %} ({{ order.zoneid }}){% endif %}</td>
+                                    <td class="px-6 py-4">{% if user.is_reseller %}BRL{% else %}₹{% endif %}{{ "%.2f"|format(order.price) }}</td>
+                                    <td class="px-6 py-4">
+                                        <span class="status-badge status-{{ order.status }}">
+                                            {{ order.status.title() }}
+                                        </span>
+                                    </td>
+                                    <td class="px-6 py-4 text-slate-500">
+                                        {% if order.create_date %}
+                                        {{ order.create_date.strftime('%b %d, %I:%M %p') }}
+                                        {% else %}
+                                        Unknown
+                                        {% endif %}
+                                    </td>
+                                </tr>
+                                {% endfor %}
+                                {% else %}
+                                <tr>
+                                    <td colspan="5" class="px-6 py-8 text-center text-slate-500">No orders found</td>
+                                </tr>
+                                {% endif %}
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </section>
+
+            <!-- ORDERS TAB -->
+            <section id="orders" class="tab-content space-y-6">
+                <div class="glass-panel p-6 flex flex-col md:flex-row gap-4 items-center justify-between">
+                    <h3 class="text-xl font-bold">Order History</h3>
+                    <div class="flex gap-2 w-full md:w-auto">
+                        <input type="text" placeholder="Search Product or ID..." class="bg-black/20 border border-white/10 rounded-xl px-4 py-2 text-sm focus:outline-none focus:border-indigo-500 w-full" id="order-search">
+                    </div>
+                </div>
+                
+                <div class="glass-panel overflow-hidden">
+                    <table class="w-full text-left text-sm">
+                        <thead class="bg-white/5 text-slate-500 text-[10px] uppercase font-bold tracking-widest">
+                            <tr>
+                                <th class="px-6 py-4">ID</th>
+                                <th class="px-6 py-4">Target Details</th>
+                                <th class="px-6 py-4">Product</th>
+                                <th class="px-6 py-4">Amount</th>
+                                <th class="px-6 py-4">Status</th>
+                            </tr>
+                        </thead>
+                        <tbody class="divide-y divide-white/5" id="orders-table">
+                            {% if all_orders %}
+                            {% for order in all_orders %}
+                            <tr class="hover:bg-white/5 transition-colors order-row">
+                                <td class="px-6 py-4 font-mono text-xs text-slate-500">#ORD-{{ order.id }}</td>
+                                <td class="px-6 py-4">
+                                    <div class="text-xs">ID: <span class="text-slate-200">{{ order.userid }}</span></div>
+                                    {% if order.zoneid %}
+                                    <div class="text-[10px] text-slate-500">Zone: {{ order.zoneid }}</div>
+                                    {% endif %}
+                                </td>
+                                <td class="px-6 py-4">{{ order.product_name }}</td>
+                                <td class="px-6 py-4 font-bold text-indigo-400">{% if user.is_reseller %}BRL{% else %}₹{% endif %}{{ "%.2f"|format(order.price) }}</td>
+                                <td class="px-6 py-4">
+                                    <span class="status-badge status-{{ order.status }}">
+                                        {{ order.status.title() }}
+                                    </span>
+                                </td>
+                            </tr>
+                            {% endfor %}
+                            {% else %}
+                            <tr>
+                                <td colspan="5" class="px-6 py-8 text-center text-slate-500">No orders found</td>
+                            </tr>
+                            {% endif %}
+                        </tbody>
+                    </table>
+                </div>
+            </section>
+
+            <!-- TRANSACTIONS TAB -->
+            <section id="transactions" class="tab-content space-y-6">
+                <div class="glass-panel p-8">
+                    <h3 class="text-xl font-bold mb-1">Financial Ledger</h3>
+                    <p class="text-slate-400 text-sm mb-6">Detailed list of wallet credits and debits.</p>
+                    
+                    <div class="space-y-4">
+                        {% if transactions %}
+                        {% for transaction in transactions %}
+                        <div class="glass-panel p-4 flex items-center justify-between hover:bg-white/5 transition-all">
+                            <div class="flex items-center gap-4">
+                                <div class="w-10 h-10 rounded-full {{ 'bg-emerald-500/10 text-emerald-400' if transaction.txn_type == 'credit' else 'bg-rose-500/10 text-rose-400' }} flex items-center justify-center">
+                                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="{{ 'M12 9v3m0 0v3m0-3h3m-3 0H9m12 0a9 9 0 11-18 0 9 9 0 0118 0z' if transaction.txn_type == 'credit' else 'M15 12H9m12 0a9 9 0 11-18 0 9 9 0 0118 0z' }}"/>
+                                    </svg>
+                                </div>
+                                <div>
+                                    <h5 class="text-sm font-semibold">{{ transaction.description or ('Wallet Credit' if transaction.txn_type == 'credit' else 'Service Purchase') }}</h5>
+                                    <p class="text-[10px] text-slate-500 font-mono">
+                                        {% if transaction.reference_id %}REF: {{ transaction.reference_id }}{% endif %}
+                                        {% if transaction.utr %}UTR: {{ transaction.utr }}{% endif %}
+                                    </p>
+                                </div>
+                            </div>
+                            <div class="text-right">
+                                <p class="text-sm font-bold {{ 'text-emerald-400' if transaction.txn_type == 'credit' else 'text-slate-200' }}">
+                                    {{ '+' if transaction.txn_type == 'credit' else '-' }}{% if user.is_reseller %}BRL{% else %}₹{% endif %}{{ "%.2f"|format(transaction.amount) }}
+                                </p>
+                                <p class="text-[10px] text-slate-500">
+                                    {% if transaction.created_at %}
+                                    {{ transaction.created_at.strftime('%b %d, %Y') }}
+                                    {% else %}
+                                    Unknown
+                                    {% endif %}
+                                </p>
+                            </div>
+                        </div>
+                        {% endfor %}
+                        {% else %}
+                        <div class="text-center py-8 text-slate-500">
+                            <p>No transactions found</p>
+                        </div>
+                        {% endif %}
+                    </div>
+                </div>
+            </section>
+
+            <!-- SETTINGS TAB -->
+            <section id="profile" class="tab-content space-y-6">
+                <!-- Profile Information -->
+                <div class="glass-panel p-8">
+                    <h3 class="text-xl font-bold mb-2">Account Information</h3>
+                    <p class="text-slate-400 text-sm mb-6">Your Referrer ID: <span class="text-cyan-400 font-mono font-bold">#{{ user.referrer_id }}</span></p>
+                    
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                        <div class="space-y-2">
+                            <label class="text-[10px] font-bold text-slate-500 uppercase">Email Address</label>
+                            <input type="email" id="dash-email" value="{{ user.email or '' }}" class="bg-black/20 border border-white/10 rounded-xl px-4 py-3 text-sm w-full focus:outline-none focus:border-indigo-500">
+                        </div>
+                        <div class="space-y-2">
+                            <label class="text-[10px] font-bold text-slate-500 uppercase">Phone Number</label>
+                            <input type="tel" id="dash-phone" value="{{ user.phone or '' }}" class="bg-black/20 border border-white/10 rounded-xl px-4 py-3 text-sm w-full focus:outline-none focus:border-indigo-500">
+                        </div>
+                    </div>
+                    <div class="mt-6 pt-6 border-t border-white/5 flex justify-end">
+                        <button onclick="saveDashboardProfile()" class="bg-indigo-600 hover:bg-indigo-500 text-white px-8 py-3 rounded-xl font-bold text-sm transition-all">Save Changes</button>
+                    </div>
+                </div>
+
+                <!-- Security Settings -->
+                <div class="glass-panel p-8">
+                    <h3 class="text-xl font-bold mb-6">Security Settings</h3>
+                    <p class="text-slate-400 text-sm mb-6">Update your password to keep your account safe.</p>
+                    
+                    <div class="space-y-6 max-w-md">
+                        <div class="space-y-2">
+                            <label class="text-xs font-semibold text-slate-500 uppercase">Current Password</label>
+                            <input type="password" id="dash-current-password" placeholder="••••••••" class="bg-black/20 border border-white/10 rounded-xl px-4 py-3 text-sm w-full focus:outline-none focus:border-indigo-500">
+                        </div>
+                        <div class="space-y-2">
+                            <label class="text-xs font-semibold text-slate-500 uppercase">New Password</label>
+                            <div class="flex gap-2">
+                                <input type="password" id="dash-new-password" placeholder="••••••••" class="bg-black/20 border border-white/10 rounded-xl px-4 py-3 text-sm flex-1 focus:outline-none focus:border-indigo-500">
+                                <button onclick="toggleDashPasswordVisibility()" class="bg-indigo-600 hover:bg-indigo-500 text-white px-4 py-3 rounded-xl text-sm font-bold transition-all flex items-center justify-center">
+                                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"/></svg>
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="mt-8 flex justify-end">
+                        <button onclick="updateDashboardPassword()" class="bg-indigo-600 hover:bg-indigo-500 text-white px-8 py-3 rounded-xl font-bold text-sm transition-all">Update Password</button>
+                    </div>
+                </div>
+            </section>
+
+        </main>
+    </div>
+{% include 'footer.html' %}
+    <script>
+        const dashboardOriginalValues = {
+            email: document.getElementById('dash-email')?.value || '',
+            phone: document.getElementById('dash-phone')?.value || ''
+        };
+
+        function showTab(tabId) {
+            document.querySelectorAll('.tab-content').forEach(tab => tab.classList.remove('active'));
+            document.querySelectorAll('.sidebar-link').forEach(btn => btn.classList.remove('active'));
+            document.getElementById(tabId).classList.add('active');
+            document.getElementById('btn-' + tabId).classList.add('active');
+        }
+
+        // Search functionality for orders
+        document.getElementById('order-search')?.addEventListener('input', function() {
+            const searchTerm = this.value.toLowerCase();
+            const rows = document.querySelectorAll('.order-row');
+            
+            rows.forEach(row => {
+                const text = row.textContent.toLowerCase();
+                row.style.display = text.includes(searchTerm) ? '' : 'none';
+            });
+        });
+
+        function saveDashboardProfile() {
+            const email = document.getElementById('dash-email').value.trim();
+            const phone = document.getElementById('dash-phone').value.trim();
+
+            const updates = {};
+            
+            if (email !== dashboardOriginalValues.email && email !== '') {
+                updates.email = email;
+            }
+            if (phone !== dashboardOriginalValues.phone && phone !== '') {
+                updates.phone = phone;
+            }
+
+            if (Object.keys(updates).length === 0) {
+                alert('No changes to save');
+                return;
+            }
+
+            fetch('/api/update_account', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify(updates)
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    alert('Profile updated successfully!');
+                    if (updates.email) dashboardOriginalValues.email = email;
+                    if (updates.phone) dashboardOriginalValues.phone = phone;
+                } else {
+                    alert('Error: ' + (data.error || 'Failed to update profile'));
+                }
+            })
+            .catch(error => {
+                console.error('Error:', error);
+                alert('Error updating profile');
+            });
+        }
+
+        function toggleDashPasswordVisibility() {
+            const input = document.getElementById('dash-new-password');
+            const btn = event.target.closest('button');
+            
+            if (input.type === 'password') {
+                input.type = 'text';
+                btn.classList.add('bg-rose-600', 'hover:bg-rose-500');
+                btn.classList.remove('bg-indigo-600', 'hover:bg-indigo-500');
+            } else {
+                input.type = 'password';
+                btn.classList.remove('bg-rose-600', 'hover:bg-rose-500');
+                btn.classList.add('bg-indigo-600', 'hover:bg-indigo-500');
+            }
+        }
+
+        function updateDashboardPassword() {
+            const currentPassword = document.getElementById('dash-current-password').value.trim();
+            const newPassword = document.getElementById('dash-new-password').value.trim();
+
+            if (!currentPassword || !newPassword) {
+                alert('Please enter both current and new password');
+                return;
+            }
+
+            if (newPassword.length < 6) {
+                alert('New password must be at least 6 characters long');
+                return;
+            }
+
+            if (currentPassword === newPassword) {
+                alert('New password must be different from current password');
+                return;
+            }
+
+            fetch('/api/update_password', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({
+                    current_password: currentPassword,
+                    new_password: newPassword
+                })
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    alert('Password updated successfully!');
+                    document.getElementById('dash-current-password').value = '';
+                    document.getElementById('dash-new-password').value = '';
+                } else {
+                    alert('Error: ' + (data.error || 'Failed to update password'));
+                }
+            })
+            .catch(error => {
+                console.error('Error:', error);
+                alert('Error updating password');
+            });
+        }
+    </script>
+</body>
+</html>

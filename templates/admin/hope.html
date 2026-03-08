@@ -1,0 +1,172 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Hopestore Services</title>
+    <style>
+      body{font-family: Arial, Helvetica, sans-serif;padding:20px}
+      .controls{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:12px}
+      input,select{padding:6px;border:1px solid #ccc;border-radius:4px}
+      table{width:100%;border-collapse:collapse;margin-top:12px}
+      th,td{padding:8px;border:1px solid #eee;text-align:left}
+      th{background:#f6f6f6}
+      .muted{color:#666;font-size:0.9em}
+      .error{color:#b00}
+    </style>
+  </head>
+  <body>
+    <h1>Hopestore Services</h1>
+
+    <div class="controls">
+      <input id="search" placeholder="Search service name or id" />
+      <select id="category">
+        <option value="">All Categories</option>
+      </select>
+      <input id="min_price" type="number" placeholder="Min price" min="0" />
+      <input id="max_price" type="number" placeholder="Max price" min="0" />
+      <select id="sort">
+        <option value="">Sort</option>
+        <option value="price_asc">Price ↑</option>
+        <option value="price_desc">Price ↓</option>
+        <option value="name_asc">Name A→Z</option>
+        <option value="name_desc">Name Z→A</option>
+      </select>
+      <button id="refresh">Refresh</button>
+    </div>
+
+    <div id="status" class="muted">Click Refresh to load services.</div>
+    <div id="error" class="error" style="display:none"></div>
+
+    <div style="overflow:auto">
+      <table id="services_table">
+        <thead>
+          <tr id="table_head"><th>Service ID</th><th>Nama Layanan</th><th>Kategori</th><th>Harga</th><th>Harga Gold</th><th>Harga Silver</th><th>Harga Pro</th><th>Status</th></tr>
+        </thead>
+        <tbody id="services_body"></tbody>
+      </table>
+    </div>
+
+  <script>
+    let services = [];
+
+    function renderTable(list){
+      const tbody = document.getElementById('services_body');
+      tbody.innerHTML = '';
+      if(!list.length){
+        document.getElementById('status').textContent = 'No services to display.';
+        return;
+      }
+
+      document.getElementById('status').textContent = `Showing ${list.length} services.`;
+
+      for(const s of list){
+        const tr = document.createElement('tr');
+        // Hopestore API field mappings (Indonesian)
+        const serviceId = s.id || s.service || s.service_id || '';
+        const name = s.nama_layanan || s.name || s.service_name || '';
+        const category = s.kategori || s.category || s.type || '';
+        const price = (s.harga !== undefined) ? s.harga : (s.price || s.amount || '');
+        const harga_gold = (s.harga_gold !== undefined) ? s.harga_gold : '';
+        const harga_silver = (s.harga_silver !== undefined) ? s.harga_silver : '';
+        const harga_pro = (s.harga_pro !== undefined) ? s.harga_pro : '';
+        const status = s.status || '';
+
+        tr.innerHTML = `<td>${escapeHtml(serviceId)}</td>
+            <td>${escapeHtml(name)}</td>
+            <td>${escapeHtml(category)}</td>
+            <td>${escapeHtml(price)}</td>
+            <td>${escapeHtml(harga_gold)}</td>
+            <td>${escapeHtml(harga_silver)}</td>
+            <td>${escapeHtml(harga_pro)}</td>
+            <td>${escapeHtml(status)}</td>`;
+        tbody.appendChild(tr);
+      }
+    }
+
+    function escapeHtml(str){
+      if(str === null || str === undefined) return '';
+      return String(str)
+        .replace(/&/g, '&amp;')
+        .replace(/</g, '&lt;')
+        .replace(/>/g, '&gt;')
+        .replace(/"/g, '&quot;')
+        .replace(/'/g, '&#039;');
+    }
+
+    function populateFilters(list){
+      const catSet = new Set();
+      for(const s of list){
+        const c = s.kategori || s.category || s.type || s.group || '';
+        if(c) catSet.add(c);
+      }
+      const sel = document.getElementById('category');
+      // keep first option
+      sel.innerHTML = '<option value="">All Categories</option>';
+      Array.from(catSet).sort().forEach(c=>{
+        const opt = document.createElement('option'); opt.value = c; opt.textContent = c; sel.appendChild(opt);
+      });
+    }
+
+    function applyFilters(){
+      const q = document.getElementById('search').value.trim().toLowerCase();
+      const cat = document.getElementById('category').value;
+      const min = parseFloat(document.getElementById('min_price').value || '0');
+      const maxRaw = document.getElementById('max_price').value;
+      const max = maxRaw ? parseFloat(maxRaw) : null;
+      const sort = document.getElementById('sort').value;
+
+      let filtered = services.filter(s=>{
+        const name = (s.nama_layanan || s.name || s.service_name || s.product_name || s.title || '').toString().toLowerCase();
+        const id = (s.id || s.service || s.service_id || s.code || '').toString().toLowerCase();
+        const catVal = (s.kategori || s.category || s.type || s.group || '').toString();
+        const priceVal = parseFloat(s.harga !== undefined ? s.harga : (s.price || s.harga || s.amount || 0)) || 0;
+
+        if(q && !(name.includes(q) || id.includes(q))) return false;
+        if(cat && catVal !== cat) return false;
+        if(!isNaN(min) && priceVal < min) return false;
+        if(max !== null && priceVal > max) return false;
+        return true;
+      });
+
+      if(sort === 'price_asc') filtered.sort((a,b)=> (parseFloat(a.harga||a.price||a.amount||0) - parseFloat(b.harga||b.price||b.amount||0)) );
+      if(sort === 'price_desc') filtered.sort((a,b)=> (parseFloat(b.harga||b.price||b.amount||0) - parseFloat(a.harga||a.price||a.amount||0)) );
+      if(sort === 'name_asc') filtered.sort((a,b)=> ( (a.nama_layanan||a.name||a.product_name||a.service_name||'').localeCompare(b.nama_layanan||b.name||b.product_name||b.service_name||'') ));
+      if(sort === 'name_desc') filtered.sort((a,b)=> ( (b.nama_layanan||b.name||b.product_name||b.service_name||'').localeCompare(a.nama_layanan||a.name||a.product_name||a.service_name||'') ));
+
+      renderTable(filtered);
+    }
+
+    async function fetchServices(){
+      document.getElementById('status').textContent = 'Loading services...';
+      document.getElementById('error').style.display = 'none';
+      try{
+        const resp = await fetch('/admin/hope-fetch');
+        if(!resp.ok) throw new Error('Network response was not ok');
+        const data = await resp.json();
+        if(!data.success){
+          throw new Error(data.message || 'Failed to fetch services');
+        }
+        services = data.services || [];
+        populateFilters(services);
+        applyFilters();
+      }catch(err){
+        document.getElementById('status').textContent = '';
+        const eDiv = document.getElementById('error');
+        eDiv.style.display = 'block';
+        eDiv.textContent = err.message || 'Error fetching services';
+      }
+    }
+
+    document.getElementById('refresh').addEventListener('click', ()=>fetchServices());
+    document.getElementById('search').addEventListener('input', applyFilters);
+    document.getElementById('category').addEventListener('change', applyFilters);
+    document.getElementById('min_price').addEventListener('input', applyFilters);
+    document.getElementById('max_price').addEventListener('input', applyFilters);
+    document.getElementById('sort').addEventListener('change', applyFilters);
+
+    // initial auto-load
+    fetchServices();
+  </script>
+  </body>
+ </html>

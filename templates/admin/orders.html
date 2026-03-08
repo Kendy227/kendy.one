@@ -1,0 +1,269 @@
+{% extends "admin/layout.html" %}
+
+{% block title %}Orders Management{% endblock %}
+
+{% block page_title %}
+    <div class="d-flex justify-content-between align-items-center w-100">
+        <div class="d-flex align-items-center">
+            <h4 class="mb-0">Orders Management</h4>
+            <div class="form-check form-switch ms-4 bg-white border rounded-pill px-3 py-1 shadow-sm">
+                <input class="form-check-input mt-1" type="checkbox" id="autoRefreshToggle" checked style="cursor: pointer;">
+                <label class="form-check-label small fw-bold text-primary" for="autoRefreshToggle" style="cursor: pointer;">Sync on Save</label>
+            </div>
+        </div>
+        <div class="text-muted small">
+            <i class="fas fa-info-circle me-1"></i> Managing {{ orders|length }} orders in this view
+        </div>
+    </div>
+{% endblock %}
+
+{% block content %}
+<div class="container-fluid">
+    <div class="card mb-4 border-0 shadow-sm" style="border-radius: 15px;">
+        <div class="card-header bg-white py-3 border-0">
+            <h6 class="mb-0 fw-bold"><i class="fas fa-filter me-2 text-primary"></i>Advanced Filters</h6>
+        </div>
+        <div class="card-body pt-0">
+            <form id="filterForm" method="GET" action="{{ url_for('admin_orders') }}" class="row g-3">
+                <div class="col-md-2">
+                    <label class="form-label small fw-bold text-muted text-uppercase">Status</label>
+                    <select class="form-select border-0 bg-light shadow-none" name="status" onchange="this.form.submit()">
+                        <option value="all" {% if status_filter == 'all' %}selected{% endif %}>All Orders</option>
+                        <option value="pending" {% if status_filter == 'pending' %}selected{% endif %}>Pending</option>
+                        <option value="processing" {% if status_filter == 'processing' %}selected{% endif %}>Processing</option>
+                        <option value="success" {% if status_filter == 'success' %}selected{% endif %}>Success</option>
+                        <option value="failed" {% if status_filter == 'failed' %}selected{% endif %}>Failed</option>
+                    </select>
+                </div>
+                
+                <div class="col-md-3">
+                    <label class="form-label small fw-bold text-muted text-uppercase">Customer</label>
+                    <input type="text" class="form-control border-0 bg-light shadow-none" name="user_filter" placeholder="Search name or email..." value="{{ user_filter }}">
+                </div>
+                
+                <div class="col-md-3">
+                    <label class="form-label small fw-bold text-muted text-uppercase">Product</label>
+                    <input type="text" class="form-control border-0 bg-light shadow-none" name="product_filter" placeholder="Search product name..." value="{{ product_filter }}">
+                </div>
+                
+                <div class="col-md-2">
+                    <label class="form-label small fw-bold text-muted text-uppercase">From</label>
+                    <input type="date" class="form-control border-0 bg-light shadow-none" name="start_date" value="{{ start_date }}">
+                </div>
+                
+                <div class="col-md-2">
+                    <label class="form-label small fw-bold text-muted text-uppercase">To</label>
+                    <input type="date" class="form-control border-0 bg-light shadow-none" name="end_date" value="{{ end_date }}">
+                </div>
+                
+                <div class="col-12 d-flex justify-content-end gap-2 mt-3">
+                    <a href="{{ url_for('admin_orders') }}" class="btn btn-light rounded-pill px-4">Reset</a>
+                    <button type="submit" class="btn btn-primary rounded-pill px-4">Apply Filters</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <div class="card border-0 shadow-sm" style="border-radius: 15px;">
+        <div class="card-body p-0">
+            <div class="table-responsive">
+                <table class="table table-hover align-middle mb-0">
+                    <thead class="bg-light text-muted small text-uppercase fw-bold">
+                        <tr>
+                            <th class="ps-4">Order ID</th>
+                            <th>Customer</th>
+                            <th>Product Info</th>
+                            <th>Payment Method</th>
+                            <th>Revenue</th>
+                            <th>Status</th>
+                            <th>Created At</th>
+                            <th class="text-center pe-4">Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for order in orders %}
+                        <tr>
+                            <td class="ps-4 fw-bold text-primary">#{{ order.id }}</td>
+                            <td>
+                                <div class="fw-bold text-dark">{{ order.username }}</div>
+                                <div class="text-muted x-small" style="font-size: 0.75rem;">{{ order.email }}</div>
+                            </td>
+                            <td>
+                                <div class="small fw-medium">{{ order.product_name }}</div>
+                                <div class="text-muted x-small" style="font-size: 0.75rem;">ID: {{ order.userid }} {% if order.zoneid %}({{ order.zoneid }}){% endif %}</div>
+                            </td>
+                            <td>
+                                <span class="fw-bold">{{ order.payment_method_name or 'N/A' }}</span>
+                            </td>
+                            <td><span class="fw-bold">₹{{ "%.2f"|format(order.price) }}</span></td>
+                            <td>
+                                <span class="badge badge-status bg-{{ 'success' if order.status == 'success' else 'warning' if order.status == 'pending' else 'info' if order.status == 'processing' else 'danger' }}-soft text-{{ 'success' if order.status == 'success' else 'warning' if order.status == 'pending' else 'info' if order.status == 'processing' else 'danger' }}">
+                                    {{ order.status|upper }}
+                                </span>
+                            </td>
+                            <td class="small text-muted">{{ order.create_date.strftime('%d %b, %H:%M') if order.create_date else 'N/A' }}</td>
+                            <td class="text-center pe-4">
+                                <div class="btn-group btn-group-sm rounded-pill overflow-hidden border shadow-sm">
+                                    <button class="btn btn-white text-info px-3" onclick="viewOrderDetails('{{ order.id }}')" title="View Details">
+                                        <i class="fas fa-eye"></i>
+                                    </button>
+                                    <button class="btn btn-white text-warning px-3 border-start" onclick="updateOrderStatus('{{ order.id }}')" title="Update Status">
+                                        <i class="fas fa-sync-alt"></i>
+                                    </button>
+                                </div>
+                            </td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+
+            {% if not orders %}
+            <div class="text-center py-5">
+                <img src="https://cdn-icons-png.flaticon.com/512/4076/4076432.png" style="width: 60px; opacity: 0.2;" alt="Empty">
+                <p class="mt-3 text-muted">No orders found matching your criteria.</p>
+            </div>
+            {% endif %}
+        </div>
+        
+        <div class="card-footer bg-white py-3 border-0">
+            {% if total_pages > 1 %}
+            <nav>
+                <ul class="pagination pagination-sm justify-content-center mb-0">
+                    {% for p in range(max(1, page - 2), min(total_pages + 1, page + 3)) %}
+                        <li class="page-item {% if p == page %}active{% endif %}">
+                            <a class="page-link shadow-none" href="?page={{ p }}&status={{ status_filter }}&user_filter={{ user_filter }}&product_filter={{ product_filter }}&start_date={{ start_date }}&end_date={{ end_date }}">{{ p }}</a>
+                        </li>
+                    {% endfor %}
+                </ul>
+            </nav>
+            {% endif %}
+        </div>
+    </div>
+</div>
+
+<div class="modal fade" id="updateOrderModal" tabindex="-1">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content border-0 shadow-lg" style="border-radius: 20px;">
+            <div class="modal-header border-0 pb-0">
+                <h5 class="modal-title fw-bold">Modify Status</h5>
+                <button type="button" class="btn-close shadow-none" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body">
+                <div class="mb-4">
+                    <label class="form-label small text-muted text-uppercase fw-bold">Order Reference</label>
+                    <input type="text" class="form-control border-0 bg-light text-primary fw-bold fs-5" id="orderIdDisplay" readonly>
+                </div>
+                
+                <div class="mb-3">
+                    <label class="form-label small text-muted text-uppercase fw-bold">Set New Status</label>
+                    <select class="form-select border-0 bg-light shadow-none p-3" id="newOrderStatus" required>
+                        <option value="pending">PENDING</option>
+                        <option value="processing">PROCESSING</option>
+                        <option value="success">SUCCESS</option>
+                        <option value="failed">FAILED</option>
+                        <option value="refunded">REFUNDED</option>
+                    </select>
+                </div>
+
+                <div class="alert alert-soft-warning border-0 small d-flex align-items-center mb-0">
+                    <i class="fas fa-info-circle me-3 fs-4"></i>
+                    <div>"Refunded" status will auto-credit the order amount back to the customer's wallet balance.</div>
+                </div>
+            </div>
+            <div class="modal-footer border-0">
+                <button type="button" class="btn btn-light rounded-pill px-4" data-bs-dismiss="modal">Cancel</button>
+                <button type="button" class="btn btn-primary rounded-pill px-4" id="btnUpdateStatus" onclick="saveOrderStatus()">
+                    <span class="spinner-border spinner-border-sm d-none" id="updateSpinner"></span>
+                    Save Changes
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<style>
+    .bg-success-soft { background-color: rgba(40, 167, 69, 0.1); }
+    .text-success { color: #28a745 !important; }
+    .bg-warning-soft { background-color: rgba(255, 193, 7, 0.1); }
+    .text-warning { color: #ffc107 !important; }
+    .bg-info-soft { background-color: rgba(23, 162, 184, 0.1); }
+    .text-info { color: #17a2b8 !important; }
+    .bg-danger-soft { background-color: rgba(220, 53, 69, 0.1); }
+    .text-danger { color: #dc3545 !important; }
+    .alert-soft-warning { background-color: #fff3cd; color: #856404; }
+    .badge-status { padding: 0.5em 1em; border-radius: 6px; font-weight: 700; font-size: 0.65rem; }
+    .btn-white { background: #fff; border: none; }
+    .btn-white:hover { background: #f8f9fa; }
+</style>
+
+{% endblock %}
+
+{% block extra_js %}
+<script>
+let currentOrderId = null;
+
+document.addEventListener('DOMContentLoaded', () => {
+    // Persistent Toggle State
+    const toggle = document.getElementById('autoRefreshToggle');
+    const savedPref = localStorage.getItem('order_auto_refresh');
+    if (savedPref !== null) toggle.checked = savedPref === 'true';
+
+    toggle.addEventListener('change', (e) => {
+        localStorage.setItem('order_auto_refresh', e.target.checked);
+    });
+});
+
+function handleActionSuccess(modalId) {
+    const shouldRefresh = document.getElementById('autoRefreshToggle').checked;
+    if (shouldRefresh) {
+        setTimeout(() => { location.reload(); }, 600);
+    } else {
+        const modal = bootstrap.Modal.getInstance(document.getElementById(modalId));
+        if (modal) modal.hide();
+    }
+}
+
+function updateOrderStatus(orderId) {
+    currentOrderId = orderId;
+    document.getElementById('orderIdDisplay').value = `#${orderId}`;
+    new bootstrap.Modal(document.getElementById('updateOrderModal')).show();
+}
+
+function saveOrderStatus() {
+    const newStatus = document.getElementById('newOrderStatus').value;
+    const btn = document.getElementById('btnUpdateStatus');
+    const spinner = document.getElementById('updateSpinner');
+
+    btn.disabled = true;
+    spinner.classList.remove('d-none');
+
+    fetch(`/api/admin/order/${currentOrderId}`, {
+        method: 'PUT',
+        headers: {'Content-Type': 'application/json'},
+        body: JSON.stringify({ status: newStatus })
+    })
+    .then(r => r.json())
+    .then(data => {
+        btn.disabled = false;
+        spinner.classList.add('d-none');
+        if (data.success) {
+            if (window.showToast) window.showToast('Order Updated!', 'success');
+            handleActionSuccess('updateOrderModal');
+        } else {
+            alert('Error: ' + data.error);
+        }
+    })
+    .catch(err => {
+        btn.disabled = false;
+        spinner.classList.add('d-none');
+        console.error(err);
+    });
+}
+
+function viewOrderDetails(orderId) {
+    // Implement detailed view logic if needed, or redirect
+    window.location.href = `/admin/order/view/${orderId}`;
+}
+</script>
+{% endblock %}

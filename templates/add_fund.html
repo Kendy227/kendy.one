@@ -1,0 +1,507 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Xtreme-topup | Add Fund</title>
+    <link rel="icon" href="https://kendyenterprises.in/image/logo-knd.png">
+    <script src="https://cdn.tailwindcss.com"></script>
+<style>
+    /* Local Variable Definitions for consistency */
+    :root {
+        --primary: #3b82f6;
+        --primary-soft: rgba(59, 130, 246, 0.1);
+        --primary-glow: rgba(59, 130, 246, 0.4);
+        --glass-border: rgba(255, 255, 255, 0.05);
+        --slate-400: #94a3b8;
+        --slate-200: #e2e8f0;
+    }
+
+    .deposit-container {
+        max-width: 800px;
+        margin: 40px auto;
+        padding: 0 20px 4rem 20px;
+    }
+
+    .page-header {
+        margin-bottom: 2rem;
+        text-align: center;
+    }
+
+    .page-header h1 {
+        font-size: 2rem;
+        font-weight: 800;
+        color: white;
+        margin-bottom: 0.5rem;
+    }
+
+    .page-header p {
+        color: var(--slate-400);
+        font-size: 0.95rem;
+    }
+
+    .glass-card {
+        background: rgba(17, 24, 39, 0.7);
+        backdrop-filter: blur(12px);
+        border: 1px solid var(--glass-border);
+        border-radius: 24px;
+        padding: 2rem;
+        margin-bottom: 1.5rem;
+    }
+
+    .section-title {
+        font-size: 1rem;
+        font-weight: 600;
+        color: white;
+        margin-bottom: 1.5rem;
+        display: flex;
+        align-items: center;
+        gap: 10px;
+    }
+
+    .section-title i {
+        color: var(--primary);
+    }
+
+    .amount-grid {
+        display: grid;
+        grid-template-columns: repeat(3, 1fr);
+        gap: 12px;
+        margin-bottom: 1.5rem;
+    }
+
+    .amount-btn {
+        background: rgba(255, 255, 255, 0.03);
+        border: 1px solid var(--glass-border);
+        color: var(--slate-200);
+        padding: 15px 5px;
+        border-radius: 14px;
+        font-weight: 700;
+        cursor: pointer;
+        transition: all 0.2s ease;
+        text-align: center;
+    }
+
+    .amount-btn:hover {
+        border-color: var(--primary);
+        background: var(--primary-soft);
+    }
+
+    .amount-btn.selected {
+        background: var(--primary);
+        border-color: var(--primary);
+        color: white;
+        box-shadow: 0 4px 20px var(--primary-glow);
+    }
+
+    .input-wrapper {
+        position: relative;
+    }
+
+    .input-wrapper i {
+        position: absolute;
+        left: 16px;
+        top: 50%;
+        transform: translateY(-50%);
+        color: var(--primary);
+    }
+
+    .custom-input {
+        width: 100%;
+        background: rgba(7, 11, 20, 0.8);
+        border: 1px solid var(--glass-border);
+        padding: 16px 16px 16px 45px;
+        border-radius: 14px;
+        color: white;
+        font-size: 1.1rem;
+        font-weight: 600;
+        transition: 0.3s;
+    }
+
+    .custom-input:focus {
+        outline: none;
+        border-color: var(--primary);
+        box-shadow: 0 0 0 4px var(--primary-soft);
+    }
+
+    .method-card {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        background: rgba(7, 11, 20, 0.5);
+        border: 1px solid var(--glass-border);
+        padding: 1.25rem;
+        border-radius: 18px;
+        margin-bottom: 1.5rem;
+        cursor: pointer;
+        transition: all 0.3s ease;
+    }
+
+    .method-card:hover {
+        border-color: var(--primary);
+        background: rgba(59, 130, 246, 0.03);
+    }
+
+    .method-card.active {
+        border-color: var(--primary);
+        background: rgba(59, 130, 246, 0.1);
+    }
+
+    .method-info {
+        display: flex;
+        align-items: center;
+        gap: 15px;
+    }
+
+    .method-icon {
+        width: 50px;
+        height: 50px;
+        background: white;
+        border-radius: 12px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        padding: 6px;
+    }
+
+    .deposit-btn {
+        width: 100%;
+        background: linear-gradient(135deg, #3b82f6, #2563eb);
+        color: white;
+        border: none;
+        padding: 18px;
+        border-radius: 16px;
+        font-size: 1rem;
+        font-weight: 800;
+        cursor: pointer;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        gap: 12px;
+        transition: 0.3s;
+        box-shadow: 0 10px 25px rgba(37, 99, 235, 0.3);
+    }
+
+    .deposit-btn:hover {
+        transform: translateY(-3px);
+        filter: brightness(1.1);
+    }
+
+    .info-box {
+        background: rgba(59, 130, 246, 0.05);
+        border: 1px solid rgba(59, 130, 246, 0.1);
+        border-radius: 16px;
+        padding: 1.25rem;
+        margin-top: 2rem;
+    }
+
+    .info-box ul {
+        list-style: none;
+        font-size: 0.85rem;
+        color: var(--slate-400);
+        margin: 0;
+        padding: 0;
+    }
+
+    .info-box li {
+        margin-bottom: 10px;
+        display: flex;
+        gap: 12px;
+        line-height: 1.4;
+    }
+
+    .info-box i {
+        color: #3b82f6;
+        margin-top: 2px;
+    }
+
+    @media (max-width: 640px) {
+        .amount-grid { grid-template-columns: repeat(3, 1fr); }
+    }
+</style>
+<body>
+    {% include 'header.html' %}
+<div class="deposit-container">
+    <div class="page-header">
+        <h1>Add Funds</h1>
+        <p>Your current balance will be updated instantly.</p>
+    </div>
+
+    <form id="depositForm">
+        <div class="glass-card">
+            <h4 class="section-title"><i class="fas fa-coins"></i> Select Amount</h4>
+            {% if is_reseller %}
+            <p style="font-size: 0.85rem; color: var(--primary); margin-bottom: 1rem;">💰 Reseller Pricing</p>
+            <div class="amount-grid">
+                <div class="amount-btn" onclick="setAmount(100)">100 BRL</div>
+                <div class="amount-btn" onclick="setAmount(200)">200 BRL</div>
+                <div class="amount-btn" onclick="setAmount(500)">500 BRL</div>
+                <div class="amount-btn" onclick="setAmount(1500)">1500 BRL</div>
+            </div>
+            {% else %}
+            <div class="amount-grid">
+                <div class="amount-btn" onclick="setAmount(100)">₹100</div>
+                <div class="amount-btn" onclick="setAmount(500)">₹500</div>
+                <div class="amount-btn" onclick="setAmount(1000)">₹1000</div>
+                <div class="amount-btn" onclick="setAmount(2000)">₹2000</div>
+                <div class="amount-btn" onclick="setAmount(5000)">₹5000</div>
+                <div class="amount-btn" onclick="setAmount(10000)">₹10000</div>
+            </div>
+            {% endif %}
+
+            <div class="form-group">
+                <label style="display:block; margin-bottom: 10px; font-size: 0.85rem; color: var(--slate-400);">Or enter custom amount</label>
+                <div class="input-wrapper">
+                    {% if not is_reseller %}
+                    <i class="fas fa-indian-rupee-sign"></i>
+                    {% endif %}
+                    <input type="number" name="amount" id="amountInput" class="custom-input" placeholder="{% if is_reseller %}Min 100 - Max 1500 BRL{% else %}Min ₹1 - Max ₹50,000{% endif %}" min="1" max="50000" required>
+                </div>
+            </div>
+        </div>
+
+        <div class="glass-card">
+            <h4 class="section-title"><i class="fas fa-shield-halved"></i> Payment Method</h4>
+            
+            {% if not is_reseller %}
+            <div class="method-card active" onclick="selectPaymentMethod('upi')">
+                <div class="method-info">
+                    <div class="method-icon">
+                        <img src="https://kendyenterprises.in/image/UPI1.png" alt="UPI">
+                    </div>
+                    <div>
+                        <div style="font-weight: 700; color: white;">Instant UPI</div>
+                        <div style="font-size: 0.75rem; color: var(--slate-500);">
+                            GPay, PhonePe, Paytm
+                            (No extra charges)
+                        </div>
+                    </div>
+                </div>
+                <i class="fas fa-circle-check check-icon" style="color: var(--primary);"></i>
+            </div>
+            {% endif %}
+
+            {% if is_reseller %}
+            <div class="method-card active" onclick="selectPaymentMethod('soc')">
+                <div class="method-info">
+                    <div class="method-icon" style="background: #e8f5e9;">
+                        <i class="fas fa-bank" style="color: #4caf50; font-size: 1.5rem;"></i>
+                    </div>
+                    <div>
+                        <div style="font-weight: 700; color: white;">SOC</div>
+                        <div style="font-size: 0.75rem; color: var(--slate-500);">No extra fees</div>
+                    </div>
+                </div>
+                <i class="fas fa-circle-check check-icon" style="color: transparent;"></i>
+            </div>
+            {% endif %}
+
+            {% if is_reseller %}
+            <div id="socInputContainer" style="display: none; margin-top: 1.5rem; padding: 1.25rem; background: rgba(76, 175, 80, 0.05); border: 1px solid rgba(76, 175, 80, 0.2); border-radius: 14px;">
+                <label style="display:block; margin-bottom: 10px; font-size: 0.85rem; color: var(--slate-400);">
+                    <i class="fas fa-rectangle-list"></i> SOC
+                </label>
+                <div class="input-wrapper">
+                    <i class="fas fa-hashtag"></i>
+                    <input type="text" id="socReference" class="custom-input" placeholder="Enter SOC" maxlength="100">
+                </div>
+                <p style="font-size: 0.75rem; color: var(--slate-500); margin-top: 8px;">
+                    <i class="fas fa-info-circle"></i> Please enter the SOC
+                </p>
+            </div>
+            {% endif %}
+
+            <button type="submit" class="deposit-btn">
+                <span id="submitBtnText">Proceed to Pay</span> <i class="fas fa-arrow-right"></i>
+            </button>
+
+            <div class="info-box">
+                <ul>
+                    <li><i class="fas fa-circle-info"></i> Funds are usually added instantly after successful payment.</li>
+                    {% if is_reseller %}
+                    <li><i class="fas fa-circle-info"></i> SOC have no extra charges.</li>
+                    {% else %}
+                    <li><i class="fas fa-circle-info"></i> UPI payments have no extra charges.</li>
+                    {% endif %}
+                    <li><i class="fas fa-circle-info"></i> Contact support if balance is not updated within 10 minutes. Customer support available from 6 am to 11 pm daily</li>
+                    <li><i class="fas fa-circle-info"></i> Do not refresh the page during payment processing.</li>
+                </ul>
+            </div>
+        </div>
+    </form>
+</div>
+{% include 'footer.html' %}
+<script>
+    const isReseller = {{ 'true' if is_reseller else 'false' | safe }};
+    let selectedPaymentMethod = isReseller ? 'soc' : 'upi';
+
+    function setAmount(val, resellerVal = null) {
+        const input = document.getElementById('amountInput');
+        input.value = val;
+        // Update button styles
+        document.querySelectorAll('.amount-btn').forEach(btn => {
+            btn.classList.remove('selected');
+            if(btn.innerText.includes('₹' + val)) {
+                btn.classList.add('selected');
+            }
+        });
+        updateChargeDisplay();
+    }
+
+    function selectPaymentMethod(method) {
+        selectedPaymentMethod = method;
+        const socContainer = document.getElementById('socInputContainer');
+        const submitBtn = document.getElementById('submitBtnText');
+        
+        // Update visual selection
+        document.querySelectorAll('.method-card').forEach(card => {
+            card.classList.remove('active');
+            card.querySelector('.check-icon').style.color = 'transparent';
+        });
+        
+        event.currentTarget.classList.add('active');
+        event.currentTarget.querySelector('.check-icon').style.color = 'var(--primary)';
+        
+        // Show/hide SOC input based on selection (only for resellers)
+        if (method === 'soc' && isReseller) {
+            socContainer.style.display = 'block';
+            submitBtn.textContent = 'Submit Bank Transfer';
+        } else {
+            if (socContainer) socContainer.style.display = 'none';
+            submitBtn.textContent = 'Proceed to Pay';
+        }
+        
+        updateChargeDisplay();
+    }
+
+    function updateChargeDisplay() {
+        const amount = parseInt(document.getElementById('amountInput').value, 10);
+        const depositBtn = document.querySelector('.deposit-btn');
+        
+        if (!amount) return;
+        
+        if (selectedPaymentMethod === 'upi') {
+            if (isReseller) {
+                const charge = amount * 0.02;
+                const total = amount + charge;
+                depositBtn.title = `Amount: ₹${amount} + 2% charge: ₹${charge.toFixed(2)} = Total: ₹${total.toFixed(2)}`;
+            } else {
+                depositBtn.title = `Amount: ₹${amount} (No extra charges)`;
+            }
+        } else {
+            depositBtn.title = `Amount: ₹${amount} (No extra charges)`;
+        }
+    }
+
+    // Clear selection if user types manually
+    document.getElementById('amountInput').addEventListener('input', function() {
+        document.querySelectorAll('.amount-btn').forEach(btn => btn.classList.remove('selected'));
+        updateChargeDisplay();
+    });
+
+    // Intercept form submit for AJAX call to /api/create-kanglei-upi-order
+    document.getElementById('depositForm').addEventListener('submit', async function(e) {
+        e.preventDefault();
+        const amount = parseInt(document.getElementById('amountInput').value, 10);
+        
+        if (!amount || amount < 1 || amount > 50000) {
+            alert('Amount must be between ₹1 and ₹50,000.');
+            return;
+        }
+
+        // Validate SOC reference if using bank transfer
+        if (selectedPaymentMethod === 'soc') {
+            const socRef = document.getElementById('socReference').value.trim();
+            if (!socRef) {
+                alert('Please enter the SOC.');
+                return;
+            }
+        }
+
+        const btn = document.querySelector('.deposit-btn');
+        btn.disabled = true;
+        btn.innerHTML = 'Processing...';
+
+        // Helper to send create-order request
+        async function sendCreateOrder() {
+            const payload = {
+                amount: amount,
+                payment_method: selectedPaymentMethod
+            };
+            
+            if (selectedPaymentMethod === 'soc') {
+                payload.soc_reference = document.getElementById('socReference').value.trim();
+            }
+
+            const response = await fetch('/api/create-kanglei-upi-order', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'X-Requested-With': 'XMLHttpRequest'
+                },
+                body: JSON.stringify(payload)
+            });
+            return response.json();
+        }
+
+        let data = await sendCreateOrder();
+
+        // If backend says mobile required, prompt user to update and retry
+        if (data && data.success === false && data.message && data.message.toLowerCase().includes('mobile')) {
+            let newPhone = prompt('No mobile number found in your profile. Please enter your mobile number to update:');
+            if (!newPhone) {
+                btn.disabled = false;
+                btn.innerHTML = selectedPaymentMethod === 'soc' ? 'Submit Bank Transfer' : 'Proceed to Pay <i class="fas fa-arrow-right"></i>';
+                alert('Mobile number is required.');
+                return;
+            }
+            // Call endpoint to update user phone in DB
+            try {
+                const updateRes = await fetch('/update-mobile', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'X-Requested-With': 'XMLHttpRequest'
+                    },
+                    body: JSON.stringify({ phone: newPhone })
+                });
+                const updateData = await updateRes.json();
+                if (updateData.status === true) {
+                    // Retry order creation after updating phone
+                    data = await sendCreateOrder();
+                } else {
+                    btn.disabled = false;
+                    btn.innerHTML = selectedPaymentMethod === 'soc' ? 'Submit Bank Transfer' : 'Proceed to Pay <i class="fas fa-arrow-right"></i>';
+                    alert(updateData.message || 'Failed to update mobile number.');
+                    return;
+                }
+            } catch (err) {
+                btn.disabled = false;
+                btn.innerHTML = selectedPaymentMethod === 'soc' ? 'Submit Bank Transfer' : 'Proceed to Pay <i class="fas fa-arrow-right"></i>';
+                alert('Error updating mobile number. Please try again.');
+                return;
+            }
+        }
+
+        btn.disabled = false;
+        btn.innerHTML = selectedPaymentMethod === 'soc' ? 'Submit Bank Transfer <i class="fas fa-arrow-right"></i>' : 'Proceed to Pay <i class="fas fa-arrow-right"></i>';
+        
+        if (data.success === true) {
+            if (selectedPaymentMethod === 'soc') {
+                alert(data.message || 'Bank transfer details submitted successfully! You will receive a WhatsApp confirmation soon.');
+                // Clear form and reset
+                document.getElementById('depositForm').reset();
+                document.getElementById('socReference').value = '';
+                selectPaymentMethod('upi');
+            } else if (data.payment_url) {
+                window.location.href = data.payment_url;
+            }
+        } else if (data.payment_url) {
+            window.location.href = data.payment_url;
+        } else {
+            alert((data.message || data.error || 'Failed to create order.'));
+        }
+    });
+</script>
+</body>
+</html>

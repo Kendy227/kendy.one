@@ -1,0 +1,291 @@
+{% extends "admin/layout.html" %}
+
+{% block title %}Payment Methods Management{% endblock %}
+
+{% block page_title %}
+    <div class="d-flex justify-content-between align-items-center w-100">
+        <div class="d-flex align-items-center">
+            <h4 class="mb-0">Payment Gateways</h4>
+            <div class="form-check form-switch ms-4 bg-white border rounded-pill px-3 py-1 shadow-sm">
+                <input class="form-check-input mt-1" type="checkbox" id="autoRefreshToggle" checked style="cursor: pointer;">
+                <label class="form-check-label small fw-bold text-primary" for="autoRefreshToggle" style="cursor: pointer;">Live Sync</label>
+            </div>
+        </div>
+        <button class="btn btn-primary rounded-pill px-4 shadow-sm" data-bs-toggle="modal" data-bs-target="#addPaymentModal">
+            <i class="fas fa-plus-circle me-2"></i> Add Method
+        </button>
+    </div>
+{% endblock %}
+
+{% block content %}
+<div class="container-fluid">
+    <div class="row g-4">
+        {% for method in methods %}
+            <div class="col-xl-3 col-md-6">
+                <div class="card h-100 border-0 shadow-sm transition-hover" style="border-radius: 16px;">
+                    <div class="card-body p-4">
+                        <div class="d-flex justify-content-between align-items-start mb-3">
+                            <div class="icon-box bg-primary-soft text-primary rounded-3 p-3">
+                                <i class="fas fa-wallet fa-lg"></i>
+                            </div>
+                            <span class="badge rounded-pill {% if method.status == 1 %}bg-success-soft text-success{% else %}bg-danger-soft text-danger{% endif %} px-3 py-2">
+                                {% if method.status == 1 %}Active{% else %}Inactive{% endif %}
+                            </span>
+                        </div>
+                        
+                        <h5 class="fw-bold text-dark mb-1">{{ method.method_name }}</h5>
+                        <p class="text-muted small mb-3">System Gateway Provider</p>
+                        
+                        <div class="d-flex align-items-center text-muted x-small mt-auto">
+                            <i class="far fa-calendar-alt me-2"></i>
+                            <span>Created: {{ method.created_at.strftime('%d %b %Y') if method.created_at else 'N/A' }}</span>
+                        </div>
+                    </div>
+                    
+                    <div class="card-footer bg-light-50 border-0 p-3 rounded-bottom-16">
+                        <div class="row g-2">
+                            <div class="col-6">
+                                <button class="btn btn-white btn-sm w-100 border rounded-pill fw-bold text-info shadow-none" onclick="editPaymentMethod('{{ method.id }}')">
+                                    <i class="fas fa-edit me-1"></i> Edit
+                                </button>
+                            </div>
+                            <div class="col-6">
+                                <button class="btn btn-white btn-sm w-100 border rounded-pill fw-bold text-danger shadow-none" onclick="deletePaymentMethod('{{ method.id }}')">
+                                    <i class="fas fa-trash me-1"></i> Delete
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        {% endfor %}
+    </div>
+
+    {% if not methods %}
+        <div class="text-center py-5 mt-5">
+            <div class="bg-white d-inline-block p-5 rounded-circle shadow-sm mb-4">
+                <i class="fas fa-credit-card fa-4x text-light"></i>
+            </div>
+            <h4 class="text-muted">No Payment Methods Found</h4>
+            <p class="text-muted">Start by adding your first payment gateway provider.</p>
+        </div>
+    {% endif %}
+</div>
+
+<div class="modal fade" id="addPaymentModal" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content border-0 shadow-lg" style="border-radius: 20px;">
+            <div class="modal-header border-0 pb-0">
+                <h5 class="modal-title fw-bold" id="paymentModalTitle">Configure Gateway</h5>
+                <button type="button" class="btn-close shadow-none" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body p-4">
+                <form id="paymentForm">
+                    <div class="mb-4">
+                        <label class="form-label small fw-bold text-muted text-uppercase">Gateway Display Name</label>
+                        <input type="text" class="form-control border-0 bg-light p-3 shadow-none" id="methodName" placeholder="e.g., PhonePe UPI, Stripe, PayPal" required>
+                    </div>
+
+                    <div class="mb-4">
+                        <label class="form-label small fw-bold text-muted text-uppercase">BharatPe Merchant ID</label>
+                        <input type="text" class="form-control border-0 bg-light p-3 shadow-none" id="bharatpeMerchantId" placeholder="e.g., 62438063">
+                    </div>
+
+                    <div class="mb-4">
+                        <label class="form-label small fw-bold text-muted text-uppercase">BharatPe Token</label>
+                        <input type="text" class="form-control border-0 bg-light p-3 shadow-none" id="bharatpeToken" placeholder="API token">
+                    </div>
+
+                    <div class="mb-4">
+                        <label class="form-label small fw-bold text-muted text-uppercase">Gateway Image</label>
+                        <div class="input-group">
+                            <input type="file" class="form-control border-0 bg-light" id="methodImage" accept="image/*" />
+                        </div>
+                        <small class="text-muted d-block mt-2">
+                            <img id="imagePreview" src="" style="max-width: 100px; display: none; margin-top: 10px; border-radius: 6px;" />
+                        </small>
+                    </div>
+
+                    <div class="mb-4">
+                        <label class="form-label small fw-bold text-muted text-uppercase">Operation Status</label>
+                        <select class="form-select border-0 bg-light p-3 shadow-none" id="methodStatus" required>
+                            <option value="1">🟢 Online / Active</option>
+                            <option value="0">🔴 Offline / Maintenance</option>
+                        </select>
+                    </div>
+
+                    <div class="alert alert-soft-primary border-0 small d-flex mb-0">
+                        <i class="fas fa-shield-alt me-3 fs-4 mt-1"></i>
+                        <div>
+                            <strong>Admin Notice:</strong> Only "Active" methods will be visible to customers during the checkout process.
+                        </div>
+                    </div>
+                </form>
+            </div>
+            <div class="modal-footer border-0 p-4 pt-0">
+                <button type="button" class="btn btn-light rounded-pill px-4" data-bs-dismiss="modal">Cancel</button>
+                <button type="button" class="btn btn-primary rounded-pill px-4" id="btnSavePayment" onclick="savePaymentMethod()">
+                    <span class="spinner-border spinner-border-sm d-none" id="saveSpinner"></span>
+                    Apply Changes
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<style>
+    :root {
+        --primary-soft: rgba(78, 115, 223, 0.1);
+        --success-soft: rgba(28, 200, 138, 0.1);
+        --danger-soft: rgba(231, 74, 59, 0.1);
+        --alert-blue-soft: rgba(54, 185, 204, 0.15);
+    }
+    .transition-hover:hover { transform: translateY(-5px); transition: all 0.3s ease; }
+    .bg-primary-soft { background-color: var(--primary-soft); }
+    .bg-success-soft { background-color: var(--success-soft); }
+    .bg-danger-soft { background-color: var(--danger-soft); }
+    .alert-soft-primary { background-color: var(--alert-blue-soft); color: #2c7da0; }
+    .btn-white { background: #fff; }
+    .btn-white:hover { background: #f8f9fa; }
+    .rounded-bottom-16 { border-bottom-left-radius: 16px; border-bottom-right-radius: 16px; }
+    .x-small { font-size: 0.75rem; }
+</style>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+let currentEditPaymentId = null;
+
+document.addEventListener('DOMContentLoaded', () => {
+    // Persistent Toggle Logic
+    const toggle = document.getElementById('autoRefreshToggle');
+    const savedPref = localStorage.getItem('payment_auto_refresh');
+    
+    if (savedPref !== null) {
+        toggle.checked = savedPref === 'true';
+    }
+
+    toggle.addEventListener('change', (e) => {
+        localStorage.setItem('payment_auto_refresh', e.target.checked);
+    });
+});
+
+function handleActionSuccess(modalId) {
+    const shouldRefresh = document.getElementById('autoRefreshToggle').checked;
+    if (shouldRefresh) {
+        setTimeout(() => { location.reload(); }, 600);
+    } else {
+        const modalEl = document.getElementById(modalId);
+        const modal = bootstrap.Modal.getInstance(modalEl);
+        if (modal) modal.hide();
+    }
+}
+
+function setBtnLoading(isLoading) {
+    const btn = document.getElementById('btnSavePayment');
+    const spinner = document.getElementById('saveSpinner');
+    btn.disabled = isLoading;
+    isLoading ? spinner.classList.remove('d-none') : spinner.classList.add('d-none');
+}
+
+function editPaymentMethod(methodId) {
+    currentEditPaymentId = methodId;
+    fetch(`/api/admin/payment-method?id=${methodId}`)
+        .then(r => r.json())
+        .then(res => {
+            if (res.success) {
+                document.getElementById('methodName').value = res.data.method_name || '';
+                document.getElementById('bharatpeMerchantId').value = res.data.bharatpe_merchant_id || '';
+                document.getElementById('bharatpeToken').value = res.data.bharatpe_token || '';
+                document.getElementById('methodStatus').value = res.data.status || '1';
+                
+                // Handle image preview
+                const imagePreview = document.getElementById('imagePreview');
+                if (res.data.image) {
+                    imagePreview.src = res.data.image;
+                    imagePreview.style.display = 'block';
+                } else {
+                    imagePreview.style.display = 'none';
+                }
+                
+                // Clear file input
+                document.getElementById('methodImage').value = '';
+                
+                document.getElementById('paymentModalTitle').textContent = 'Modify Gateway';
+                new bootstrap.Modal(document.getElementById('addPaymentModal')).show();
+            }
+        });
+}
+
+function savePaymentMethod() {
+    setBtnLoading(true);
+    const formData = {
+        method_name: document.getElementById('methodName').value,
+        bharatpe_merchant_id: document.getElementById('bharatpeMerchantId').value,
+        bharatpe_token: document.getElementById('bharatpeToken').value,
+        status: parseInt(document.getElementById('methodStatus').value)
+    };
+    
+    // Handle image
+    const imageFile = document.getElementById('methodImage').files[0];
+    if (imageFile) {
+        const reader = new FileReader();
+        reader.onload = () => {
+            formData.image = reader.result;
+            sendFormData(formData);
+        };
+        reader.readAsDataURL(imageFile);
+    } else {
+        sendFormData(formData);
+    }
+}
+
+function sendFormData(formData) {
+    if (currentEditPaymentId) formData.id = currentEditPaymentId;
+
+    fetch('/api/admin/payment-method', {
+        method: currentEditPaymentId ? 'PUT' : 'POST',
+        headers: {'Content-Type': 'application/json'},
+        body: JSON.stringify(formData)
+    })
+    .then(r => r.json())
+    .then(data => {
+        setBtnLoading(false);
+        if (data.success) {
+            if (window.showToast) window.showToast('Configuration Saved', 'success');
+            handleActionSuccess('addPaymentModal');
+        } else {
+            alert('Error: ' + data.error);
+        }
+    })
+    .catch(err => {
+        setBtnLoading(false);
+        console.error(err);
+    });
+}
+
+function deletePaymentMethod(id) {
+    if (confirm('Permanently remove this payment gateway?')) {
+        fetch('/api/admin/payment-method', {
+            method: 'DELETE',
+            headers: {'Content-Type': 'application/json'},
+            body: JSON.stringify({ id: id })
+        }).then(() => location.reload());
+    }
+}
+
+// Image preview handler
+document.getElementById('methodImage')?.addEventListener('change', async function(e) {
+    const file = e.target.files[0];
+    if (file) {
+        const preview = document.getElementById('imagePreview');
+        const reader = new FileReader();
+        reader.onload = () => {
+            preview.src = reader.result;
+            preview.style.display = 'block';
+        };
+        reader.readAsDataURL(file);
+    }
+});
+</script>
+{% endblock %}

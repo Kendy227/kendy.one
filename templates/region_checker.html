@@ -1,0 +1,216 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <link rel="icon" href="https://kendyenterprises.in/image/logo-knd.png">
+    <title>Kendy Enterprises | Region Checker</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap');
+
+        :root {
+            --primary: #00FFAA;
+            --glass-bg: rgba(255, 255, 255, 0.03);
+            --glass-border: rgba(255, 255, 255, 0.1);
+        }
+
+        body {
+            font-family: 'Inter', sans-serif;
+            background: #000000;
+            color: #FFFFFF;
+            min-height: 100vh;
+        }
+
+        .center-wrapper {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            min-height: 100vh;
+        }
+
+        .orb {
+            position: fixed;
+            border-radius: 50%;
+            filter: blur(100px);
+            z-index: -1;
+        }
+        .orb-1 { width: 400px; height: 400px; background: rgba(0, 255, 170, 0.15); top: -100px; left: -100px; }
+        .orb-2 { width: 300px; height: 300px; background: rgba(255, 0, 255, 0.1); bottom: -50px; right: -50px; }
+
+        .glass-panel {
+            background: var(--glass-bg);
+            backdrop-filter: blur(16px);
+            border: 1px solid var(--glass-border);
+            border-radius: 24px;
+        }
+
+        .input-field {
+            background: rgba(0, 0, 0, 0.2);
+            border: 1px solid var(--glass-border);
+            transition: all 0.3s ease;
+        }
+
+        .input-field:focus {
+            border-color: var(--primary);
+            outline: none;
+            box-shadow: 0 0 0 2px rgba(0, 255, 170, 0.2);
+        }
+
+        #result-area {
+            display: none;
+            animation: slideUp 0.4s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+        }
+
+        @keyframes slideUp {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .loader {
+            width: 20px;
+            height: 20px;
+            border: 2px solid rgba(255, 255, 255, 0.1);
+            border-top-color: white;
+            border-radius: 50%;
+            display: none;
+            animation: spin 0.8s linear infinite;
+        }
+
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
+
+        .success-check {
+            color: #34d399;
+            animation: scaleIn 0.3s ease-out;
+        }
+
+        @keyframes scaleIn {
+            from { transform: scale(0.5); opacity: 0; }
+            to { transform: scale(1); opacity: 1; }
+        }
+    </style>
+</head>
+<body class="min-h-screen pb-12">
+    {% include 'header.html' %}
+
+    <div class="orb orb-1"></div>
+
+    <div class="max-w-6xl mx-auto"><br>
+        <div class="glass-panel p-8">
+            <div class="mb-8">
+                <h1 class="text-2xl font-bold bg-clip-text text-transparent bg-gradient-to-r from-white to-slate-400">Region Checker</h1>
+                <p class="text-slate-400 text-sm mt-1">Verify Game ID and Account Region</p>
+            </div>
+
+            <div class="space-y-5">
+                <!-- Inputs -->
+                <div class="space-y-2">
+                    <label class="text-[10px] font-bold text-slate-500 uppercase tracking-widest">User ID</label>
+                    <input type="text" id="userid" placeholder="e.g. 12345678" class="input-field w-full px-4 py-3.5 rounded-xl text-sm font-medium">
+                </div>
+
+                <div class="space-y-2">
+                    <label class="text-[10px] font-bold text-slate-500 uppercase tracking-widest">Zone ID</label>
+                    <input type="text" id="zoneid" placeholder="e.g. 1234" class="input-field w-full px-4 py-3.5 rounded-xl text-sm font-medium">
+                </div>
+
+                <button onclick="checkRegion()" id="check-btn" class="w-full bg-indigo-600 hover:bg-indigo-500 text-white py-4 rounded-xl font-bold text-sm transition-all flex items-center justify-center gap-2">
+                    <span id="btn-text">Check Region</span>
+                    <div class="loader" id="btn-loader"></div>
+                </button>
+            </div>
+
+            <!-- Result Card -->
+            <div id="result-area" class="mt-8 pt-8 border-t border-white/5">
+                <div class="bg-white/5 rounded-2xl p-6 border border-white/5 relative overflow-hidden">
+                    <div class="absolute top-0 right-0 p-4">
+                        <svg class="w-6 h-6 success-check" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M5 13l4 4L19 7"/></svg>
+                    </div>
+                    
+                    <h3 class="text-[10px] font-bold text-indigo-400 uppercase tracking-widest mb-4">Account Found</h3>
+                    
+                    <div class="space-y-4">
+                        <div class="flex justify-between items-center">
+                            <span class="text-xs text-slate-500">Username</span>
+                            <span class="text-sm font-bold text-white" id="res-username">-</span>
+                        </div>
+                        <div class="flex justify-between items-center">
+                            <span class="text-xs text-slate-500">User ID</span>
+                            <span class="text-sm font-mono text-slate-300" id="res-userid">-</span>
+                        </div>
+                        <div class="flex justify-between items-center">
+                            <span class="text-xs text-slate-500">Zone ID</span>
+                            <span class="text-sm font-mono text-slate-300" id="res-zoneid">-</span>
+                        </div>
+                        <div class="flex justify-between items-center pt-2 border-t border-white/5">
+                            <span class="text-xs text-slate-500">Country / Region</span>
+                            <div class="flex items-center gap-2">
+                                <span class="text-sm font-bold text-emerald-400" id="res-country">-</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <button class="w-full mt-4 bg-white/5 hover:bg-white/10 text-white py-3 rounded-xl font-semibold text-xs transition-all">
+                    Proceed to Top-up
+                </button>
+            </div>
+        </div>
+
+    </div>
+    </div>
+
+    {% include 'footer.html' %}
+    <script>
+        async function checkRegion() {
+            const uid = document.getElementById('userid').value.trim();
+            const zid = document.getElementById('zoneid').value.trim();
+            const btn = document.getElementById('check-btn');
+            const btnText = document.getElementById('btn-text');
+            const loader = document.getElementById('btn-loader');
+            const resultArea = document.getElementById('result-area');
+
+            if (!uid || !zid) {
+                document.getElementById('userid').classList.add('border-rose-500/50');
+                document.getElementById('zoneid').classList.add('border-rose-500/50');
+                setTimeout(() => {
+                    document.getElementById('userid').classList.remove('border-rose-500/50');
+                    document.getElementById('zoneid').classList.remove('border-rose-500/50');
+                }, 2000);
+                return;
+            }
+
+            // Show loading
+            btnText.style.opacity = '0.5';
+            loader.style.display = 'block';
+            btn.disabled = true;
+            resultArea.style.display = 'none';
+
+            try {
+                const response = await fetch(`/api/validasi?user_id=${encodeURIComponent(uid)}&server_id=${encodeURIComponent(zid)}`);
+                const data = await response.json();
+
+                if (data.status === 'success') {
+                    const result = data.result;
+                    document.getElementById('res-username').innerText = result.nickname || '-';
+                    document.getElementById('res-userid').innerText = result.id || uid;
+                    document.getElementById('res-zoneid').innerText = result.serverid || zid;
+                    document.getElementById('res-country').innerText = result.country || '-';
+                    resultArea.style.display = 'block';
+                } else {
+                    alert('Invalid ID Player or Server ID');
+                }
+            } catch (error) {
+                alert('Error checking region: ' + error.message);
+            } finally {
+                // Reset button
+                btnText.style.opacity = '1';
+                loader.style.display = 'none';
+                btn.disabled = false;
+            }
+        }
+    </script>
+</body>
+</html>

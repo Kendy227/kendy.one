@@ -1,0 +1,197 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, minimum-scale=1.0, user-scalable=no">
+    <link rel="icon" href="https://kendyenterprises.in/image/logo-knd.png">
+    <title>Order Status | Kendy Enterprises</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700&display=swap');
+
+        body {
+            font-family: 'Plus Jakarta Sans', sans-serif;
+            background-color: #000000;
+            color: #FFFFFF;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            min-height: 100vh;
+            margin: 0;
+            overflow: hidden;
+        }
+
+        /* Animated Background Glow */
+        .glow {
+            position: absolute;
+            width: 400px;
+            height: 400px;
+            background: radial-gradient(circle, rgba(0, 255, 170, 0.15) 0%, rgba(0,0,0,0) 70%);
+            border-radius: 50%;
+            z-index: -1;
+            filter: blur(60px);
+            animation: pulse 6s infinite alternate;
+        }
+
+        @keyframes pulse {
+            0% { transform: scale(1); opacity: 0.5; }
+            100% { transform: scale(1.2); opacity: 0.8; }
+        }
+
+        .glass-card {
+            background: rgba(17, 24, 39, 0.7);
+            backdrop-filter: blur(16px);
+            border: 1px solid rgba(255, 255, 255, 0.08);
+            border-radius: 28px;
+            box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.5);
+            width: 100%;
+            max-width: 400px;
+            padding: 40px;
+            text-align: center;
+            position: relative;
+        }
+
+        /* Modern Spinner */
+        .loader {
+            width: 64px;
+            height: 64px;
+            border: 4px solid rgba(59, 130, 246, 0.1);
+            border-left-color: #3b82f6;
+            border-radius: 50%;
+            display: inline-block;
+            animation: spin 1s linear infinite;
+        }
+
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
+
+        .status-icon {
+            font-size: 64px;
+            margin-bottom: 20px;
+            display: none;
+        }
+
+        .success-icon { color: #10b981; }
+        .error-icon { color: #ef4444; }
+
+        .order-pill {
+            background: rgba(59, 130, 246, 0.1);
+            border: 1px solid rgba(59, 130, 246, 0.2);
+            padding: 6px 16px;
+            border-radius: 100px;
+            font-family: monospace;
+            display: inline-block;
+            margin-top: 15px;
+            color: #60a5fa;
+            font-weight: 600;
+        }
+    </style>
+</head>
+<body>
+    <div class="glow"></div>
+    
+    <div class="glass-card">
+        <div id="loader-container">
+            <div class="loader mb-6"></div>
+        </div>
+
+        <div id="success-icon" class="status-icon success-icon">
+            <i class="fas fa-check-circle animate-bounce"></i>
+        </div>
+        <div id="error-icon" class="status-icon error-icon">
+            <i class="fas fa-times-circle"></i>
+        </div>
+
+        <h2 id="status-title" class="text-2xl font-bold mb-2">Processing</h2>
+        <p id="status-message" class="text-gray-400 text-sm leading-relaxed">
+            We are verifying your transaction with the bank. Please do not close this window.
+        </p>
+
+        <div id="order-container" class="mt-6">
+            <div class="text-[10px] uppercase tracking-widest text-gray-500 font-bold">Transaction ID</div>
+            <div id="order-id-display" class="order-pill">#{{ order_id }}</div>
+        </div>
+
+        <button id="refresh-btn" onclick="startPolling()" class="hidden w-full mt-8 bg-blue-600 hover:bg-blue-700 text-white font-bold py-3 rounded-xl transition-all active:scale-95">
+            <i class="fas fa-sync-alt mr-2"></i> Try Again
+        </button>
+    </div>
+
+    <script>
+        const orderId = "{{ order_id }}";
+        let pollingInterval = null;
+
+        const el = {
+            loader: document.getElementById('loader-container'),
+            successIcon: document.getElementById('success-icon'),
+            errorIcon: document.getElementById('error-icon'),
+            title: document.getElementById('status-title'),
+            message: document.getElementById('status-message'),
+            refreshBtn: document.getElementById('refresh-btn')
+        };
+
+        function updateUI(status) {
+            if (status === 'SUCCESS') {
+                el.loader.style.display = 'none';
+                el.successIcon.style.display = 'block';
+                el.errorIcon.style.display = 'none';
+                el.title.textContent = "Payment Success!";
+                el.title.classList.add('text-green-400');
+                el.message.textContent = "Your funds have been added. Redirecting to your dashboard...";
+                
+                if (pollingInterval) clearInterval(pollingInterval);
+                setTimeout(() => window.location.href = '/account', 2000);
+            } 
+            else if (status === 'FAILED') {
+                el.loader.style.display = 'none';
+                el.successIcon.style.display = 'none';
+                el.errorIcon.style.display = 'block';
+                el.title.textContent = "Payment Failed";
+                el.title.classList.add('text-red-400');
+                el.message.textContent = "We couldn't verify this transaction. If money was debited, it will be refunded within 24 hours.";
+                el.refreshBtn.classList.remove('hidden');
+                if (pollingInterval) clearInterval(pollingInterval);
+            }
+            else {
+                // Pending status
+                el.loader.style.display = 'block';
+                el.title.textContent = "Verifying Payment";
+                el.message.textContent = "Waiting for confirmation from UPI gateway...";
+            }
+        }
+
+        function checkOrderStatus() {
+            fetch(`/check-status/${orderId}`)
+                .then(res => res.json())
+                .then(data => {
+                    const s = data.status.toUpperCase();
+                    if (s === "COMPLETED" || s === "SUCCESS") {
+                        updateUI('SUCCESS');
+                    } else if (s === "PENDING") {
+                        updateUI('PENDING');
+                    } else {
+                        updateUI('FAILED');
+                    }
+                })
+                .catch(() => {
+                    updateUI('FAILED');
+                    el.message.textContent = "Connection lost. Please check your internet and try again.";
+                });
+        }
+
+        function startPolling() {
+            el.refreshBtn.classList.add('hidden');
+            el.errorIcon.style.display = 'none';
+            el.loader.style.display = 'block';
+            el.title.classList.remove('text-red-400');
+            
+            checkOrderStatus();
+            pollingInterval = setInterval(checkOrderStatus, 3000);
+        }
+
+        window.onload = startPolling;
+    </script>
+</body>
+</html>

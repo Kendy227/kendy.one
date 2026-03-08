@@ -1,0 +1,182 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, minimum-scale=1.0, user-scalable=no">
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        @keyframes glow {
+            0%, 100% { opacity: 0.3; filter: blur(20px); }
+            50% { opacity: 0.6; filter: blur(40px); }
+        }
+        
+        /* Premium 7-Color Animation for Manipur Tribute */
+        @keyframes manipurColor {
+            0% { color: #ff0000; text-shadow: 0 0 15px rgba(255,0,0,0.4); }      /* Red */
+            14% { color: #ffffff; text-shadow: 0 0 15px rgba(255,255,255,0.4); } /* White */
+            28% { color: #1a1a1a; text-shadow: 0 0 15px rgba(255,255,255,0.2); } /* Black (Dark Grey for visibility) */
+            42% { color: #ff8c00; text-shadow: 0 0 15px rgba(255,140,0,0.4); }   /* Orange */
+            56% { color: #8b00ff; text-shadow: 0 0 15px rgba(139,0,255,0.4); }   /* Violet */
+            70% { color: #007fff; text-shadow: 0 0 15px rgba(0,127,255,0.4); }   /* Azure */
+            84% { color: #90ee90; text-shadow: 0 0 15px rgba(144,238,144,0.4); } /* Light Green */
+            100% { color: #ff0000; }
+        }
+
+        .vfx-glow {
+            animation: glow 4s ease-in-out infinite;
+        }
+        .glass-panel {
+            background: rgba(15, 15, 15, 0.6);
+            backdrop-filter: blur(12px);
+            border: 1px solid rgba(255, 255, 255, 0.05);
+        }
+        .neon-border-hover:hover {
+            border-color: rgba(0, 255, 170, 0.5);
+            box-shadow: 0 0 20px rgba(0, 255, 170, 0.2);
+        }
+        .footer-gradient {
+            background: radial-gradient(circle at bottom, rgba(0, 255, 170, 0.05) 0%, transparent 70%);
+        }
+        .social-icon {
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            background: rgba(255, 255, 255, 0.03);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+        }
+        .social-icon:hover {
+            background: rgba(0, 255, 170, 0.1);
+            border-color: rgba(0, 255, 170, 0.5);
+            color: #00FFAA;
+            transform: translateY(-5px) scale(1.1);
+            box-shadow: 0 10px 15px -3px rgba(0, 255, 170, 0.2);
+        }
+        .animate-manipur {
+            animation: manipurColor 10s linear infinite;
+        }
+        /* Hide scrollbar */
+        .hide-scrollbar::-webkit-scrollbar { display: none; }
+        .hide-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
+    </style>
+</head>
+<body class="bg-black font-sans antialiased">
+
+    <div class="relative overflow-hidden footer-gradient">
+        
+        <!-- Background VFX Elements -->
+        <br><div class="absolute -bottom-24 left-1/2 -translate-x-1/2 w-[600px] h-[300px] bg-cyan-500/10 rounded-full vfx-glow -z-10"></div>
+
+        <!-- Features Banner: 3-Card Carousel on Mobile -->
+        <!-----<section class="relative z-10 max-w-7xl mx-auto px-4 py-12 md:py-16">
+            <div class="flex overflow-x-auto pb-8 md:pb-0 md:grid md:grid-cols-3 gap-5 md:gap-6 hide-scrollbar snap-x snap-mandatory">
+                
+                <div class="glass-panel group p-5 md:p-6 rounded-2xl flex items-center gap-5 transition-all duration-300 hover:-translate-y-2 neon-border-hover min-w-[85vw] md:min-w-0 snap-center">
+                    <div class="relative flex-shrink-0">
+                        <div class="absolute inset-0 bg-cyan-400 blur-lg opacity-20 group-hover:opacity-40 transition-opacity"></div>
+                        <div class="relative bg-gray-900 border border-cyan-500/30 p-4 rounded-xl text-cyan-400">
+                            <svg class="w-7 h-7" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M13 10V3L4 14h7v7l9-11h-7z"></path></svg>
+                        </div>
+                    </div>
+                    <div>
+                        <h4 class="font-black text-lg tracking-tight text-white uppercase group-hover:text-cyan-300 transition-colors">Instant Flow</h4>
+                        <p class="text-sm text-gray-400 font-medium">Auto-delivery in <span class="text-cyan-400">0.5s</span></p>
+                    </div>
+                </div>
+
+                <div class="glass-panel group p-5 md:p-6 rounded-2xl flex items-center gap-5 transition-all duration-300 hover:-translate-y-2 neon-border-hover min-w-[85vw] md:min-w-0 snap-center">
+                    <div class="relative flex-shrink-0">
+                        <div class="absolute inset-0 bg-emerald-400 blur-lg opacity-20 group-hover:opacity-40 transition-opacity"></div>
+                        <div class="relative bg-gray-900 border border-emerald-500/30 p-4 rounded-xl text-emerald-400">
+                            <svg class="w-7 h-7" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z"></path></svg>
+                        </div>
+                    </div>
+                    <div>
+                        <h4 class="font-black text-lg tracking-tight text-white uppercase group-hover:text-emerald-300 transition-colors">Void Shield</h4>
+                        <p class="text-sm text-gray-400 font-medium">Military grade security</p>
+                    </div>
+                </div>
+
+                <div class="glass-panel group p-5 md:p-6 rounded-2xl flex items-center gap-5 transition-all duration-300 hover:-translate-y-2 neon-border-hover min-w-[85vw] md:min-w-0 snap-center">
+                    <div class="relative flex-shrink-0">
+                        <div class="absolute inset-0 bg-amber-400 blur-lg opacity-20 group-hover:opacity-40 transition-opacity"></div>
+                        <div class="relative bg-gray-900 border border-amber-500/30 p-4 rounded-xl text-amber-400">
+                            <svg class="w-7 h-7" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M18.364 5.636l-3.536 3.536m0 5.656l3.536 3.536M9.172 9.172L5.636 5.636m3.536 9.192l-3.536 3.536M21 12a9 9 0 11-18 0 9 9 0 0118 0zm-5 0a4 4 0 11-8 0 4 4 0 018 0z"></path></svg>
+                        </div>
+                    </div>
+                    <div>
+                        <h4 class="font-black text-lg tracking-tight text-white uppercase group-hover:text-amber-300 transition-colors">Elite Support</h4>
+                        <p class="text-sm text-gray-400 font-medium">Live tactical assistance</p>
+                    </div>
+                </div>
+            </div>
+        </section>---->
+
+        <!-- Footer -->
+        <footer class="relative z-10 pt-10 pb-8 px-4 border-t border-white/5">
+            <div class="max-w-7xl mx-auto">
+                <div class="flex flex-col md:flex-row justify-between items-start md:items-center gap-12 mb-12">
+                    
+                    <!-- Branding -->
+                    <div class="max-w-sm">
+                        <div class="flex items-center gap-2 mb-4 text-center md:text-left">
+                            <h2 class="text-white text-2xl font-black tracking-tighter uppercase italic leading-none mx-auto md:mx-0">Kendy<br><span class="text-cyan-400">Enterprises</span></h2>
+                        </div>
+                        <p class="text-gray-400 text-sm leading-relaxed text-center md:text-left">
+                            Elevating your gaming experience with premium credits, instant top-ups, and unmatched reliability. Join the elite.
+                        </p>
+                    </div>
+
+                    <!-- Navigation Links -->
+                    <div class="grid grid-cols-2 sm:flex gap-x-12 gap-y-6 w-full md:w-auto text-center md:text-left">
+                        <div class="flex flex-col gap-3">
+                            <span class="text-white font-bold text-xs uppercase tracking-widest opacity-50 mb-2">Legal Docs</span>
+                            <a href="/terms" class="text-sm text-gray-500 hover:text-cyan-400 transition-all">Terms of Service</a>
+                            <a href="/privacy" class="text-sm text-gray-500 hover:text-cyan-400 transition-all">Privacy Protocol</a>
+                        </div>
+                        <div class="flex flex-col gap-3">
+                            <span class="text-white font-bold text-xs uppercase tracking-widest opacity-50 mb-2">Support</span>
+                            <a href="/api/docs" class="text-sm text-gray-500 hover:text-cyan-400 transition-all">API Documentation</a>
+                            <a href="/refund" class="text-sm text-gray-500 hover:text-cyan-400 transition-all">Refund Policy</a>
+                            <a href="/contact" class="text-sm text-gray-500 hover:text-cyan-400 transition-all">Contact Center</a>
+                        </div>
+                    </div>
+
+                    <!-- Social Media -->
+                    <div class="w-full md:w-auto flex flex-col gap-4">
+                        <span class="text-white font-bold text-xs uppercase tracking-widest opacity-50 text-center md:text-left">Connect with us</span>
+                        <div class="flex gap-4 justify-center md:justify-start">
+                            <a href="#" class="social-icon w-11 h-11 rounded-xl flex items-center justify-center text-gray-400"><svg class="w-5 h-5" fill="currentColor" viewBox="0 0 24 24"><path d="M9 8H6v4h3v12h5V12h3.642L18 8h-4V6.333C14 5.378 14.192 5 15.115 5H18V0h-3.808C10.596 0 9 1.583 9 4.615V8z"/></svg></a>
+                            <a href="#" class="social-icon w-11 h-11 rounded-xl flex items-center justify-center text-gray-400"><svg class="w-5 h-5" fill="currentColor" viewBox="0 0 24 24"><path d="M18.901 1.153h3.68l-8.04 9.19L24 22.846h-7.406l-5.8-7.584-6.638 7.584H.474l8.6-9.83L0 1.154h7.594l5.243 6.932 6.064-6.933zm-1.292 19.49h2.039L6.486 3.24H4.298l13.311 17.403z"/></svg></a>
+                            <a href="#" class="social-icon w-11 h-11 rounded-xl flex items-center justify-center text-gray-400"><svg class="w-5 h-5" fill="currentColor" viewBox="0 0 24 24"><path d="M12 2.163c3.204 0 3.584.012 4.85.07 3.252.148 4.771 1.691 4.919 4.919.058 1.265.069 1.645.069 4.849 0 3.205-.012 3.584-.069 4.849-.149 3.225-1.664 4.771-4.919 4.919-1.266.058-1.644.07-4.85.07-3.204 0-3.584-.012-4.849-.07-3.26-.149-4.771-1.699-4.919-4.92-.058-1.265-.07-1.644-.07-4.849 0-3.204.013-3.583.07-4.849.149-3.227 1.664-4.771 4.919-4.919 1.266-.057 1.645-.069 4.849-.069zm0-2.163c-3.259 0-3.667.014-4.947.072-4.358.2-6.78 2.618-6.98 6.98-.059 1.281-.073 1.689-.073 4.948 0 3.259.014 3.668.072 4.948.2 4.358 2.618 6.78 6.98 6.98 1.281.058 1.689.072 4.948.072 3.259 0 3.668-.014 4.948-.072 4.354-.2 6.782-2.618 6.979-6.98.059-1.28.073-1.689.073-4.948 0-3.259-.014-3.667-.072-4.947-.196-4.354-2.617-6.78-6.979-6.98-1.281-.059-1.69-.073-4.949-.073zm0 5.838c-3.403 0-6.162 2.759-6.162 6.162s2.759 6.163 6.162 6.163 6.162-2.759 6.162-6.163c0-3.403-2.759-6.162-6.162-6.162zm0 10.162c-2.209 0-4-1.79-4-4 0-2.209 1.791-4 4-4s4 1.791 4 4c0 2.21-1.791 4-4 4zm6.406-11.845c-.796 0-1.441.645-1.441 1.44s.645 1.44 1.441 1.44c.795 0 1.439-.645 1.439-1.44s-.644-1.44-1.439-1.44z"/></svg></a>
+                            <a href="#" class="social-icon w-11 h-11 rounded-xl flex items-center justify-center text-gray-400"><svg class="w-5 h-5" fill="currentColor" viewBox="0 0 24 24"><path d="M19.615 3.184c-3.604-.246-11.631-.245-15.23 0-3.897.266-4.356 2.62-4.385 8.816.029 6.185.484 8.549 4.385 8.816 3.6.245 11.626.246 15.23 0 3.897-.266 4.356-2.62 4.385-8.816-.029-6.185-.484-8.549-4.385-8.816zm-10.615 12.816v-8l8 3.993-8 4.007z"/></svg></a>
+                        </div>
+                    </div>
+                    <!-- Developer Attribution -->
+                    <div class="flex flex-col items-center gap-3">
+                        <span class="text-[9px] text-gray-600 uppercase tracking-[0.4em] font-medium">Developed By</span>
+                        <a href="https://kendyenterprises.in" target="_blank" class="group relative flex items-center gap-3 px-6 py-2.5 rounded-full bg-white/[0.02] border border-white/10 hover:border-cyan-500/40 hover:bg-cyan-500/[0.02] transition-all duration-500">
+                            <span class="text-sm font-bold text-gray-400 group-hover:text-cyan-400 transition-colors uppercase tracking-widest">Kendy Enterprises</span>
+                            <div class="w-1.5 h-1.5 rounded-full bg-cyan-500/50 group-hover:bg-cyan-400 animate-pulse"></div>
+                            <svg class="w-3.5 h-3.5 text-gray-600 group-hover:text-cyan-400 transition-colors" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14"></path></svg>
+                        </a>
+                    </div>
+                    </div>
+                </div>
+
+                <!-- Bottom Copyright Bar -->
+                <div class="pt-8 border-t border-white/5 flex flex-col md:flex-row justify-between items-center gap-6">
+                    <p class="text-[10px] text-gray-600 uppercase tracking-[0.2em] text-center md:text-left">
+                        &copy; 2025 <span class="text-gray-400">Kendy Enterprises</span>. All systems operational.
+                    </p>
+                    <div class="flex items-center gap-6">
+                        <div class="flex gap-3 opacity-20 grayscale hover:grayscale-0 hover:opacity-100 transition-all duration-700">
+                             <div class="px-2 py-1 bg-white/5 rounded text-[8px] font-bold text-white border border-white/5">VISA</div>
+                             <div class="px-2 py-1 bg-white/5 rounded text-[8px] font-bold text-white border border-white/5">MASTERCARD</div>
+                             <div class="px-2 py-1 bg-white/5 rounded text-[8px] font-bold text-white border border-white/5">PAYPAL</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </footer>
+    </div>
+
+</body>
+</html>

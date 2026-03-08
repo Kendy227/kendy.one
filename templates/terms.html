@@ -1,0 +1,256 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <link rel="icon" href="https://kendyenterprises.in/image/logo-knd.png">
+    <title>Kendy Enterprises | Terms of Service</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700&display=swap');
+
+        :root {
+            --primary: #00FFAA;
+            --accent: #FF00FF;
+            --glass-bg: rgba(15, 15, 15, 0.7);
+            --glass-border: rgba(255, 255, 255, 0.08);
+        }
+
+        body {
+            font-family: 'Plus Jakarta Sans', sans-serif;
+            background: #000000;
+            color: #FFFFFF;
+            min-height: 100vh;
+            overflow-x: hidden;
+        }
+
+        /* VFX Animated Background Orbs */
+        .orb-container {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: -1;
+            overflow: hidden;
+        }
+
+        .orb {
+            position: absolute;
+            border-radius: 50%;
+            filter: blur(120px);
+            opacity: 0.35;
+            animation: move 25s infinite alternate ease-in-out;
+        }
+
+        .orb-1 { width: 600px; height: 600px; background: #00FFAA; top: -200px; left: -100px; }
+        .orb-2 { width: 500px; height: 500px; background: #FF00FF; bottom: -100px; right: -100px; animation-delay: -7s; }
+
+        @keyframes move {
+            from { transform: translate(0, 0) rotate(0deg); }
+            to { transform: translate(150px, 100px) rotate(30deg); }
+        }
+
+        /* Documentation Styling */
+        .glass-card {
+            background: var(--glass-bg);
+            backdrop-filter: blur(24px);
+            -webkit-backdrop-filter: blur(24px);
+            border: 1px solid var(--glass-border);
+            border-radius: 24px;
+        }
+
+        .nav-link {
+            transition: all 0.2s ease;
+            border-left: 2px solid transparent;
+        }
+
+        .nav-link:hover {
+            color: var(--primary);
+            background: rgba(99, 102, 241, 0.05);
+            border-left-color: var(--primary);
+        }
+
+        .section-anchor {
+            scroll-margin-top: 100px;
+        }
+
+        .prose-custom h2 {
+            color: white;
+            font-weight: 700;
+            font-size: 1.5rem;
+            margin-bottom: 1rem;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .prose-custom p {
+            color: #94a3b8;
+            line-height: 1.7;
+            margin-bottom: 2rem;
+        }
+
+        /* Custom Scrollbar */
+        ::-webkit-scrollbar { width: 8px; }
+        ::-webkit-scrollbar-track { background: transparent; }
+        ::-webkit-scrollbar-thumb { background: rgba(255,255,255,0.1); border-radius: 10px; }
+        ::-webkit-scrollbar-thumb:hover { background: var(--primary); }
+    </style>
+</head>
+<body class="antialiased">
+    <!-- VFX Background -->
+    <div class="orb-container">
+        <div class="orb orb-1"></div>
+        <div class="orb orb-2"></div>
+    </div>
+
+    <!-- Header -->
+    {% include 'header.html' %}
+
+    <main class="max-w-7xl mx-auto px-6 py-16">
+        <!-- Page Intro -->
+        <div class="mb-16">
+            <div class="flex items-center gap-3 mb-4">
+                <div class="h-px w-12 bg-indigo-500"></div>
+                <span class="text-indigo-400 font-bold tracking-widest text-xs uppercase">Compliance & Policy</span>
+            </div>
+            <h1 class="text-5xl md:text-6xl font-extrabold bg-clip-text text-transparent bg-gradient-to-r from-white via-white to-slate-500">
+                Terms of Service
+            </h1>
+            <p class="text-slate-400 mt-6 max-w-2xl text-lg leading-relaxed">
+                By utilizing the Xtreme Top-up platform, you enter into a binding legal agreement. Please review these protocols carefully to understand your rights and obligations.
+            </p>
+        </div>
+
+        <div class="grid lg:grid-cols-12 gap-12">
+            <!-- Table of Contents (Desktop Only) -->
+            <aside class="hidden lg:block lg:col-span-3 sticky top-24 h-fit">
+                <div class="glass-card p-6">
+                    <h4 class="text-sm font-bold text-white uppercase tracking-tighter mb-6">On this page</h4>
+                    <nav class="flex flex-col gap-1 text-sm text-slate-400">
+                        <a href="#acceptance" class="nav-link py-2 px-3 rounded-md">1. Acceptance</a>
+                        <a href="#license" class="nav-link py-2 px-3 rounded-md">2. Use License</a>
+                        <a href="#description" class="nav-link py-2 px-3 rounded-md">3. Service Description</a>
+                        <a href="#responsibilities" class="nav-link py-2 px-3 rounded-md">4. Responsibilities</a>
+                        <a href="#prohibited" class="nav-link py-2 px-3 rounded-md">5. Prohibited Uses</a>
+                        <a href="#liability" class="nav-link py-2 px-3 rounded-md">6. Liability</a>
+                        <a href="#termination" class="nav-link py-2 px-3 rounded-md">7. Termination</a>
+                        <a href="#changes" class="nav-link py-2 px-3 rounded-md">8. Modifications</a>
+                    </nav>
+                </div>
+            </aside>
+
+            <!-- Main Legal Content -->
+            <div class="lg:col-span-9 space-y-8">
+                <div class="glass-card p-8 md:p-12 prose-custom">
+                    
+                    <section id="acceptance" class="section-anchor">
+                        <h2>
+                            <span class="text-indigo-500 text-sm font-mono">01.</span>
+                            Acceptance of Terms
+                        </h2>
+                        <p>
+                            By accessing and using Xtreme Top-up Gaming services, you acknowledge that you have read, understood, and agree to be bound by the terms and provisions of this agreement. Use of the platform constitutes a digital signature of acceptance. If you do not agree to these terms, please discontinue use immediately.
+                        </p>
+                    </section>
+
+                    <section id="license" class="section-anchor">
+                        <h2>
+                            <span class="text-indigo-500 text-sm font-mono">02.</span>
+                            Use License
+                        </h2>
+                        <p>
+                            Permission is granted to temporarily use the services for personal, non-commercial transitory viewing only. This is the grant of a limited, revocable license, not a transfer of title. Under this license, you may not modify the materials, use them for commercial purposes, or attempt to decompile any software contained on the Xtreme Top-up platform.
+                        </p>
+                    </section>
+
+                    <section id="description" class="section-anchor">
+                        <h2>
+                            <span class="text-indigo-500 text-sm font-mono">03.</span>
+                            Service Description
+                        </h2>
+                        <p>
+                            Xtreme Top-up operates as a high-integrity gateway for digital gaming credits and top-up services. We act as an intermediary between users and gaming publishers. All transactions processed through our system are final and non-refundable once the digital asset has been provisioned to the destination account.
+                        </p>
+                    </section>
+
+                    <section id="responsibilities" class="section-anchor">
+                        <h2>
+                            <span class="text-indigo-500 text-sm font-mono">04.</span>
+                            User Responsibilities
+                        </h2>
+                        <p>
+                            You are solely responsible for the accuracy of the identifiers (Player IDs, Usernames, etc.) provided during the checkout process. Xtreme Top-up is not liable for credits sent to incorrect accounts due to user error. You must maintain the strict confidentiality of any account credentials used to access our services.
+                        </p>
+                    </section>
+
+                    <section id="prohibited" class="section-anchor">
+                        <h2>
+                            <span class="text-indigo-500 text-sm font-mono">05.</span>
+                            Prohibited Uses
+                        </h2>
+                        <p>
+                            Engagement in fraudulent activities, including but not limited to unauthorized use of credit cards, chargeback manipulation, or exploitation of system vulnerabilities, will result in immediate permanent suspension and potential legal action in accordance with local and international cyber laws.
+                        </p>
+                    </section>
+
+                    <section id="liability" class="section-anchor">
+                        <h2>
+                            <span class="text-indigo-500 text-sm font-mono">06.</span>
+                            Limitation of Liability
+                        </h2>
+                        <p>
+                            In no event shall Xtreme Top-up, its directors, or its affiliates be liable for any indirect, incidental, special, or consequential damages resulting from the use or the inability to use the service. Our total liability for any claim arising out of the service shall not exceed the amount paid for the specific transaction in question.
+                        </p>
+                    </section>
+
+                    <section id="termination" class="section-anchor">
+                        <h2>
+                            <span class="text-indigo-500 text-sm font-mono">07.</span>
+                            Termination
+                        </h2>
+                        <p>
+                            We reserve the absolute right to terminate or suspend access to our service immediately, without prior notice or liability, for any reason whatsoever, including without limitation if you breach the Terms of Service.
+                        </p>
+                    </section>
+
+                    <section id="changes" class="section-anchor">
+                        <h2>
+                            <span class="text-indigo-500 text-sm font-mono">08.</span>
+                            Modifications
+                        </h2>
+                        <p>
+                            Xtreme Top-up reserves the right to revise these terms at any time without notice. By using this website, you are agreeing to be bound by the then-current version of these Terms of Service. We recommend periodic review of this page to ensure continued compliance.
+                        </p>
+                    </section>
+
+                    <!-- Footer Info -->
+                    <div class="mt-12 pt-8 border-t border-white/5 flex flex-col md:flex-row justify-between items-center gap-4">
+                        <!---<div class="text-slate-500 text-sm">
+                            Document ID: <span class="text-slate-300 font-mono">NXS-TOS-2025-Q4</span>
+                        </div>--->
+                        <div class="px-4 py-2 bg-indigo-500/10 rounded-full border border-indigo-500/20 text-indigo-400 text-xs font-bold">
+                            Last Revised: December 28, 2025
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Contact Prompt -->
+                <div class="glass-card p-8 bg-gradient-to-br from-indigo-500/5 to-purple-500/5 flex flex-col md:flex-row items-center justify-between gap-6">
+                    <div>
+                        <h4 class="text-xl font-bold mb-1">Questions about these terms?</h4>
+                        <p class="text-slate-400 text-sm">Our legal and support teams are available for clarification.</p>
+                    </div>
+                    <a href="/contact" class="px-8 py-3 bg-white text-black font-bold rounded-xl hover:bg-indigo-50 transition-colors">
+                        Contact Legal
+                    </a>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <!-- Footer -->
+    {% include 'footer.html' %}
+</body>
+</html>

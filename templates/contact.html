@@ -1,0 +1,250 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <link rel="icon" href="https://kendyenterprises.in/image/logo-knd.png">
+    <title>Kendy Enterprises | Contact Center</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700&display=swap');
+
+        :root {
+            --primary: #00FFAA;
+            --accent: #FF00FF;
+            --glass-bg: rgba(15, 15, 15, 0.65);
+            --glass-border: rgba(255, 255, 255, 0.08);
+        }
+
+        body {
+            font-family: 'Plus Jakarta Sans', sans-serif;
+            background: #000000;
+            color: #FFFFFF;
+            min-height: 100vh;
+            overflow-x: hidden;
+        }
+
+        /* VFX Animated Background */
+        .orb-container {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: -1;
+            overflow: hidden;
+        }
+
+        .orb {
+            position: absolute;
+            border-radius: 50%;
+            filter: blur(100px);
+            opacity: 0.4;
+            animation: move 20s infinite alternate ease-in-out;
+        }
+
+        .orb-1 { width: 500px; height: 500px; background: #00FFAA; top: -100px; left: -100px; }
+        .orb-2 { width: 400px; height: 400px; background: #FF00FF; bottom: -100px; right: -100px; animation-delay: -5s; }
+        .orb-3 { width: 300px; height: 300px; background: #00B4D8; top: 40%; left: 50%; animation-delay: -10s; }
+
+        @keyframes move {
+            from { transform: translate(0, 0) scale(1); }
+            to { transform: translate(100px, 50px) scale(1.1); }
+        }
+
+        /* Glassmorphism Styling */
+        .glass-card {
+            background: var(--glass-bg);
+            backdrop-filter: blur(20px);
+            -webkit-backdrop-filter: blur(20px);
+            border: 1px solid var(--glass-border);
+            border-radius: 24px;
+            box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.5);
+            transition: transform 0.3s ease, border-color 0.3s ease;
+        }
+
+        .glass-card:hover {
+            border-color: rgba(255, 255, 255, 0.15);
+        }
+
+        /* Form Styling */
+        .input-field {
+            background: rgba(255, 255, 255, 0.03);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            transition: all 0.3s ease;
+        }
+
+        .input-field:focus {
+            background: rgba(255, 255, 255, 0.05);
+            border-color: var(--primary);
+            box-shadow: 0 0 15px rgba(99, 102, 241, 0.3);
+            outline: none;
+        }
+
+        /* Shimmer Button Effect */
+        .btn-shimmer {
+            position: relative;
+            overflow: hidden;
+            background: linear-gradient(45deg, #4f46e5, #7c3aed);
+            transition: all 0.3s ease;
+        }
+
+        .btn-shimmer::after {
+            content: '';
+            position: absolute;
+            top: -50%;
+            left: -50%;
+            width: 200%;
+            height: 200%;
+            background: linear-gradient(to bottom right, rgba(255,255,255,0) 0%, rgba(255,255,255,0.1) 50%, rgba(255,255,255,0) 100%);
+            transform: rotate(45deg);
+            transition: 0.5s;
+        }
+
+        .btn-shimmer:hover::after {
+            left: 120%;
+        }
+
+        .btn-shimmer:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 20px -10px #6366f1;
+        }
+    </style>
+</head>
+<body class="antialiased">
+    <div class="orb-container">
+        <div class="orb orb-1"></div>
+        <div class="orb orb-2"></div>
+        <div class="orb orb-3"></div>
+    </div>
+
+    {% include 'header.html' %}
+
+    <main class="max-w-6xl mx-auto px-6 py-12">
+        <div class="text-center mb-16">
+            <span class="px-4 py-1.5 rounded-full text-xs font-bold tracking-widest uppercase bg-indigo-500/10 text-indigo-400 border border-indigo-500/20">
+                Support Hub
+            </span>
+            <h1 class="text-4xl md:text-6xl font-extrabold mt-6 bg-clip-text text-transparent bg-gradient-to-b from-white to-slate-400">
+                Contact Center
+            </h1>
+            <p class="text-slate-400 mt-4 max-w-lg mx-auto text-lg">
+                Experience world-class support. Our team of experts is ready to assist you around the clock.
+            </p>
+        </div>
+
+        <div class="grid lg:grid-cols-12 gap-8 items-start">
+            <div class="lg:col-span-5 space-y-6">
+                <div class="glass-card p-8">
+                    <h3 class="text-2xl font-bold mb-8">Connectivity</h3>
+                    
+                    <div class="space-y-8">
+                        <div class="flex items-start gap-4">
+                            <div class="w-12 h-12 shrink-0 bg-indigo-500/10 border border-indigo-500/20 rounded-2xl flex items-center justify-center text-indigo-400">
+                                <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M3 8l7.89 4.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"></path></svg>
+                            </div>
+                            <div>
+                                <p class="text-sm text-slate-400 uppercase tracking-wider font-semibold">Email Support</p>
+                                <p class="text-lg font-medium text-white">support@xtremetopup.in</p>
+                            </div>
+                        </div>
+
+                        <div class="flex items-start gap-4">
+                            <div class="w-12 h-12 shrink-0 bg-purple-500/10 border border-purple-500/20 rounded-2xl flex items-center justify-center text-purple-400">
+                                <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M13 10V3L4 14h7v7l9-11h-7z"></path></svg>
+                            </div>
+                            <div>
+                                <p class="text-sm text-slate-400 uppercase tracking-wider font-semibold">Fast Response</p>
+                                <p class="text-lg font-medium text-white">Average < 15 mins</p>
+                            </div>
+                        </div>
+
+                        <div class="flex items-start gap-4">
+                            <div class="w-12 h-12 shrink-0 bg-emerald-500/10 border border-emerald-500/20 rounded-2xl flex items-center justify-center text-emerald-400">
+                                <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z"></path></svg>
+                            </div>
+                            <div>
+                                <p class="text-sm text-slate-400 uppercase tracking-wider font-semibold">Availability</p>
+                                <p class="text-lg font-medium text-white">24/7 Global Presence</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="glass-card p-6 flex items-center justify-between border-l-4 border-l-emerald-500">
+                    <div>
+                        <p class="text-sm font-bold">System Status</p>
+                        <p class="text-xs text-slate-400">All services operational</p>
+                    </div>
+                    <div class="flex gap-1">
+                        <span class="w-2 h-2 rounded-full bg-emerald-500 animate-pulse"></span>
+                    </div>
+                </div>
+            </div>
+
+            <div class="lg:col-span-7">
+                <div class="glass-card p-8 md:p-10">
+                    <form class="space-y-6">
+                        <div class="grid md:grid-cols-2 gap-6">
+                            <div class="space-y-2">
+                                <label class="text-xs font-bold text-slate-400 uppercase ml-1">Full Name</label>
+                                <input type="text" class="input-field w-full px-5 py-3.5 rounded-xl text-white placeholder-slate-500" placeholder="John Doe">
+                            </div>
+                            <div class="space-y-2">
+                                <label class="text-xs font-bold text-slate-400 uppercase ml-1">Email Address</label>
+                                <input type="email" class="input-field w-full px-5 py-3.5 rounded-xl text-white placeholder-slate-500" placeholder="john@example.com">
+                            </div>
+                        </div>
+
+                        <div class="space-y-2">
+                            <label class="text-xs font-bold text-slate-400 uppercase ml-1">Subject</label>
+                            <div class="relative">
+                                <select class="input-field w-full px-5 py-3.5 rounded-xl text-white appearance-none pr-10">
+                                    <option class="bg-slate-800 text-white">General Inquiry</option>
+                                    <option class="bg-slate-800 text-white">Order Support</option>
+                                    <option class="bg-slate-800 text-white">Refund Request</option>
+                                    <option class="bg-slate-800 text-white">Business Partnership</option>
+                                </select>
+                                <div class="absolute inset-y-0 right-0 flex items-center px-3 pointer-events-none">
+                                    <svg class="w-4 h-4 text-slate-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path>
+                                    </svg>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="space-y-2">
+                            <label class="text-xs font-bold text-slate-400 uppercase ml-1">Message</label>
+                            <textarea rows="5" class="input-field w-full px-5 py-3.5 rounded-xl text-white placeholder-slate-500" placeholder="How can we help you today?"></textarea>
+                        </div>
+
+                        <button type="submit" class="btn-shimmer w-full py-4 rounded-xl font-bold text-lg tracking-wide shadow-xl">
+                            Initialize Inquiry
+                        </button>
+                    </form>
+                </div>
+            </div>
+        </div>
+
+        <div class="mt-20">
+            <h2 class="text-3xl font-bold text-center mb-12">System Intelligence (FAQ)</h2>
+            <div class="grid md:grid-cols-3 gap-6">
+                <div class="glass-card p-6">
+                    <h4 class="font-bold text-indigo-400 mb-3">Order Velocity?</h4>
+                    <p class="text-slate-400 text-sm leading-relaxed">Transactions are processed via our high-speed node. Expect completion within 5-15 minutes.</p>
+                </div>
+                <div class="glass-card p-6">
+                    <h4 class="font-bold text-indigo-400 mb-3">Refund Protocols?</h4>
+                    <p class="text-slate-400 text-sm leading-relaxed">Due to the nature of digital assets, all final successful orders are non-reversible.</p>
+                </div>
+                <div class="glass-card p-6">
+                    <h4 class="font-bold text-indigo-400 mb-3">Secure Gateways?</h4>
+                    <p class="text-slate-400 text-sm leading-relaxed">We utilize AES-256 encryption for all data transmissions and UPI payment processing.</p>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    {% include 'footer.html' %}
+</body>
+</html>

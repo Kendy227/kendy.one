@@ -1,0 +1,349 @@
+{% extends "admin/layout.html" %}
+
+{% block title %}Verify Payments - Admin Panel{% endblock %}
+
+{% block extra_css %}
+<style>
+    .payment-table {
+        background-color: #141417;
+        border: 1px solid #2d2d35;
+        border-radius: 12px;
+        overflow: hidden;
+    }
+
+    .payment-row {
+        display: grid;
+        grid-template-columns: 80px 120px 120px 120px 100px 150px 120px 120px 120px;
+        gap: 1rem;
+        padding: 1rem;
+        border-bottom: 1px solid #2d2d35;
+        align-items: center;
+    }
+
+    .payment-row:last-child {
+        border-bottom: none;
+    }
+
+    .payment-row.header {
+        background-color: #1a1a1e;
+        font-weight: 600;
+        color: #a0a0ab;
+        font-size: 0.85rem;
+        text-transform: uppercase;
+        padding: 1rem;
+    }
+
+    .payment-id {
+        font-family: 'Courier New', monospace;
+        color: #00f2ff;
+        font-size: 0.9rem;
+    }
+
+    .payment-amount {
+        font-weight: 600;
+        color: #51cf66;
+        font-size: 1.1rem;
+    }
+
+    .payment-status {
+        padding: 0.4rem 0.8rem;
+        border-radius: 6px;
+        font-size: 0.85rem;
+        font-weight: 500;
+        text-transform: uppercase;
+    }
+
+    .status-pending {
+        background-color: #5c5c1a;
+        color: #ffeb3b;
+    }
+
+    .status-success {
+        background-color: #1a5c1a;
+        color: #51cf66;
+    }
+
+    .soc-reference {
+        font-family: 'Courier New', monospace;
+        color: #a0a0ab;
+        font-size: 0.9rem;
+    }
+
+    .verify-btn {
+        background: linear-gradient(45deg, #7000ff, #00f2ff);
+        color: white;
+        border: none;
+        padding: 0.5rem 1rem;
+        border-radius: 6px;
+        cursor: pointer;
+        font-weight: 600;
+        font-size: 0.85rem;
+        transition: all 0.3s ease;
+    }
+
+    .verify-btn:hover:not(:disabled) {
+        transform: translateY(-2px);
+        box-shadow: 0 4px 15px rgba(0, 242, 255, 0.4);
+    }
+
+    .verify-btn:disabled {
+        opacity: 0.5;
+        cursor: not-allowed;
+    }
+
+    .empty-state {
+        text-align: center;
+        padding: 3rem;
+        color: #a0a0ab;
+    }
+
+    .header-section {
+        margin-bottom: 2rem;
+    }
+
+    .header-section h1 {
+        color: #ffffff;
+        font-size: 2rem;
+        margin-bottom: 0.5rem;
+    }
+
+    .header-section p {
+        color: #a0a0ab;
+        font-size: 1rem;
+    }
+
+    .stats-container {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+        gap: 1rem;
+        margin-bottom: 2rem;
+    }
+
+    .stat-card {
+        background-color: #141417;
+        border: 1px solid #2d2d35;
+        border-radius: 12px;
+        padding: 1.5rem;
+        text-align: center;
+    }
+
+    .stat-value {
+        font-size: 2rem;
+        font-weight: 700;
+        color: #00f2ff;
+        margin-bottom: 0.5rem;
+    }
+
+    .stat-label {
+        color: #a0a0ab;
+        font-size: 0.9rem;
+    }
+
+    .user-info {
+        font-size: 0.85rem;
+        color: #a0a0ab;
+    }
+
+    .loading-spinner {
+        display: inline-block;
+        width: 16px;
+        height: 16px;
+        border: 2px solid #00f2ff;
+        border-top-color: transparent;
+        border-radius: 50%;
+        animation: spin 0.6s linear infinite;
+    }
+
+    @keyframes spin {
+        to { transform: rotate(360deg); }
+    }
+
+    .toast {
+        position: fixed;
+        bottom: 20px;
+        right: 20px;
+        padding: 1rem 1.5rem;
+        background-color: #141417;
+        border: 1px solid #2d2d35;
+        border-radius: 8px;
+        color: #ffffff;
+        z-index: 1000;
+        animation: slideIn 0.3s ease;
+    }
+
+    .toast.success {
+        border-left: 4px solid #51cf66;
+    }
+
+    .toast.error {
+        border-left: 4px solid #ff6b6b;
+    }
+
+    @keyframes slideIn {
+        from {
+            transform: translateX(400px);
+            opacity: 0;
+        }
+        to {
+            transform: translateX(0);
+            opacity: 1;
+        }
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="container-fluid">
+    <div class="header-section">
+        <h1>🔐 Verify Payments</h1>
+        <p>Review and verify pending SOC (Bank Transfer) payments</p>
+    </div>
+
+    <!-- Stats -->
+    <div class="stats-container">
+        <div class="stat-card">
+            <div class="stat-value" id="totalPending">{{ pending_payments|length }}</div>
+            <div class="stat-label">Pending Payments</div>
+        </div>
+        <div class="stat-card">
+            <div class="stat-value" id="totalAmount">₹0.00</div>
+            <div class="stat-label">Total Amount</div>
+        </div>
+    </div>
+
+    <!-- Payments Table -->
+    {% if pending_payments|length > 0 %}
+        <div class="payment-table">
+            <div class="payment-row header">
+                <div>Order ID</div>
+                <div>User</div>
+                <div>Mobile</div>
+                <div>Amount (BRL)</div>
+                <div>Status</div>
+                <div>SOC Reference</div>
+                <div>Date</div>
+                <div>Action</div>
+            </div>
+
+            {% for payment in pending_payments %}
+                <div class="payment-row" id="payment-{{ payment.id }}">
+                    <div class="payment-id">#{{ payment.order_id[-6:] }}</div>
+                    <div>
+                        <div style="color: #ffffff; font-weight: 500;">{{ payment.username }}</div>
+                        <div class="user-info">{{ payment.email }}</div>
+                    </div>
+                    <div style="color: #a0a0ab;">{{ payment.customer_mobile }}</div>
+                    <div class="payment-amount">{{ "%.2f"|format(payment.amount) }}</div>
+                    <div>
+                        <span class="payment-status status-{{ payment.status.lower() }}">
+                            {{ payment.status }}
+                        </span>
+                    </div>
+                    <div class="soc-reference">{{ payment.soc_reference }}</div>
+                    <div style="color: #a0a0ab; font-size: 0.9rem;">
+                        {{ payment.created_at.strftime('%d %b %H:%M') if payment.created_at else 'N/A' }}
+                    </div>
+                    <div>
+                        <button class="verify-btn" onclick="verifyPayment({{ payment.id }}, {{ payment.amount }})">
+                            ✓ Verify
+                        </button>
+                    </div>
+                </div>
+            {% endfor %}
+        </div>
+    {% else %}
+        <div class="payment-table">
+            <div class="empty-state">
+                <i class="fas fa-check-circle" style="font-size: 3rem; color: #51cf66; margin-bottom: 1rem;"></i>
+                <p>All SOC payments have been verified!</p>
+                <p style="font-size: 0.9rem; margin-top: 0.5rem;">No pending payments at the moment.</p>
+            </div>
+        </div>
+    {% endif %}
+</div>
+
+<script>
+    function calculateTotalAmount() {
+        let total = 0;
+        const payments = document.querySelectorAll('.payment-row:not(.header)');
+        payments.forEach(row => {
+            const amountText = row.querySelector('.payment-amount').textContent;
+            const amount = parseFloat(amountText);
+            if (!isNaN(amount)) {
+                total += amount;
+            }
+        });
+        document.getElementById('totalAmount').textContent = '₹' + total.toFixed(2);
+    }
+
+    function showToast(message, type = 'success') {
+        const toast = document.createElement('div');
+        toast.className = `toast ${type}`;
+        toast.textContent = message;
+        document.body.appendChild(toast);
+        
+        setTimeout(() => {
+            toast.style.animation = 'slideIn 0.3s ease reverse';
+            setTimeout(() => toast.remove(), 300);
+        }, 3000);
+    }
+
+    async function verifyPayment(kangleiOrderId, amount) {
+        const button = event.target;
+        const originalText = button.textContent;
+        
+        // Confirm action
+        if (!confirm(`Verify this payment of ₹${amount.toFixed(2)}? This will credit the user's BRL balance.`)) {
+            return;
+        }
+
+        button.disabled = true;
+        button.innerHTML = '<div class="loading-spinner"></div> Verifying...';
+
+        try {
+            const response = await fetch('/api/admin/verify-payment', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({
+                    kanglei_order_id: kangleiOrderId
+                })
+            });
+
+            const data = await response.json();
+
+            if (data.success) {
+                // Remove the row or update its status
+                const row = document.getElementById(`payment-${kangleiOrderId}`);
+                if (row) {
+                    row.style.opacity = '0.6';
+                    const statusElement = row.querySelector('.payment-status');
+                    statusElement.className = 'payment-status status-success';
+                    statusElement.textContent = 'SUCCESS';
+                    button.disabled = true;
+                    button.textContent = '✓ Verified';
+                    button.style.opacity = '0.5';
+                }
+                
+                showToast(`✅ Payment verified! User balance updated: +₹${data.amount.toFixed(2)}`, 'success');
+                
+                // Recalculate totals
+                document.getElementById('totalPending').textContent = parseInt(document.getElementById('totalPending').textContent) - 1;
+                calculateTotalAmount();
+            } else {
+                showToast(`❌ Error: ${data.message}`, 'error');
+                button.disabled = false;
+                button.textContent = originalText;
+            }
+        } catch (error) {
+            showToast(`❌ Network error: ${error.message}`, 'error');
+            button.disabled = false;
+            button.textContent = originalText;
+        }
+    }
+
+    // Calculate totals on page load
+    document.addEventListener('DOMContentLoaded', calculateTotalAmount);
+</script>
+{% endblock %}

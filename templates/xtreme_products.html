@@ -1,0 +1,729 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Xtreme Official - Products</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <style>
+        body {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 20px 0;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+        .container {
+            max-width: 1200px;
+        }
+        .header {
+            text-align: center;
+            color: white;
+            margin-bottom: 40px;
+        }
+        .header h1 {
+            font-weight: 700;
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.3);
+            margin-bottom: 10px;
+        }
+        .header p {
+            font-size: 1.1rem;
+            opacity: 0.95;
+        }
+        .card {
+            border: none;
+            box-shadow: 0 8px 16px rgba(0,0,0,0.1);
+            transition: transform 0.3s, box-shadow 0.3s;
+            margin-bottom: 20px;
+            border-radius: 12px;
+            overflow: hidden;
+        }
+        .card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 12px 24px rgba(0,0,0,0.2);
+        }
+        .product-card {
+            background: white;
+            padding: 20px;
+        }
+        .product-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: start;
+            margin-bottom: 15px;
+        }
+        .product-name {
+            font-size: 1.3rem;
+            font-weight: 600;
+            color: #333;
+            margin: 0;
+        }
+        .product-category {
+            display: inline-block;
+            background: #667eea;
+            color: white;
+            padding: 5px 12px;
+            border-radius: 20px;
+            font-size: 0.85rem;
+            font-weight: 500;
+        }
+        .product-price {
+            font-size: 2rem;
+            font-weight: 700;
+            color: #667eea;
+            margin: 10px 0;
+        }
+        .product-price span {
+            font-size: 1rem;
+            color: #666;
+            font-weight: 500;
+        }
+        .status-badge {
+            display: inline-block;
+            padding: 6px 15px;
+            border-radius: 20px;
+            font-size: 0.85rem;
+            font-weight: 600;
+        }
+        .status-active {
+            background-color: #d4edda;
+            color: #155724;
+        }
+        .status-inactive {
+            background-color: #f8d7da;
+            color: #721c24;
+        }
+        .loading {
+            text-align: center;
+            padding: 40px;
+        }
+        .spinner-border {
+            color: white;
+        }
+        .loading-text {
+            color: white;
+            margin-top: 15px;
+            font-size: 1.1rem;
+        }
+        .error-alert {
+            background: #f8d7da;
+            border: 1px solid #f5c6cb;
+            color: #721c24;
+            padding: 20px;
+            border-radius: 8px;
+            margin: 20px 0;
+        }
+        .success-banner {
+            background: #d4edda;
+            border: 1px solid #c3e6cb;
+            color: #155724;
+            padding: 15px;
+            border-radius: 8px;
+            margin-bottom: 20px;
+        }
+        .table-container {
+            background: white;
+            border-radius: 12px;
+            box-shadow: 0 8px 16px rgba(0,0,0,0.1);
+            overflow: hidden;
+            margin: 30px 0;
+        }
+        .products-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 0;
+        }
+        .products-table thead {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+        }
+        .products-table thead th {
+            padding: 16px;
+            text-align: left;
+            font-weight: 600;
+            border: none;
+        }
+        .products-table thead th.sortable {
+            cursor: pointer;
+            user-select: none;
+            transition: background-color 0.2s;
+        }
+        .products-table thead th.sortable:hover {
+            background: linear-gradient(135deg, #5568d3 0%, #6b3a91 100%);
+        }
+        .sort-indicator {
+            display: inline-block;
+            margin-left: 8px;
+            font-size: 1rem;
+        }
+        .products-table tbody tr {
+            border-bottom: 1px solid #eee;
+            transition: background-color 0.3s;
+        }
+        .products-table tbody tr:hover {
+            background-color: #f8f9ff;
+        }
+        .products-table tbody td {
+            padding: 14px 16px;
+            vertical-align: middle;
+        }
+        .product-id-cell {
+            font-weight: 600;
+            color: #667eea;
+        }
+        .product-name-cell {
+            font-weight: 500;
+            color: #333;
+        }
+        .product-category-cell {
+            background: #667eea;
+            color: white;
+            padding: 6px 12px;
+            border-radius: 20px;
+            font-size: 0.85rem;
+            font-weight: 500;
+            display: inline-block;
+        }
+        .product-price-cell {
+            font-weight: 600;
+            color: #667eea;
+            font-size: 1.05rem;
+        }
+        .products-table tbody tr:nth-child(even) {
+            background-color: #f9f9f9;
+        }
+        .stats-section {
+            background: white;
+            padding: 20px;
+            border-radius: 12px;
+            margin-bottom: 30px;
+            box-shadow: 0 8px 16px rgba(0,0,0,0.1);
+        }
+        .stat-item {
+            display: inline-block;
+            margin-right: 30px;
+            text-align: center;
+        }
+        .stat-value {
+            font-size: 2rem;
+            font-weight: 700;
+            color: #667eea;
+        }
+        .stat-label {
+            color: #666;
+            font-size: 0.9rem;
+            margin-top: 5px;
+        }
+        .api-info {
+            background: rgba(255,255,255,0.1);
+            border-left: 4px solid white;
+            padding: 15px;
+            margin: 20px 0;
+            border-radius: 4px;
+            color: white;
+        }
+        .api-info p {
+            margin: 5px 0;
+            font-size: 0.95rem;
+        }
+        .filter-section {
+            background: white;
+            padding: 20px;
+            border-radius: 12px;
+            margin-bottom: 20px;
+            box-shadow: 0 8px 16px rgba(0,0,0,0.1);
+            display: flex;
+            gap: 15px;
+            flex-wrap: wrap;
+            align-items: center;
+        }
+        .filter-group {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        .filter-group label {
+            font-weight: 600;
+            color: #333;
+            margin: 0;
+        }
+        .filter-group select {
+            padding: 8px 12px;
+            border: 1px solid #ddd;
+            border-radius: 6px;
+            font-size: 0.95rem;
+            background: white;
+            cursor: pointer;
+            transition: border-color 0.2s;
+        }
+        .filter-group select:hover {
+            border-color: #667eea;
+        }
+        .filter-group select:focus {
+            outline: none;
+            border-color: #667eea;
+            box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+        }
+        .reset-filters-btn {
+            padding: 8px 16px;
+            background: #667eea;
+            color: white;
+            border: none;
+            border-radius: 6px;
+            cursor: pointer;
+            font-weight: 500;
+            transition: background 0.2s;
+        }
+        .reset-filters-btn:hover {
+            background: #5568d3;
+        }
+        .filter-results {
+            color: #666;
+            font-size: 0.9rem;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>🛍️ Xtreme Official Store</h1>
+            <p>Browse all available products and pricing</p>
+        </div>
+
+        <div class="api-info">
+            <p><strong>API Source:</strong> https://xtremeofficial.in/</p>
+            <p><strong>Endpoint:</strong> /api/products-list</p>
+        </div>
+
+        <div id="loadingContainer" class="loading">
+            <div class="spinner-border" role="status">
+                <span class="visually-hidden">Loading...</span>
+            </div>
+            <p class="loading-text">Fetching products from Xtreme Official API...</p>
+        </div>
+
+        <div id="errorContainer" style="display: none;"></div>
+
+        <div id="statsContainer" style="display: none;">
+            <div class="stats-section">
+                <div class="stat-item">
+                    <div class="stat-value" id="totalProducts">0</div>
+                    <div class="stat-label">Total Products</div>
+                </div>
+                <div class="stat-item">
+                    <div class="stat-value" id="activeProducts">0</div>
+                    <div class="stat-label">Active Products</div>
+                </div>
+                <div class="stat-item">
+                    <div class="stat-value" id="resellerStatus">No</div>
+                    <div class="stat-label">Reseller Account</div>
+                </div>
+            </div>
+        </div>
+
+        <div id="successBanner" style="display: none;" class="success-banner">
+            ✓ Successfully fetched products from Xtreme Official API
+        </div>
+
+        <div id="filterSection" style="display: none;" class="filter-section">
+            <div class="filter-group">
+                <label for="categoryFilter">Filter by Category:</label>
+                <select id="categoryFilter">
+                    <option value="">All Categories</option>
+                </select>
+            </div>
+            <div class="filter-group">
+                <label for="priceFilter">Filter by Price:</label>
+                <select id="priceFilter">
+                    <option value="">All Prices</option>
+                    <option value="0-100">₹0 - ₹100</option>
+                    <option value="100-500">₹100 - ₹500</option>
+                    <option value="500-1000">₹500 - ₹1000</option>
+                    <option value="1000+">₹1000+</option>
+                </select>
+            </div>
+            <button class="reset-filters-btn" onclick="resetFilters()">Reset Filters</button>
+            <button class="reset-filters-btn" style="background: #28a745;" onclick="downloadExcel()">📥 Download Excel</button>
+            <div class="filter-results">
+                Showing <span id="filteredCount">0</span> products
+            </div>
+        </div>
+
+        <div id="productsContainer" style="display: none;">
+            <div class="table-container">
+                <table class="products-table">
+                    <thead>
+                        <tr>
+                            <th class="sortable" data-sort="id">ID <span class="sort-indicator">↕</span></th>
+                            <th class="sortable" data-sort="product_name">Product Name <span class="sort-indicator">↕</span></th>
+                            <th class="sortable" data-sort="price">Price <span class="sort-indicator">↕</span></th>
+                            <th class="sortable" data-sort="category">Category <span class="sort-indicator">↕</span></th>
+                            <th>Status</th>
+                        </tr>
+                    </thead>
+                    <tbody id="productsList"></tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.min.js"></script>
+    <script>
+        // API Credentials
+        const PUBLIC_KEY = 'W6STC3K';
+        const PRIVATE_KEY = 'ZNT91RQ5IYKW';
+        const API_URL = 'https://xtremeofficial.in/api/products-list';
+        
+        // Use local proxy endpoint instead of direct API call to avoid CORS
+        const PROXY_API_URL = '/api/xtreme/products-list';
+
+        async function fetchProducts() {
+            const loadingContainer = document.getElementById('loadingContainer');
+            const errorContainer = document.getElementById('errorContainer');
+            const statsContainer = document.getElementById('statsContainer');
+            const successBanner = document.getElementById('successBanner');
+            const productsContainer = document.getElementById('productsContainer');
+            const productsList = document.getElementById('productsList');
+
+            try {
+                // Build the URL with parameters - using local proxy
+                const url = `${PROXY_API_URL}?public_key=${encodeURIComponent(PUBLIC_KEY)}&private_key=${encodeURIComponent(PRIVATE_KEY)}`;
+
+                console.log('Fetching from proxy:', url);
+                
+                const response = await fetch(url, {
+                    method: 'GET',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Accept': 'application/json'
+                    }
+                });
+
+                if (!response.ok) {
+                    throw new Error(`HTTP error! status: ${response.status}`);
+                }
+
+                const data = await response.json();
+
+                // Hide loading
+                loadingContainer.style.display = 'none';
+
+                // Validate response
+                if (!data.success) {
+                    throw new Error(data.error || 'API returned success: false');
+                }
+
+                // Display success banner
+                successBanner.style.display = 'block';
+
+                // Display statistics
+                const activeCount = data.products.filter(p => p.status === 'active').length;
+                document.getElementById('totalProducts').textContent = data.total_products || data.products.length;
+                document.getElementById('activeProducts').textContent = activeCount;
+                document.getElementById('resellerStatus').textContent = data.is_reseller ? 'Yes' : 'No';
+                statsContainer.style.display = 'block';
+
+                // Store products for sorting and filtering
+                allProducts = data.products;
+                filteredProducts = allProducts;
+
+                // Display products
+                productsList.innerHTML = '';
+                data.products.forEach(product => {
+                    const productCard = createProductCard(product);
+                    productsList.appendChild(productCard);
+                });
+
+                productsContainer.style.display = 'block';
+                
+                // Show filter section
+                document.getElementById('filterSection').style.display = 'flex';
+                document.getElementById('filteredCount').textContent = data.products.length;
+                
+                // Initialize filters after table is rendered
+                setTimeout(() => {
+                    populateCategoryFilter();
+                    setupPriceFilter();
+                    addSortListeners();
+                }, 0);
+
+            } catch (error) {
+                console.error('Error fetching products:', error);
+                loadingContainer.style.display = 'none';
+
+                const errorHTML = `
+                    <div class="error-alert">
+                        <h5>❌ Error Fetching Products</h5>
+                        <p><strong>Error:</strong> ${error.message}</p>
+                        <p><strong>Status:</strong> Make sure the API is accessible and your credentials are correct.</p>
+                        <hr>
+                        <p><strong>Troubleshooting:</strong></p>
+                        <ul>
+                            <li>Check if the Xtreme Official API endpoint is reachable</li>
+                            <li>Verify your Public Key: ${PUBLIC_KEY}</li>
+                            <li>Verify your Private Key: ${PRIVATE_KEY}</li>
+                            <li>Check browser console for detailed error messages</li>
+                            <li>The Xtreme Official API server may be temporarily unavailable</li>
+                        </ul>
+                    </div>
+                `;
+
+                errorContainer.innerHTML = errorHTML;
+                errorContainer.style.display = 'block';
+            }
+        }
+
+        function createProductCard(product) {
+            const row = document.createElement('tr');
+
+            const isActive = product.status === 'active';
+            const statusBadgeClass = isActive ? 'status-active' : 'status-inactive';
+            const statusText = product.status.charAt(0).toUpperCase() + product.status.slice(1);
+
+            row.innerHTML = `
+                <td class="product-id-cell">${product.id}</td>
+                <td class="product-name-cell">${escapeHtml(product.product_name)}</td>
+                <td class="product-price-cell">₹${parseFloat(product.price).toFixed(2)}</td>
+                <td><span class="product-category-cell">${escapeHtml(product.category)}</span></td>
+                <td><span class="status-badge ${statusBadgeClass}">● ${statusText}</span></td>
+            `;
+
+            return row;
+        }
+
+        function escapeHtml(text) {
+            const map = {
+                '&': '&amp;',
+                '<': '&lt;',
+                '>': '&gt;',
+                '"': '&quot;',
+                "'": '&#039;'
+            };
+            return text.replace(/[&<>"']/g, m => map[m]);
+        }
+
+        // Fetch products when page loads
+        window.addEventListener('load', fetchProducts);
+
+        // Sort and filter state
+        let sortState = {
+            column: null,
+            direction: 'asc'
+        };
+        let allProducts = [];
+        let filteredProducts = [];
+        
+        let filterState = {
+            category: '',
+            price: ''
+        };
+
+        // Apply filters to products
+        function applyFilters() {
+            filteredProducts = allProducts.filter(product => {
+                if (filterState.category && product.category !== filterState.category) {
+                    return false;
+                }
+                
+                if (filterState.price) {
+                    const price = parseFloat(product.price);
+                    switch(filterState.price) {
+                        case '0-100':
+                            if (price < 0 || price > 100) return false;
+                            break;
+                        case '100-500':
+                            if (price < 100 || price > 500) return false;
+                            break;
+                        case '500-1000':
+                            if (price < 500 || price > 1000) return false;
+                            break;
+                        case '1000+':
+                            if (price < 1000) return false;
+                            break;
+                    }
+                }
+                return true;
+            });
+            
+            document.getElementById('filteredCount').textContent = filteredProducts.length;
+            
+            if (sortState.column) {
+                sortProducts(sortState.column, true);
+            } else {
+                renderProducts(filteredProducts);
+            }
+        }
+
+        // Populate category filter dropdown
+        function populateCategoryFilter() {
+            const categories = [...new Set(allProducts.map(p => p.category))].sort();
+            const categorySelect = document.getElementById('categoryFilter');
+            
+            categories.forEach(category => {
+                const option = document.createElement('option');
+                option.value = category;
+                option.textContent = category;
+                categorySelect.appendChild(option);
+            });
+            
+            categorySelect.addEventListener('change', function() {
+                filterState.category = this.value;
+                applyFilters();
+            });
+        }
+
+        // Setup price filter
+        function setupPriceFilter() {
+            const priceSelect = document.getElementById('priceFilter');
+            priceSelect.addEventListener('change', function() {
+                filterState.price = this.value;
+                applyFilters();
+            });
+        }
+
+        // Sort products
+        function sortProducts(column, skipDirectionToggle = false) {
+            if (sortState.column === column && !skipDirectionToggle) {
+                sortState.direction = sortState.direction === 'asc' ? 'desc' : 'asc';
+            } else {
+                sortState.column = column;
+                sortState.direction = 'asc';
+            }
+
+            const sorted = [...filteredProducts].sort((a, b) => {
+                let aValue = a[column];
+                let bValue = b[column];
+
+                if (column === 'id' || column === 'price') {
+                    aValue = parseFloat(aValue) || 0;
+                    bValue = parseFloat(bValue) || 0;
+                } else {
+                    if (typeof aValue === 'string') aValue = aValue.toLowerCase();
+                    if (typeof bValue === 'string') bValue = bValue.toLowerCase();
+                }
+
+                if (aValue < bValue) return sortState.direction === 'asc' ? -1 : 1;
+                if (aValue > bValue) return sortState.direction === 'asc' ? 1 : -1;
+                return 0;
+            });
+
+            renderProducts(sorted);
+            updateSortIndicators();
+        }
+
+        // Render products in table
+        function renderProducts(products) {
+            const productsList = document.getElementById('productsList');
+            productsList.innerHTML = '';
+            products.forEach(product => {
+                const row = createProductCard(product);
+                productsList.appendChild(row);
+            });
+        }
+
+        // Update sort indicators in table header
+        function updateSortIndicators() {
+            document.querySelectorAll('.products-table thead th.sortable').forEach(th => {
+                const indicator = th.querySelector('.sort-indicator');
+                if (th.dataset.sort === sortState.column) {
+                    indicator.textContent = sortState.direction === 'asc' ? '↑' : '↓';
+                } else {
+                    indicator.textContent = '↕';
+                }
+            });
+        }
+
+        // Add click listeners to sortable headers
+        function addSortListeners() {
+            document.querySelectorAll('.products-table thead th.sortable').forEach(th => {
+                th.addEventListener('click', function() {
+                    const column = this.dataset.sort;
+                    sortProducts(column);
+                });
+            });
+        }
+
+        // Reset all filters
+        function resetFilters() {
+            filterState.category = '';
+            filterState.price = '';
+            sortState.column = null;
+            sortState.direction = 'asc';
+            
+            document.getElementById('categoryFilter').value = '';
+            document.getElementById('priceFilter').value = '';
+            
+            applyFilters();
+            updateSortIndicators();
+        }
+
+        // Manual refresh option
+        function refreshProducts() {
+            const loadingContainer = document.getElementById('loadingContainer');
+            const productsContainer = document.getElementById('productsContainer');
+            const statsContainer = document.getElementById('statsContainer');
+            const successBanner = document.getElementById('successBanner');
+            const filterSection = document.getElementById('filterSection');
+            
+            loadingContainer.style.display = 'block';
+            productsContainer.style.display = 'none';
+            statsContainer.style.display = 'none';
+            successBanner.style.display = 'none';
+            filterSection.style.display = 'none';
+            
+            fetchProducts();
+        }
+
+        // Download products as Excel
+        function downloadExcel() {
+            if (filteredProducts.length === 0) {
+                alert('No products to download. Please fetch products first.');
+                return;
+            }
+
+            // Prepare data for Excel
+            const exportData = filteredProducts.map(product => ({
+                'ID': product.id,
+                'Product Name': product.product_name,
+                'Price (₹)': parseFloat(product.price).toFixed(2),
+                'Category': product.category,
+                'Status': product.status.charAt(0).toUpperCase() + product.status.slice(1)
+            }));
+
+            // Create workbook and worksheet
+            const worksheet = XLSX.utils.json_to_sheet(exportData);
+            const workbook = XLSX.utils.book_new();
+            XLSX.utils.book_append_sheet(workbook, worksheet, 'Products');
+
+            // Format the header row
+            const range = XLSX.utils.decode_range(worksheet['!ref']);
+            for (let col = range.s.c; col <= range.e.c; col++) {
+                const cellAddress = XLSX.utils.encode_col(col) + '1';
+                worksheet[cellAddress].s = {
+                    fill: { fgColor: { rgb: 'FF667eea' } },
+                    font: { bold: true, color: { rgb: 'FFFFFFFF' } },
+                    alignment: { horizontal: 'center', vertical: 'center' }
+                };
+            }
+
+            // Adjust column widths
+            const colWidths = [
+                { wch: 8 },   // ID
+                { wch: 25 },  // Product Name
+                { wch: 12 },  // Price
+                { wch: 15 },  // Category
+                { wch: 12 }   // Status
+            ];
+            worksheet['!cols'] = colWidths;
+
+            // Generate filename with timestamp
+            const date = new Date();
+            const timestamp = date.toISOString().slice(0, 10);
+            const filename = `xtreme_products_${timestamp}.xlsx`;
+
+            // Download the file
+            XLSX.writeFile(workbook, filename);
+        }
+    </script>
+</body>
+</html>

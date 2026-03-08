@@ -1,0 +1,610 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, minimum-scale=1.0, user-scalable=no">
+    <title>Kendy Enterprises | Developer API Documentation</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Fira+Code:wght@400;500&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --primary: #3b82f6;
+            --primary-dark: #2563eb;
+            --secondary: #10b981;
+            --accent: #8b5cf6;
+            --bg-main: #0f172a;
+            --bg-card: #1e293b;
+            --bg-sidebar: #0f172a;
+            --text-main: #f1f5f9;
+            --text-muted: #94a3b8;
+            --border: #334155;
+            --code-bg: #000000;
+            --code-header: #1e293b;
+            --sidebar-width: 280px;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            scroll-behavior: smooth;
+        }
+
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: var(--bg-main);
+            color: var(--text-main);
+            line-height: 1.6;
+            display: flex;
+        }
+
+        /* Sidebar Navigation */
+        .sidebar {
+            width: var(--sidebar-width);
+            height: 100vh;
+            background-color: var(--bg-sidebar);
+            border-right: 1px solid var(--border);
+            position: fixed;
+            left: 0;
+            top: 0;
+            padding: 2rem 1.5rem;
+            overflow-y: auto;
+            z-index: 100;
+        }
+
+        .logo {
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+            font-size: 1.25rem;
+            font-weight: 700;
+            margin-bottom: 2.5rem;
+            color: var(--text-main);
+            text-decoration: none;
+        }
+
+        .logo span {
+            color: var(--primary);
+        }
+
+        .nav-group {
+            margin-bottom: 2rem;
+        }
+
+        .nav-title {
+            font-size: 0.75rem;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+            color: var(--text-muted);
+            margin-bottom: 0.75rem;
+            padding-left: 0.5rem;
+        }
+
+        .nav-link {
+            display: block;
+            padding: 0.625rem 1rem;
+            color: var(--text-muted);
+            text-decoration: none;
+            border-radius: 0.5rem;
+            font-size: 0.9375rem;
+            transition: all 0.2s ease;
+            margin-bottom: 0.25rem;
+        }
+
+        .nav-link:hover {
+            color: var(--text-main);
+            background-color: rgba(255, 255, 255, 0.05);
+        }
+
+        .nav-link.active {
+            color: var(--primary);
+            background-color: rgba(59, 130, 246, 0.1);
+            font-weight: 500;
+        }
+
+        /* Main Content */
+        .main-content {
+            flex: 1;
+            margin-left: var(--sidebar-width);
+            padding: 3rem 4rem;
+            max-width: 1200px;
+        }
+
+        header {
+            margin-bottom: 4rem;
+        }
+
+        header h1 {
+            font-size: 2.5rem;
+            font-weight: 800;
+            margin-bottom: 1rem;
+            background: linear-gradient(to right, #fff, #94a3b8);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        header p {
+            font-size: 1.125rem;
+            color: var(--text-muted);
+            max-width: 600px;
+        }
+
+        .section {
+            margin-bottom: 5rem;
+            scroll-margin-top: 3rem;
+        }
+
+        .section h2 {
+            font-size: 1.75rem;
+            font-weight: 700;
+            margin-bottom: 1.5rem;
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+        }
+
+        .section h2::before {
+            content: '';
+            width: 4px;
+            height: 1.5rem;
+            background-color: var(--primary);
+            border-radius: 2px;
+        }
+
+        .endpoint-card {
+            background-color: var(--bg-card);
+            border: 1px solid var(--border);
+            border-radius: 1rem;
+            padding: 2rem;
+            margin-bottom: 2rem;
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+        }
+
+        .endpoint-header {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+            margin-bottom: 1.5rem;
+            flex-wrap: wrap;
+        }
+
+        .method {
+            font-family: 'Fira Code', monospace;
+            font-weight: 700;
+            font-size: 0.875rem;
+            padding: 0.375rem 0.75rem;
+            border-radius: 0.375rem;
+            text-transform: uppercase;
+        }
+
+        .method.get { background-color: rgba(16, 185, 129, 0.1); color: var(--secondary); border: 1px solid rgba(16, 185, 129, 0.2); }
+        .method.post { background-color: rgba(59, 130, 246, 0.1); color: var(--primary); border: 1px solid rgba(59, 130, 246, 0.2); }
+
+        .url-badge {
+            font-family: 'Fira Code', monospace;
+            font-size: 0.9375rem;
+            color: var(--text-main);
+            background-color: rgba(0, 0, 0, 0.2);
+            padding: 0.375rem 1rem;
+            border-radius: 0.375rem;
+            border: 1px solid var(--border);
+        }
+
+        .description {
+            color: var(--text-muted);
+            margin-bottom: 2rem;
+            font-size: 1rem;
+        }
+
+        /* Parameters Table */
+        .table-container {
+            overflow-x: auto;
+            margin-bottom: 2rem;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            text-align: left;
+        }
+
+        th {
+            padding: 0.75rem 1rem;
+            border-bottom: 2px solid var(--border);
+            font-size: 0.875rem;
+            font-weight: 600;
+            color: var(--text-muted);
+        }
+
+        td {
+            padding: 1rem;
+            border-bottom: 1px solid var(--border);
+            font-size: 0.9375rem;
+        }
+
+        code {
+            font-family: 'Fira Code', monospace;
+            background-color: rgba(0, 0, 0, 0.2);
+            padding: 0.2rem 0.4rem;
+            border-radius: 0.25rem;
+            font-size: 0.875rem;
+            color: var(--accent);
+        }
+
+        .badge-required { color: #f87171; font-weight: 600; font-size: 0.75rem; background: rgba(248, 113, 113, 0.1); padding: 2px 6px; border-radius: 4px; }
+        .badge-optional { color: var(--text-muted); font-size: 0.75rem; background: rgba(148, 163, 184, 0.1); padding: 2px 6px; border-radius: 4px; }
+
+        /* Code Blocks */
+        .code-example {
+            margin-top: 2rem;
+            border-radius: 0.75rem;
+            overflow: hidden;
+            border: 1px solid var(--border);
+        }
+
+        .code-example-header {
+            background-color: var(--code-header);
+            padding: 0.75rem 1.25rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            border-bottom: 1px solid var(--border);
+        }
+
+        .code-example-title {
+            font-size: 0.8125rem;
+            font-weight: 600;
+            color: var(--text-muted);
+            text-transform: uppercase;
+            letter-spacing: 0.025em;
+        }
+
+        .copy-btn {
+            background: none;
+            border: none;
+            color: var(--text-muted);
+            cursor: pointer;
+            font-size: 0.75rem;
+            display: flex;
+            align-items: center;
+            gap: 0.4rem;
+            transition: color 0.2s;
+        }
+
+        .copy-btn:hover { color: var(--text-main); }
+
+        pre {
+            background-color: var(--code-bg);
+            padding: 1.5rem;
+            font-family: 'Fira Code', monospace;
+            font-size: 0.875rem;
+            overflow-x: auto;
+            color: #e2e8f0;
+        }
+
+        .json-key { color: #f472b6; }
+        .json-string { color: #34d399; }
+        .json-number { color: #60a5fa; }
+        .json-boolean { color: #fbbf24; }
+
+        /* Status Badges */
+        .status-badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+            padding: 0.25rem 0.75rem;
+            border-radius: 1rem;
+            font-size: 0.8125rem;
+            font-weight: 600;
+        }
+
+        .status-200 { background-color: rgba(16, 185, 129, 0.1); color: var(--secondary); }
+        .status-4xx { background-color: rgba(248, 113, 113, 0.1); color: #f87171; }
+
+        /* Footer */
+        footer {
+            margin-top: 8rem;
+            padding-top: 4rem;
+            border-top: 1px solid var(--border);
+            color: var(--text-muted);
+            font-size: 0.875rem;
+            text-align: center;
+        }
+
+        .footer-logo {
+            font-weight: 700;
+            color: var(--text-main);
+            margin-bottom: 1rem;
+            display: block;
+            text-decoration: none;
+        }
+
+        @media (max-width: 1024px) {
+            .sidebar {
+                display: none;
+            }
+            .main-content {
+                margin-left: 0;
+                padding: 2rem;
+            }
+        }
+    </style>
+</head>
+<body>
+    <nav class="sidebar">
+        <a href="#" class="logo">KENDY<span>API</span></a>
+        
+        <div class="nav-group">
+            <p class="nav-title">Introduction</p>
+            <a href="#auth" class="nav-link active">Authentication</a>
+            <a href="#quickstart" class="nav-link">Quickstart</a>
+        </div>
+
+        <div class="nav-group">
+            <p class="nav-title">Endpoints</p>
+            <a href="#balance" class="nav-link">Get Balance</a>
+            <a href="#products" class="nav-link">Get Products</a>
+            <a href="#create-order" class="nav-link">Create Order</a>
+            <a href="#orders" class="nav-link">Order History</a>
+            <a href="#validate" class="nav-link">Validate Player</a>
+        </div>
+
+        <div class="nav-group">
+            <p class="nav-title">Reference</p>
+            <a href="#errors" class="nav-link">Error Codes</a>
+        </div>
+    </nav>
+
+    <main class="main-content">
+        <header>
+            <h1>Developer API Documentation</h1>
+            <p>Empower your platform with our high-performance recharging API. Secure, reliable, and built for scale.</p>
+        </header>
+
+        <section id="auth" class="section">
+            <h2>Authentication</h2>
+            <div class="endpoint-card">
+                <p class="description">
+                    All API requests require a pair of keys: <code>public_key</code> and <code>private_key</code>. These should be passed as query parameters or in the request body.
+                </p>
+                <div class="info-box" style="background: rgba(59, 130, 246, 0.05); border: 1px solid rgba(59, 130, 246, 0.1); padding: 1.5rem; border-radius: 0.75rem;">
+                    <strong style="color: var(--primary); display: block; margin-bottom: 0.5rem;">Security Warning</strong>
+                    <p style="font-size: 0.9375rem; color: var(--text-muted);">
+                        Never expose your <code>private_key</code> in client-side code. Always perform API calls from your server-side environment.
+                    </p>
+                </div>
+            </div>
+        </section>
+
+        <section id="balance" class="section">
+            <h2>Get User Balance</h2>
+            <div class="endpoint-card">
+                <div class="endpoint-header">
+                    <span class="method get">GET</span>
+                    <span class="method post">POST</span>
+                    <span class="url-badge">/api/v2/user/balance</span>
+                </div>
+                <p class="description">Retrieve real-time balance information for your account, including BRL and INR holdings.</p>
+                
+                <div class="table-container">
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>Parameter</th>
+                                <th>Type</th>
+                                <th>Status</th>
+                                <th>Description</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td><code>public_key</code></td>
+                                <td>String</td>
+                                <td><span class="badge-required">Required</span></td>
+                                <td>Your public API key</td>
+                            </tr>
+                            <tr>
+                                <td><code>private_key</code></td>
+                                <td>String</td>
+                                <td><span class="badge-required">Required</span></td>
+                                <td>Your private API key</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+
+                <div class="code-example">
+                    <div class="code-example-header">
+                        <span class="code-example-title">Response Example</span>
+                        <button class="copy-btn">Copy</button>
+                    </div>
+                    <pre>{
+  <span class="json-key">"success"</span>: <span class="json-boolean">true</span>,
+  <span class="json-key">"balance"</span>: <span class="json-number">7500.25</span>,
+  <span class="json-key">"is_reseller"</span>: <span class="json-number">1</span>,
+  <span class="json-key">"username"</span>: <span class="json-string">"john_reseller"</span>,
+  <span class="json-key">"email"</span>: <span class="json-string">"john@example.com"</span>
+}</pre>
+                </div>
+            </div>
+        </section>
+
+        <section id="products" class="section">
+            <h2>Get Reseller Products</h2>
+            <div class="endpoint-card">
+                <div class="endpoint-header">
+                    <span class="method get">GET</span>
+                    <span class="method post">POST</span>
+                    <span class="url-badge">/api/v2/products</span>
+                </div>
+                <p class="description">Fetch the complete catalog of active products with exclusive reseller pricing.</p>
+                
+                <div class="code-example">
+                    <div class="code-example-header">
+                        <span class="code-example-title">Response Example</span>
+                    </div>
+                    <pre>{
+  <span class="json-key">"success"</span>: <span class="json-boolean">true</span>,
+  <span class="json-key">"product_count"</span>: <span class="json-number">2</span>,
+  <span class="json-key">"products"</span>: [
+    {
+      <span class="json-key">"id"</span>: <span class="json-number">1</span>,
+      <span class="json-key">"product_name"</span>: <span class="json-string">"MLBB 5000 Diamonds"</span>,
+      <span class="json-key">"reseller_price"</span>: <span class="json-number">450.50</span>,
+      <span class="json-key">"category"</span>: <span class="json-string">"MLBB"</span>
+    }
+  ]
+}</pre>
+                </div>
+            </div>
+        </section>
+
+        <section id="create-order" class="section">
+            <h2>Create Order</h2>
+            <div class="endpoint-card">
+                <div class="endpoint-header">
+                    <span class="method post">POST</span>
+                    <span class="url-badge">/api/v2/create-order</span>
+                </div>
+                <p class="description">Initiate a recharge transaction. Funds will be automatically deducted from your BRL wallet.</p>
+                
+                <div class="table-container">
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>Parameter</th>
+                                <th>Type</th>
+                                <th>Status</th>
+                                <th>Description</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td><code>userid</code></td>
+                                <td>String</td>
+                                <td><span class="badge-required">Required</span></td>
+                                <td>In-game User ID</td>
+                            </tr>
+                            <tr>
+                                <td><code>zoneid</code></td>
+                                <td>String</td>
+                                <td><span class="badge-required">Required</span></td>
+                                <td>In-game Server/Zone ID</td>
+                            </tr>
+                            <tr>
+                                <td><code>product_id</code></td>
+                                <td>Integer</td>
+                                <td><span class="badge-required">Required</span></td>
+                                <td>Database Product ID</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+
+                <div class="code-example">
+                    <div class="code-example-header">
+                        <span class="code-example-title">Success Response</span>
+                    </div>
+                    <pre>{
+  <span class="json-key">"success"</span>: <span class="json-boolean">true</span>,
+  <span class="json-key">"order_id"</span>: <span class="json-number">12345</span>,
+  <span class="json-key">"status"</span>: <span class="json-string">"success"</span>,
+  <span class="json-key">"price"</span>: <span class="json-number">500.00</span>
+}</pre>
+                </div>
+            </div>
+        </section>
+
+        <section id="validate" class="section">
+            <h2>Validate Player</h2>
+            <div class="endpoint-card">
+                <div class="endpoint-header">
+                    <span class="method get">GET</span>
+                    <span class="url-badge">/api/v2/validate</span>
+                </div>
+                <p class="description">Verify player existence and retrieve their in-game nickname before placing an order.</p>
+                
+                <div class="code-example">
+                    <div class="code-example-header">
+                        <span class="code-example-title">Response Example</span>
+                    </div>
+                    <pre>{
+  <span class="json-key">"success"</span>: <span class="json-boolean">true</span>,
+  <span class="json-key">"username"</span>: <span class="json-string">"LegendaryPlayer"</span>,
+  <span class="json-key">"country"</span>: <span class="json-string">"Brazil"</span>,
+  <span class="json-key">"source"</span>: <span class="json-string">"smile.one"</span>
+}</pre>
+                </div>
+            </div>
+        </section>
+
+        <section id="errors" class="section">
+            <h2>Error Codes</h2>
+            <div class="endpoint-card">
+                <div class="table-container">
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>Code</th>
+                                <th>Status</th>
+                                <th>Reason</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td><code>401</code></td>
+                                <td style="color: #f87171;">Unauthorized</td>
+                                <td>Invalid API key pair provided</td>
+                            </tr>
+                            <tr>
+                                <td><code>402</code></td>
+                                <td style="color: #f87171;">Payment Required</td>
+                                <td>Insufficient BRL balance</td>
+                            </tr>
+                            <tr>
+                                <td><code>403</code></td>
+                                <td style="color: #f87171;">Forbidden</td>
+                                <td>IP not whitelisted or not a reseller</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </section>
+
+        <footer>
+            <a href="#" class="footer-logo">KENDY<span>API</span></a>
+            <p>&copy; 2024 Kendy Enterprises. Built with passion for developers.</p>
+            <p style="margin-top: 0.5rem;">support@kendyenterprises.in</p>
+        </footer>
+    </main>
+
+    <script>
+        // Smooth highlighting of active nav link
+        const observerOptions = {
+            root: null,
+            rootMargin: '0px',
+            threshold: 0.5
+        };
+
+        const observer = new IntersectionObserver((entries) => {
+            entries.forEach(entry => {
+                if (entry.isIntersecting) {
+                    document.querySelectorAll('.nav-link').forEach(link => {
+                        link.classList.remove('active');
+                        if (link.getAttribute('href').substring(1) === entry.target.id) {
+                            link.classList.add('active');
+                        }
+                    });
+                }
+            });
+        }, observerOptions);
+
+        document.querySelectorAll('.section').forEach(section => {
+            observer.observe(section);
+        });
+    </script>
+</body>
+</html>

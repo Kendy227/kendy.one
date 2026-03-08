@@ -1,0 +1,310 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <link rel="icon" href="https://kendyenterprises.in/image/logo-knd.png">
+    <title>Kendy Enterprises | Order History</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap');
+
+        :root {
+            --primary: #00FFAA;
+            --glass-bg: rgba(255, 255, 255, 0.03);
+            --glass-border: rgba(255, 255, 255, 0.1);
+        }
+
+        body {
+            font-family: 'Inter', sans-serif;
+            background: #000000;
+            color: #FFFFFF;
+            min-height: 100vh;
+            margin: 0;
+            padding: 0;
+        }
+
+        /* Responsive Orb Background */
+        .orb {
+            position: fixed;
+            border-radius: 50%;
+            filter: blur(80px);
+            z-index: -1;
+            opacity: 0.5;
+        }
+        .orb-1 { 
+            width: 40vw; 
+            height: 40vw; 
+            max-width: 500px;
+            max-height: 500px;
+            background: rgba(0, 255, 170, 0.15); 
+            top: -10%; 
+            left: -10%; 
+        }
+
+        .glass-panel {
+            background: var(--glass-bg);
+            backdrop-filter: blur(16px);
+            -webkit-backdrop-filter: blur(16px);
+            border: 1px solid var(--glass-border);
+            border-radius: 16px;
+        }
+
+        .status-pill {
+            padding: 4px 10px;
+            border-radius: 99px;
+            font-size: 10px;
+            font-weight: 700;
+            text-transform: uppercase;
+            white-space: nowrap;
+            display: inline-block;
+        }
+
+        .status-success { background: rgba(16, 185, 129, 0.1); color: #34d399; border: 1px solid rgba(16, 185, 129, 0.2); }
+        .status-pending { background: rgba(245, 158, 11, 0.1); color: #fbbf24; border: 1px solid rgba(245, 158, 11, 0.2); }
+        .status-processing { background: rgba(99, 102, 241, 0.1); color: #a5b4fc; border: 1px solid rgba(99, 102, 241, 0.2); }
+        .status-failed { background: rgba(239, 68, 68, 0.1); color: #f87171; border: 1px solid rgba(239, 68, 68, 0.2); }
+        .status-refunded { background: rgba(148, 163, 184, 0.1); color: #94a3b8; border: 1px solid rgba(148, 163, 184, 0.2); }
+
+        .filter-btn.active {
+            background: var(--primary);
+            color: white;
+            border-color: var(--primary);
+        }
+
+        /* Hide table on mobile, show card list instead */
+        @media (max-width: 768px) {
+            .desktop-table { display: none; }
+            .mobile-cards { display: block; }
+        }
+        @media (min-width: 769px) {
+            .desktop-table { display: table; }
+            .mobile-cards { display: none; }
+        }
+    </style>
+</head>
+<body class="antialiased">
+    <!-- Header -->
+    {% include 'header.html' %}
+
+    <div class="orb orb-1"></div>
+
+    <main class="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+        <!-- Page Title -->
+        <header class="mb-8 flex flex-col sm:flex-row sm:items-end justify-between gap-6">
+            <div class="space-y-1">
+                <h1 class="text-2xl sm:text-3xl font-bold tracking-tight">Order History</h1>
+                <p class="text-slate-400 text-sm">Manage your digital assets and refills</p>
+            </div>
+            <button onclick="window.location.href='/dashboard'" class="glass-panel px-4 py-2.5 text-xs font-semibold flex items-center justify-center gap-2 hover:bg-white/5 active:scale-95 transition-all w-full sm:w-auto">
+                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 19l-7-7m0 0l7-7m-7 7h18"/></svg>
+                Dashboard
+            </button>
+        </header>
+
+        <!-- Search & Filter Bar -->
+        <div class="glass-panel p-3 sm:p-4 mb-6 flex flex-col lg:flex-row gap-4">
+            <div class="relative flex-1">
+                <span class="absolute inset-y-0 left-3 flex items-center text-slate-500">
+                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"/></svg>
+                </span>
+                <input type="text" id="search-input" placeholder="Search orders..." class="w-full bg-black/40 border border-white/10 rounded-xl py-2.5 pl-10 pr-4 text-sm focus:outline-none focus:border-indigo-500/50 focus:ring-1 focus:ring-indigo-500/50 transition-all">
+            </div>
+            <div class="flex items-center gap-2 overflow-x-auto pb-1 lg:pb-0 scrollbar-hide">
+                <button class="filter-btn active glass-panel shrink-0 px-4 py-2 text-[10px] font-bold uppercase tracking-wider" data-filter="all">All</button>
+                <button class="filter-btn glass-panel shrink-0 px-4 py-2 text-[10px] font-bold uppercase tracking-wider hover:bg-white/5" data-filter="success">Success</button>
+                <button class="filter-btn glass-panel shrink-0 px-4 py-2 text-[10px] font-bold uppercase tracking-wider hover:bg-white/5" data-filter="pending">Pending</button>
+                <button class="filter-btn glass-panel shrink-0 px-4 py-2 text-[10px] font-bold uppercase tracking-wider hover:bg-white/5" data-filter="failed">Failed</button>
+            </div>
+        </div>
+
+        <!-- Error State -->
+        {% if error %}
+        <div class="glass-panel p-4 mb-6 border-red-500/30 bg-red-500/5 rounded-xl flex items-center gap-3">
+            <div class="w-2 h-2 rounded-full bg-red-500 animate-pulse"></div>
+            <p class="text-red-400 text-sm">{{ error }}</p>
+        </div>
+        {% endif %}
+
+        <!-- Orders Container -->
+        <div class="glass-panel overflow-hidden">
+            <!-- Desktop View -->
+            <div class="overflow-x-auto">
+                <table class="desktop-table w-full text-left text-sm whitespace-nowrap">
+                    <thead class="bg-white/5 text-slate-500 text-[10px] uppercase font-bold tracking-widest border-b border-white/5">
+                        <tr>
+                            <th class="px-6 py-4">ID</th>
+                            <th class="px-6 py-4">Product</th>
+                            <th class="px-6 py-4">Target Account</th>
+                            <th class="px-6 py-4">Amount</th>
+                            <th class="px-6 py-4">Status</th>
+                            <th class="px-6 py-4 text-right">Date</th>
+                        </tr>
+                    </thead>
+                    <tbody class="divide-y divide-white/5" id="orders-table-desktop">
+                        {% if orders and orders|length > 0 %}
+                            {% for order in orders %}
+                            <tr class="order-row transition-colors hover:bg-white/[0.02]" data-status="{{ order.status|lower }}" data-search="{{ order.product_name }} {{ order.userid }} {{ order.id }}">
+                                <td class="px-6 py-5 font-mono text-[10px] text-slate-500">#{{ "%04d"|format(order.id) }}</td>
+                                <td class="px-6 py-5">
+                                    <div class="font-semibold text-slate-100">{{ order.product_name }}</div>
+                                </td>
+                                <td class="px-6 py-5">
+                                    <div class="flex items-center gap-2">
+                                        <span class="bg-indigo-500/10 text-indigo-300 px-2 py-0.5 rounded text-[11px] font-medium">{{ order.userid }}</span>
+                                        {% if order.zoneid %}
+                                        <span class="text-slate-500 text-[11px]">({{ order.zoneid }})</span>
+                                        {% endif %}
+                                    </div>
+                                </td>
+                                <td class="px-6 py-5 font-bold text-slate-200">{% if user.is_reseller %}BRL{% else %}₹{% endif %}{{ "%.2f"|format(order.price) }}</td>
+                                <td class="px-6 py-5">
+                                    <span class="status-pill status-{{ order.status|lower }}">
+                                        {{ order.status|replace('_', ' ')|title }}
+                                    </span>
+                                </td>
+                                <td class="px-6 py-5 text-right text-slate-500 text-[11px]">
+                                    {{ order.create_date.strftime('%d %b, %H:%M') if order.create_date else 'N/A' }}
+                                </td>
+                            </tr>
+                            {% endfor %}
+                        {% endif %}
+                    </tbody>
+                </table>
+            </div>
+
+            <!-- Mobile View (Card List) -->
+            <div class="mobile-cards divide-y divide-white/5" id="orders-cards-mobile">
+                {% if orders and orders|length > 0 %}
+                    {% for order in orders %}
+                    <div class="order-row p-5 space-y-4" data-status="{{ order.status|lower }}" data-search="{{ order.product_name }} {{ order.userid }} {{ order.id }}">
+                        <div class="flex justify-between items-start">
+                            <div class="space-y-1">
+                                <h3 class="font-bold text-slate-100">{{ order.product_name }}</h3>
+                                <p class="text-[10px] text-slate-500 font-mono">ID: #ORD-{{ "%04d"|format(order.id) }}</p>
+                            </div>
+                            <span class="status-pill status-{{ order.status|lower }}">
+                                {{ order.status|replace('_', ' ')|title }}
+                            </span>
+                        </div>
+                        <div class="flex justify-between items-center text-sm">
+                            <div class="flex flex-col gap-1">
+                                <span class="text-[10px] uppercase font-bold text-slate-500 tracking-wider">Target</span>
+                                <span class="text-indigo-300 font-medium">{{ order.userid }} {% if order.zoneid %}({{ order.zoneid }}){% endif %}</span>
+                            </div>
+                            <div class="flex flex-col items-end gap-1">
+                                <span class="text-[10px] uppercase font-bold text-slate-500 tracking-wider">Price</span>
+                                <span class="text-white font-bold">{% if user.is_reseller %}BRL{% else %}₹{% endif %}{{ "%.2f"|format(order.price) }}</span>
+                            </div>
+                        </div>
+                        <div class="pt-2 flex justify-between items-center border-t border-white/5">
+                            <span class="text-[10px] text-slate-500">
+                                {{ order.create_date.strftime('%d %b %Y, %H:%M') if order.create_date else 'N/A' }}
+                            </span>
+                            <button class="text-indigo-400 text-[10px] font-bold uppercase tracking-widest">Details</button>
+                        </div>
+                    </div>
+                    {% endfor %}
+                {% endif %}
+            </div>
+
+            <!-- Empty State -->
+            <div id="empty-state" class="hidden px-6 py-20 text-center text-slate-500">
+                <div class="flex flex-col items-center gap-4">
+                    <div class="p-4 bg-white/5 rounded-full">
+                        <svg class="w-8 h-8 text-slate-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/>
+                        </svg>
+                    </div>
+                    <div>
+                        <p class="font-semibold text-slate-300">No results found</p>
+                        <p class="text-xs mt-1">Try adjusting your filters or search terms</p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Pagination (Mobile Optimized) -->
+            {% if orders %}
+            <div class="p-5 sm:p-6 border-t border-white/5 flex flex-col sm:flex-row items-center justify-between gap-6">
+                <p class="text-[11px] text-slate-500 order-2 sm:order-1">Showing {{ start_index }} to {{ end_index }} of {{ total_orders }}</p>
+                <div class="flex items-center gap-1.5 order-1 sm:order-2 w-full sm:w-auto justify-center">
+                    {% if page > 1 %}
+                    <a href="?page={{ page - 1 }}&status={{ current_filter }}" class="glass-panel px-3 py-2 text-[10px] font-bold hover:bg-white/5 transition-colors">Prev</a>
+                    {% endif %}
+
+                    <div class="flex gap-1">
+                        {% for page_num in page_range %}
+                            {% if page_num == page %}
+                            <span class="glass-panel px-3 py-2 text-[10px] font-bold bg-indigo-500/20 text-indigo-400 border-indigo-500/30">{{ page_num }}</span>
+                            {% else %}
+                            <a href="?page={{ page_num }}&status={{ current_filter }}" class="glass-panel px-3 py-2 text-[10px] font-bold hover:bg-white/5 transition-colors hidden sm:block">{{ page_num }}</a>
+                            {% endif %}
+                        {% endfor %}
+                    </div>
+
+                    {% if page < total_pages %}
+                    <a href="?page={{ page + 1 }}&status={{ current_filter }}" class="glass-panel px-3 py-2 text-[10px] font-bold hover:bg-white/5 transition-colors">Next</a>
+                    {% endif %}
+                </div>
+            </div>
+            {% endif %}
+        </div>
+    </main>
+
+    <!-- Footer -->
+    {% include 'footer.html' %}
+
+    <script>
+        const searchInput = document.getElementById('search-input');
+        const filterButtons = document.querySelectorAll('.filter-btn');
+        const orderRows = document.querySelectorAll('.order-row');
+        const emptyState = document.getElementById('empty-state');
+
+        function filterOrders() {
+            const searchTerm = searchInput.value.toLowerCase().trim();
+            const activeFilter = document.querySelector('.filter-btn.active').dataset.filter;
+            let visibleCount = 0;
+
+            orderRows.forEach(row => {
+                const searchData = row.dataset.search?.toLowerCase() || row.textContent.toLowerCase();
+                const status = row.dataset.status;
+                
+                const matchesSearch = searchData.includes(searchTerm);
+                const matchesFilter = activeFilter === 'all' || status === activeFilter;
+
+                if (matchesSearch && matchesFilter) {
+                    row.style.display = '';
+                    visibleCount++;
+                } else {
+                    row.style.display = 'none';
+                }
+            });
+
+            // Handle empty state visibility
+            emptyState.style.display = visibleCount === 0 ? 'block' : 'none';
+            
+            // Toggle visibility of table headers if no data (Desktop only)
+            const table = document.querySelector('.desktop-table');
+            if (table) {
+                table.style.display = (visibleCount === 0 && window.innerWidth > 768) ? 'none' : (window.innerWidth > 768 ? 'table' : 'none');
+            }
+        }
+
+        // Search input event
+        searchInput.addEventListener('input', filterOrders);
+
+        // Filter button events
+        filterButtons.forEach(button => {
+            button.addEventListener('click', () => {
+                filterButtons.forEach(btn => btn.classList.remove('active'));
+                button.classList.add('active');
+                filterOrders();
+            });
+        });
+
+        // Initialize display
+        window.addEventListener('resize', filterOrders);
+        filterOrders();
+    </script>
+</body>
+</html>

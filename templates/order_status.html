@@ -1,0 +1,213 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <link rel="icon" href="https://kendyenterprises.in/image/logo-knd.png">
+    <title>Kendy Enterprises | Order Status</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap');
+
+        :root {
+            --primary: #00FFAA;
+            --glass-bg: rgba(255, 255, 255, 0.03);
+            --glass-border: rgba(255, 255, 255, 0.1);
+        }
+
+        body {
+            font-family: 'Inter', sans-serif;
+            background: #000000;
+            color: #FFFFFF;
+            min-height: 100vh;
+        }
+
+        .orb {
+            position: fixed;
+            border-radius: 50%;
+            filter: blur(100px);
+            z-index: -1;
+        }
+        .orb-1 { width: 400px; height: 400px; background: rgba(0, 255, 170, 0.15); top: -100px; left: -100px; }
+
+        .glass-panel {
+            background: var(--glass-bg);
+            backdrop-filter: blur(16px);
+            border: 1px solid var(--glass-border);
+            border-radius: 24px;
+        }
+
+        .status-badge {
+            padding: 6px 16px;
+            border-radius: 99px;
+            font-size: 12px;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+        }
+
+        .status-success { background: rgba(16, 185, 129, 0.1); color: #34d399; border: 1px solid rgba(16, 185, 129, 0.2); }
+        .status-pending { background: rgba(245, 158, 11, 0.1); color: #fbbf24; border: 1px solid rgba(245, 158, 11, 0.2); }
+        
+        .timeline-step {
+            position: relative;
+            padding-left: 32px;
+            padding-bottom: 24px;
+        }
+        .timeline-step::before {
+            content: '';
+            position: absolute;
+            left: 10px;
+            top: 20px;
+            bottom: 0;
+            width: 2px;
+            background: rgba(255, 255, 255, 0.05);
+        }
+        .timeline-step:last-child::before { display: none; }
+        
+        .dot {
+            position: absolute;
+            left: 0;
+            top: 0;
+            width: 22px;
+            height: 22px;
+            border-radius: 50%;
+            background: #1e293b;
+            border: 2px solid rgba(255, 255, 255, 0.1);
+            z-index: 10;
+        }
+        .dot.active {
+            background: var(--primary);
+            border-color: rgba(6, 182, 212, 0.4);
+            box-shadow: 0 0 15px var(--primary);
+        }
+    </style>
+</head>
+<body class="p-4 md:p-8 flex flex-col items-center">
+    {% include 'header.html' %}
+    
+    <div class="orb orb-1"></div>
+
+    <div class="max-w-2xl w-full mt-8">
+        <!-- Header -->
+        <div class="text-center mb-8">
+            <div class="inline-flex items-center justify-center w-16 h-16 rounded-3xl bg-cyan-500/10 text-cyan-400 mb-4 border border-cyan-500/20">
+                <svg class="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
+            </div>
+            <h1 class="text-3xl font-bold">Order Details</h1>
+            <p class="text-gray-400 mt-2 font-mono text-sm uppercase tracking-widest" id="order-id-display">#ORD-{{ order_id }}</p>
+        </div>
+
+        <div class="grid grid-cols-1 lg:grid-cols-5 gap-6">
+            <!-- Left Side: Order Info -->
+            <div class="lg:col-span-3 space-y-6">
+                <div class="glass-panel p-6">
+                    <h3 class="text-[10px] font-bold text-slate-500 uppercase tracking-widest mb-6 border-b border-white/5 pb-3">Transaction Summary</h3>
+                    
+                    <div class="space-y-4">
+                        <div class="flex justify-between items-center">
+                            <span class="text-sm text-gray-400">User ID</span>
+                            <span class="text-sm font-bold text-white">{{ user_id }}</span>
+                        </div>
+                        <div class="flex justify-between items-center">
+                            <span class="text-sm text-gray-400">Zone ID</span>
+                            <span class="text-sm font-bold text-gray-300">({{ zone_id }})</span>
+                        </div>
+                        <div class="flex justify-between items-center">
+                            <span class="text-sm text-gray-400">Category</span>
+                            <span class="text-sm font-bold text-cyan-400">{{ category }}</span>
+                        </div>
+                        <div class="flex justify-between items-center">
+                            <span class="text-sm text-gray-400">Product</span>
+                            <span class="text-sm font-bold text-white">{{ product_name }}</span>
+                        </div>
+                        <div class="flex justify-between items-center pt-3 border-t border-white/5">
+                            <span class="text-sm text-gray-400">Price Paid</span>
+                            <span class="text-lg font-bold text-emerald-400"><span class="currency-symbol">{% if user.is_reseller %}BRL{% else %}₹{% endif %}</span>{{ price }}</span>
+                        </div>
+                        <div class="flex justify-between items-center">
+                            <span class="text-sm text-gray-400">Status</span>
+                            <span class="status-badge status-success">Success</span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Navigation Buttons -->
+                <div class="flex flex-col sm:flex-row gap-4">
+                    <button onclick="window.location.href='/'" class="flex-1 bg-white/5 hover:bg-white/10 text-white py-4 rounded-2xl font-bold text-sm transition-all border border-white/10 flex items-center justify-center gap-2">
+                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path d="M16 11V7a4 4 0 00-8 0v4M5 9h14l1 12H4L5 9z"/></svg>
+                        Continue Shopping
+                    </button>
+                    <button onclick="window.location.href='/orders'" class="flex-1 bg-cyan-600 hover:bg-cyan-500 text-white py-4 rounded-2xl font-bold text-sm transition-all shadow-lg shadow-cyan-500/20 flex items-center justify-center gap-2">
+                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
+                        Order History
+                    </button>
+                </div>
+            </div>
+
+            <!-- Right Side: Status Timeline -->
+            <div class="lg:col-span-2">
+                <div class="glass-panel p-6 h-full">
+                    <h3 class="text-[10px] font-bold text-gray-400 uppercase tracking-widest mb-6">Processing Log</h3>
+                    
+                    <div class="timeline-step">
+                        <div class="dot active"></div>
+                        <h4 class="text-xs font-bold text-white">Order Received</h4>
+                        <p class="text-[10px] text-gray-400 mt-1" id="time-received">24 Dec, 12:01 PM</p>
+                    </div>
+
+                    <div class="timeline-step">
+                        <div class="dot active"></div>
+                        <h4 class="text-xs font-bold text-white">Payment Verified</h4>
+                        <p class="text-[10px] text-gray-400 mt-1" id="time-verified">24 Dec, 12:02 PM</p>
+                    </div>
+
+                    <div class="timeline-step">
+                        <div class="dot active"></div>
+                        <h4 class="text-xs font-bold text-white">Processing Top-up</h4>
+                        <p class="text-[10px] text-gray-400 mt-1" id="time-processing">24 Dec, 12:05 PM</p>
+                    </div>
+
+                    <div class="timeline-step">
+                        <div class="dot active"></div>
+                        <h4 class="text-xs font-bold text-emerald-400">Order Completed</h4>
+                        <p class="text-[10px] text-gray-400 mt-1" id="time-completed">24 Dec, 12:10 PM</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Help Section -->
+        <div class="mt-10 p-6 glass-panel border-dashed border-white/10 text-center">
+            <p class="text-xs text-gray-400 mb-4">Having trouble with this order?</p>
+            <button class="text-xs font-bold text-cyan-400 hover:text-cyan-300 uppercase tracking-widest flex items-center justify-center gap-2 mx-auto">
+                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z"/></svg>
+                Contact 24/7 Support
+            </button>
+        </div>
+    </div>
+
+    {% include 'footer.html' %}
+
+    <script>
+        // Format timestamps based on server-side data
+        function formatTime(date) {
+            return new Date(date).toLocaleString('en-IN', {
+                day: 'numeric',
+                month: 'short',
+                year: 'numeric',
+                hour: '2-digit',
+                minute: '2-digit',
+                hour12: true
+            });
+        }
+
+        // Get current time and set timestamps
+        const now = new Date();
+        document.getElementById('time-received').textContent = formatTime(now);
+        document.getElementById('time-verified').textContent = formatTime(new Date(now.getTime() + 60000));
+        document.getElementById('time-processing').textContent = formatTime(new Date(now.getTime() + 240000));
+        document.getElementById('time-completed').textContent = formatTime(new Date(now.getTime() + 600000));
+    </script>
+</body>
+</html>

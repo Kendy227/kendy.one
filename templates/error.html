@@ -1,0 +1,62 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, minimum-scale=1.0, user-scalable=no">
+    <link rel="icon" href="https://kendyenterprises.in/image/logo-knd.png">
+    <title>Error - Kendy Enterprises</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap');
+
+        :root {
+            --primary: #00FFAA;
+            --primary-hover: #00B4D8;
+            --danger: #FF00FF;
+        }
+
+        body {
+            font-family: 'Inter', sans-serif;
+            background: #000000;
+            color: #FFFFFF;
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .error-card {
+            background: rgba(15, 15, 15, 0.8);
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 16px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container mx-auto px-4">
+        <div class="error-card p-8 max-w-md mx-auto text-center">
+            <div class="mb-6">
+                <i class="fas fa-exclamation-triangle text-6xl text-red-500 mb-4"></i>
+                <h1 class="text-3xl font-bold mb-2">Oops! Something went wrong</h1>
+                <p class="text-gray-300 mb-6">{{ message or 'An unexpected error occurred.' }}</p>
+            </div>
+
+            <div class="space-y-3">
+                <a href="{{ url_for('index') }}" class="block w-full bg-cyan-400 hover:bg-cyan-300 text-black font-medium py-3 px-6 rounded-lg transition duration-200">
+                    <i class="fas fa-home mr-2"></i> Go to Homepage
+                </a>
+
+                <a href="{{ url_for('dashboard') }}" class="block w-full bg-purple-600 hover:bg-purple-500 text-white font-medium py-3 px-6 rounded-lg transition duration-200">
+                    <i class="fas fa-tachometer-alt mr-2"></i> Go to Dashboard
+                </a>
+
+                <button onclick="history.back()" class="block w-full bg-slate-700 hover:bg-slate-600 text-white font-medium py-3 px-6 rounded-lg transition duration-200">
+                    <i class="fas fa-arrow-left mr-2"></i> Go Back
+                </button>
+            </div>
+        </div>
+    </div>
+</body>
+</html>

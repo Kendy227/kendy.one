@@ -1,0 +1,364 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <link rel="icon" href="https://kendyenterprises.in/image/logo-knd.png">
+    <title>Kendy Enterprises | Gaming Top-up Platform</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap');
+        
+        :root {
+            --bg-dark: #000000;
+            --card-dark: #0F0F0F;
+            --primary-cyan: #00FFAA;
+            --secondary-blue: #00B4D8;
+            --text-muted: #FFFFFF;
+            --accent: #FF00FF;
+        }
+
+        body {
+            font-family: 'Poppins', sans-serif;
+            background-color: var(--bg-dark);
+            color: #F8FAFC;
+        }
+
+        /* Smooth Card Hover */
+        .category-card {
+            background-color: var(--card-dark);
+            border: 1px solid rgba(255, 255, 255, 0.05);
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+
+        .category-card:hover {
+            transform: translateY(-8px);
+            border-color: var(--primary-cyan);
+            box-shadow: 0 10px 25px -5px rgba(6, 182, 212, 0.3);
+        }
+
+        /* Action Cards Glass Effect */
+        .action-card {
+            background-color: var(--card-dark);
+            border: 1px solid rgba(6, 182, 212, 0.2);
+            transition: all 0.2s ease;
+        }
+
+        .action-card:hover {
+            background-color: #1E293B;
+            border-color: var(--primary-cyan);
+        }
+
+        /* Ticker Animation */
+        @keyframes scroll {
+            0% { transform: translateX(0); }
+            100% { transform: translateX(-50%); }
+        }
+
+        .animate-scroll {
+            animation: scroll 35s linear infinite;
+        }
+
+        .cyan-glow {
+            box-shadow: 0 0 15px rgba(6, 182, 212, 0.2);
+        }
+
+        /* Custom Scrollbar */
+        ::-webkit-scrollbar { width: 6px; }
+        ::-webkit-scrollbar-track { background: var(--bg-dark); }
+        ::-webkit-scrollbar-thumb { background: #1E293B; border-radius: 10px; }
+        ::-webkit-scrollbar-thumb:hover { background: var(--primary-cyan); }
+    </style>
+</head>
+<body class="min-h-screen">
+
+    {% include 'header.html' %}
+
+    <section class="max-w-7xl mx-auto px-4 mt-6 mb-8">
+        <div class="relative rounded-3xl h-52 md:h-72 overflow-hidden cyan-glow border border-white/5">
+            <div id="heroSlider" class="h-full w-full relative flex transition-transform duration-500 ease-out">
+                <div class="flex items-center justify-center h-full w-full text-white bg-slate-900 flex-shrink-0">
+                    <div class="text-center">
+                        <div class="animate-spin rounded-full h-10 w-10 border-t-2 border-cyan-500 mx-auto mb-4"></div>
+                        <p class="text-slate-400 text-sm">Loading Banners...</p>
+                    </div>
+                </div>
+            </div>
+            <!-- Slider Controls -->
+            <div class="absolute bottom-4 left-1/2 transform -translate-x-1/2 flex gap-2 z-10" id="bannerDots"></div>
+            <button onclick="prevBanner()" class="absolute left-4 top-1/2 transform -translate-y-1/2 z-10 bg-black/50 hover:bg-black/70 text-white p-2 rounded-full transition">
+                <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"/></svg>
+            </button>
+            <button onclick="nextBanner()" class="absolute right-4 top-1/2 transform -translate-y-1/2 z-10 bg-black/50 hover:bg-black/70 text-white p-2 rounded-full transition">
+                <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"/></svg>
+            </button>
+        </div>
+    </section>
+
+    <section class="w-full bg-slate-900/50 border-y border-cyan-500/10 py-3 overflow-hidden backdrop-blur-sm">
+        <div class="flex animate-scroll whitespace-nowrap">
+            <div class="inline-flex gap-12 px-4">
+                <span class="text-cyan-400 text-xs font-medium flex items-center gap-2 tracking-wide"><span class="w-2 h-2 bg-cyan-500 rounded-full animate-pulse"></span> SYSTEM STATUS: ALL PAYMENTS OPERATIONAL</span>
+                <span class="text-slate-300 text-xs font-medium flex items-center gap-2">⚡ FLASH SALE: INSTANT TOP-UPS ACTIVE NOW</span>
+                <span class="text-slate-300 text-xs font-medium flex items-center gap-2">🛡️ SECURE ENCRYPTED TRANSACTIONS</span>
+                <span class="text-slate-300 text-xs font-medium flex items-center gap-2">🆘 SUPPORT: 6AM - 11PM DAILY</span>
+            </div>
+            <div class="inline-flex gap-12 px-4">
+                <span class="text-cyan-400 text-xs font-medium flex items-center gap-2 tracking-wide"><span class="w-2 h-2 bg-cyan-500 rounded-full animate-pulse"></span> SYSTEM STATUS: ALL PAYMENTS OPERATIONAL</span>
+                <span class="text-slate-300 text-xs font-medium flex items-center gap-2">⚡ FLASH SALE: INSTANT TOP-UPS ACTIVE NOW</span>
+                <span class="text-slate-300 text-xs font-medium flex items-center gap-2">🛡️ SECURE ENCRYPTED TRANSACTIONS</span>
+                <span class="text-slate-300 text-xs font-medium flex items-center gap-2">🆘 SUPPORT: 6AM - 11PM DAILY</span>
+            </div>
+        </div>
+    </section>
+
+    <!---<section class="max-w-7xl mx-auto px-4 mt-8">
+        <div class="grid grid-cols-4 gap-4">
+            <div class="action-card p-4 rounded-2xl flex flex-col items-center justify-center text-center">
+                <div class="w-12 h-12 bg-cyan-500/10 text-cyan-400 rounded-2xl flex items-center justify-center mb-3">
+                    <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z"/></svg>
+                </div>
+                <span class="text-sm font-bold text-white leading-none" id="successRate">--</span>
+                <span class="text-[9px] font-medium text-slate-400 uppercase mt-1 tracking-tighter">Success Rate</span>
+            </div>
+            
+            <div class="action-card p-4 rounded-2xl flex flex-col items-center justify-center text-center">
+                <div class="w-12 h-12 bg-blue-500/10 text-blue-400 rounded-2xl flex items-center justify-center mb-3">
+                    <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197M13 7a4 4 0 11-8 0 4 4 0 018 0z"/></svg>
+                </div>
+                <span class="text-sm font-bold text-white leading-none" id="totalUserCount">--</span>
+                <span class="text-[9px] font-medium text-slate-400 uppercase mt-1 tracking-tighter">Active Users</span>
+            </div>
+
+            <a href="/region_checker" class="action-card p-4 rounded-2xl flex flex-col items-center justify-center text-center">
+                <div class="w-12 h-12 bg-cyan-500/10 text-cyan-400 rounded-2xl flex items-center justify-center mb-3">
+                    <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 12a9 9 0 01-9 9m9-9a9 9 0 00-9-9m9 9H3m9 9a9 9 0 01-9-9m9 9c1.657 0 3-4.03 3-9s-1.343-9-3-9m0 18c-1.657 0-3-4.03-3-9s1.343-9 3-9m-9 9a9 9 0 019-9"/></svg>
+                </div>
+                <span class="text-[10px] font-bold text-white uppercase tracking-wider">Checker</span>
+            </a>
+
+            <a href="/orders" class="action-card p-4 rounded-2xl flex flex-col items-center justify-center text-center">
+                <div class="w-12 h-12 bg-blue-500/10 text-blue-400 rounded-2xl flex items-center justify-center mb-3">
+                    <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-3 7h3m-3 4h3m-6-4h.01M9 16h.01"/></svg>
+                </div>
+                <span class="text-[10px] font-bold text-white uppercase tracking-wider">History</span>
+            </a>
+        </div>
+    </section>--->
+
+    <main class="max-w-7xl mx-auto px-4 py-12">
+        <div id="categoryContainer">
+            </div>
+    </main>
+
+    {% include 'footer.html' %}
+
+    <div id="mobileModal" class="fixed inset-0 z-50 flex items-center justify-center bg-slate-950/80 backdrop-blur-sm hidden">
+        <div class="bg-[#0F172A] rounded-[2rem] p-8 max-w-xs w-full text-center border border-cyan-500/20 shadow-2xl">
+            <div class="mx-auto flex items-center justify-center h-14 w-14 rounded-2xl bg-cyan-500/10 mb-6">
+                <span class="text-cyan-400 text-2xl">📱</span>
+            </div>
+            <h2 class="text-xl font-bold text-white mb-2">Update Account</h2>
+            <p class="text-xs text-slate-400 mb-8 px-2">Please link your phone number to receive instant order updates via SMS.</p>
+            
+            <div class="relative mb-6">
+                <input id="mobileInput" type="tel" maxlength="15" placeholder="Enter mobile number" 
+                    class="w-full px-5 py-3.5 bg-slate-900 border border-slate-700 rounded-xl focus:ring-2 focus:ring-cyan-500 text-white transition-all outline-none placeholder:text-slate-500" />
+            </div>
+
+            <button id="saveMobileBtn" 
+                class="w-full bg-cyan-600 hover:bg-cyan-500 text-white font-bold py-3.5 rounded-xl transition-all shadow-lg shadow-cyan-900/20">
+                Continue
+            </button>
+            <div id="mobileModalMsg" class="text-[10px] font-medium text-rose-400 mt-4 min-h-[1rem]"></div>
+        </div>
+    </div>
+
+    <script>
+        // Banner Management
+        let banners = [];
+        let currentBannerIndex = 0;
+        let bannerAutoPlayInterval = null;
+
+        // Updated Category Colors for the theme
+        const categoryTypeColors = {
+            'FLASH SALE': 'from-cyan-600 to-blue-600',
+            'INDIAN REGION': 'from-slate-700 to-slate-800',
+            'OTHER REGION': 'from-slate-700 to-slate-800',
+            'OTHER GAME': 'from-slate-700 to-slate-800',
+            'SOCIAL MEDIA': 'from-slate-700 to-slate-800'
+        };
+
+        const categoryTypeIcons = {
+            'FLASH SALE': '⚡', 'INDIAN REGION': '🇮🇳', 'OTHER REGION': '🌐', 'OTHER GAME': '🎮', 'SOCIAL MEDIA': '📱'
+        };
+
+        // Fetch banners from database
+        async function fetchBanners() {
+            try {
+                const resp = await fetch('/api/banners');
+                const data = await resp.json();
+                banners = data.banners || [];
+                if (banners.length > 0) {
+                    renderBannerSlider();
+                    startBannerAutoPlay();
+                } else {
+                    renderNoBannersPlaceholder();
+                }
+            } catch (err) {
+                console.error('Error fetching banners:', err);
+                renderNoBannersPlaceholder();
+            }
+        }
+
+        // Render banner slider
+        function renderBannerSlider() {
+            const slider = document.getElementById('heroSlider');
+            slider.innerHTML = banners.map((banner, idx) => `
+                <div class="h-full w-full flex-shrink-0 relative">
+                    <img src="${banner.image}" alt="${banner.title || 'Banner'}" class="w-full h-full object-cover">
+                    <div class="absolute inset-0 bg-gradient-to-t from-black/40 to-transparent flex items-end p-6">
+                        <div>
+                            <h2 class="text-2xl font-bold text-white">${banner.title || ''}</h2>
+                            ${banner.description ? `<p class="text-slate-200 text-sm mt-2">${banner.description}</p>` : ''}
+                        </div>
+                    </div>
+                </div>
+            `).join('');
+
+            // Render dots
+            const dotsContainer = document.getElementById('bannerDots');
+            dotsContainer.innerHTML = banners.map((_, idx) => `
+                <button onclick="goToBanner(${idx})" class="w-2 h-2 rounded-full transition ${idx === 0 ? 'bg-cyan-400 w-8' : 'bg-slate-400 hover:bg-slate-300'}"></button>
+            `).join('');
+        }
+
+        // Render placeholder when no banners
+        function renderNoBannersPlaceholder() {
+            const slider = document.getElementById('heroSlider');
+            slider.innerHTML = `
+                <div class="flex items-center justify-center h-full w-full text-white bg-gradient-to-br from-slate-900 to-slate-800">
+                    <div class="text-center">
+                        <div class="text-5xl mb-4">🎨</div>
+                        <p class="text-slate-300">No banners available</p>
+                    </div>
+                </div>
+            `;
+        }
+
+        // Banner carousel functions
+        function goToBanner(idx) {
+            currentBannerIndex = idx;
+            updateBannerSlider();
+            resetBannerAutoPlay();
+        }
+
+        function nextBanner() {
+            currentBannerIndex = (currentBannerIndex + 1) % banners.length;
+            updateBannerSlider();
+            resetBannerAutoPlay();
+        }
+
+        function prevBanner() {
+            currentBannerIndex = (currentBannerIndex - 1 + banners.length) % banners.length;
+            updateBannerSlider();
+            resetBannerAutoPlay();
+        }
+
+        function updateBannerSlider() {
+            const slider = document.getElementById('heroSlider');
+            slider.style.transform = `translateX(-${currentBannerIndex * 100}%)`;
+            
+            // Update dots
+            const dots = document.querySelectorAll('#bannerDots button');
+            dots.forEach((dot, idx) => {
+                if (idx === currentBannerIndex) {
+                    dot.classList.add('bg-cyan-400', 'w-8');
+                    dot.classList.remove('bg-slate-400');
+                } else {
+                    dot.classList.remove('bg-cyan-400', 'w-8');
+                    dot.classList.add('bg-slate-400');
+                }
+            });
+        }
+
+        function startBannerAutoPlay() {
+            if (banners.length <= 1) return;
+            bannerAutoPlayInterval = setInterval(() => {
+                nextBanner();
+            }, 5000); // Change banner every 5 seconds
+        }
+
+        function resetBannerAutoPlay() {
+            clearInterval(bannerAutoPlayInterval);
+            startBannerAutoPlay();
+        }
+
+        // Same Logic, New Styles
+        async function renderCategories() {
+            try {
+                const resp = await fetch('/api/categories');
+                const data = await resp.json();
+                const container = document.getElementById('categoryContainer');
+                const grouped = data.grouped || {};
+                const categoryTypeOrder = ['FLASH SALE', 'INDIAN REGION', 'OTHER REGION', 'OTHER GAME', 'SOCIAL MEDIA'];
+                
+                let html = '';
+                categoryTypeOrder.forEach(type => {
+                    if (!grouped[type]) return;
+                    const categories = grouped[type];
+                    const icon = categoryTypeIcons[type] || '🎯';
+                    const colors = categoryTypeColors[type];
+                    
+                    html += `
+                        <div class="mb-12">
+                            <div class="flex items-center gap-4 mb-8">
+                                <div class="bg-gradient-to-br ${colors} p-3 rounded-xl shadow-lg text-xl">
+                                    ${icon}
+                                </div>
+                                <div>
+                                    <h3 class="text-xl font-bold text-white tracking-tight">${type}</h3>
+                                    <div class="h-1 w-12 bg-cyan-500 rounded-full mt-1"></div>
+                                </div>
+                            </div>
+                            
+                            <div class="grid grid-cols-3 sm:grid-cols-4 md:grid-cols-5 lg:grid-cols-6 gap-5">
+                                ${categories.map(cat => `
+                                    <div class="category-card rounded-2xl p-3 flex flex-col items-center cursor-pointer" onclick="selectCategory('${cat.category_name}')">
+                                        <div class="w-full aspect-square rounded-xl overflow-hidden mb-3 bg-slate-800">
+                                            <img src="${cat.category_image || '/static/placeholder.jpg'}" alt="${cat.category_name}" class="w-full h-full object-cover">
+                                        </div>
+                                        <h4 class="text-[11px] font-semibold text-center text-slate-200 line-clamp-2">${cat.category_name}</h4>
+                                    </div>
+                                `).join('')}
+                            </div>
+                        </div>
+                    `;
+                });
+                container.innerHTML = html;
+            } catch (err) { console.error(err); }
+        }
+
+        // Initialize Slider & Stats (Using your existing logic)
+        window.onload = function() {
+            fetchBanners();
+            renderCategories();
+            fetchTotalUsers();
+            fetchSuccessRate();
+        }
+
+        // Standard Utility Functions (Logic remains same as your original)
+        async function fetchTotalUsers() {
+            const resp = await fetch('/api/stats/total_users');
+            const data = await resp.json();
+            document.getElementById('totalUserCount').textContent = data.total_users || '10k+';
+        }
+        async function fetchSuccessRate() {
+            const resp = await fetch('/api/stats/success_rate');
+            const data = await resp.json();
+            document.getElementById('successRate').textContent = (data.success_rate || 99) + '%';
+        }
+        function selectCategory(name) { window.location.href = '/category/' + encodeURIComponent(name); }
+    </script>
+</body>
+</html>

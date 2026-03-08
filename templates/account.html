@@ -1,0 +1,485 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Xtreme-topup | My Account</title>
+    <link rel="icon" href="https://kendyenterprises.in/image/logo-knd.png">
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap');
+
+        :root {
+            --primary: #6366f1;
+            --glass-bg: rgba(255, 255, 255, 0.03);
+            --glass-border: rgba(255, 255, 255, 0.1);
+        }
+
+        body {
+            font-family: 'Inter', sans-serif;
+            background: #0f172a;
+            color: #f8fafc;
+            min-height: 100vh;
+            overflow-x: hidden;
+        }
+
+        /* Animated Background Orbs */
+        .orb {
+            position: fixed;
+            border-radius: 50%;
+            filter: blur(100px);
+            z-index: -1;
+            animation: float 25s infinite alternate ease-in-out;
+        }
+        .orb-1 { width: 500px; height: 500px; background: rgba(99, 102, 241, 0.1); top: -200px; left: -100px; }
+        .orb-2 { width: 400px; height: 400px; background: rgba(236, 72, 153, 0.08); bottom: -100px; right: -50px; }
+
+        @keyframes float {
+            0% { transform: translate(0, 0) scale(1); }
+            100% { transform: translate(50px, 100px) scale(1.1); }
+        }
+
+        .glass-panel {
+            background: var(--glass-bg);
+            backdrop-filter: blur(16px);
+            border: 1px solid var(--glass-border);
+            border-radius: 20px;
+        }
+
+        .sidebar-link {
+            transition: all 0.3s ease;
+        }
+
+        .sidebar-link.active {
+            background: rgba(99, 102, 241, 0.15);
+            color: #818cf8;
+            border-left: 4px solid #6366f1;
+        }
+
+        .sidebar-link:not(.active):hover {
+            background: rgba(255, 255, 255, 0.05);
+        }
+
+        .input-dark {
+            background: rgba(0, 0, 0, 0.2);
+            border: 1px solid var(--glass-border);
+            transition: all 0.3s ease;
+        }
+
+        .input-dark:focus {
+            border-color: var(--primary);
+            box-shadow: 0 0 0 2px rgba(99, 102, 241, 0.2);
+            outline: none;
+        }
+
+        .tab-content {
+            display: none;
+            animation: fadeIn 0.4s ease-out forwards;
+        }
+
+        .tab-content.active {
+            display: block;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .badge {
+            padding: 2px 8px;
+            border-radius: 6px;
+            font-size: 10px;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+        }
+
+        .badge-admin { background: rgba(244, 63, 94, 0.2); color: #fb7185; border: 1px solid rgba(244, 63, 94, 0.3); }
+        .badge-reseller { background: rgba(16, 185, 129, 0.2); color: #34d399; border: 1px solid rgba(16, 185, 129, 0.3); }
+
+        /* Custom Scrollbar */
+        ::-webkit-scrollbar { width: 6px; }
+        ::-webkit-scrollbar-track { background: transparent; }
+        ::-webkit-scrollbar-thumb { background: rgba(255, 255, 255, 0.1); border-radius: 10px; }
+    </style>
+</head>
+<body class="min-h-screen pb-12">
+    {% include 'header.html' %}
+
+    <div class="orb orb-1"></div>
+    <div class="orb orb-2"></div>
+
+    <div class="max-w-6xl mx-auto flex flex-col md:flex-row gap-8">
+        
+        <!-- SIDEBAR -->
+        <aside class="w-full md:w-64 space-y-4">
+            <div class="glass-panel p-6 mb-6">
+                <div class="flex items-center space-x-4 mb-4">
+                    <div class="relative">
+                        <img src="https://api.dicebear.com/7.x/avataaars/svg?seed={{ user.username }}" alt="Avatar" class="w-12 h-12 rounded-full bg-indigo-500/20 p-1">
+                        <div class="absolute bottom-0 right-0 w-3 h-3 bg-emerald-500 border-2 border-[#0f172a] rounded-full"></div>
+                    </div>
+                    <div>
+                        <h2 class="font-bold text-sm truncate w-32">{{ user.username }}</h2>
+                        <p class="text-xs text-slate-500">Member since {{ user.created_at.strftime('%Y') if user.created_at else '2023' }}</p>
+                    </div>
+                </div>
+                <!-- Database Tags -->
+                <div class="flex flex-wrap gap-2">
+                    {% if user.is_admin %}
+                    <span class="badge badge-admin">Admin</span>
+                    {% endif %}
+                    {% if user.is_reseller %}
+                    <span class="badge badge-reseller">Reseller</span>
+                    {% endif %}
+                </div>
+            </div>
+
+            <!-- Balance Card -->
+            <div class="glass-panel p-6 bg-gradient-to-br from-indigo-500/10 to-transparent">
+                <p class="text-[10px] uppercase tracking-widest text-slate-400 font-bold">Available Balance</p>
+                <h3 class="text-2xl font-bold text-white mt-1">
+                    <span id="currencySymbol">{% if user.is_reseller %}BRL{% else %}₹{% endif %}</span>{{ "%.2f"|format(user.brl_balance if user.is_reseller else (user.balance if user.balance else 0.00)) }}
+                </h3>
+                <button onclick="window.location.href='/add_fund'" class="mt-4 w-full py-2 bg-white/5 hover:bg-white/10 border border-white/10 rounded-xl text-xs font-semibold transition-all">
+                    Top Up Wallet
+                </button>
+            </div>
+
+            <nav class="glass-panel overflow-hidden py-2 mt-4">
+                <button onclick="showTab('profile')" id="btn-profile" class="sidebar-link active w-full flex items-center space-x-3 px-6 py-4 text-sm font-medium">
+                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"/></svg>
+                    <span>Account Details</span>
+                </button>
+                <button onclick="showTab('security')" id="btn-security" class="sidebar-link w-full flex items-center space-x-3 px-6 py-4 text-sm font-medium">
+                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z"/></svg>
+                    <span>Security</span>
+                </button>
+                {% if user.is_reseller %}
+                <button onclick="showTab('api')" id="btn-api" class="sidebar-link w-full flex items-center space-x-3 px-6 py-4 text-sm font-medium">
+                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 20l4-16m4 4l4 4m0 0l-4 4m4-4H3"/></svg>
+                    <span>API Keys</span>
+                </button>
+                {% endif %}
+                <div class="border-t border-white/5 my-2"></div>
+                <button onclick="window.location.href='/logout'" class="sidebar-link w-full flex items-center space-x-3 px-6 py-4 text-sm font-medium text-rose-400">
+                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1"/></svg>
+                    <span>Logout</span>
+                </button>
+            </nav>
+        </aside>
+
+        <!-- MAIN CONTENT AREA -->
+        <main class="flex-1">
+            
+            <!-- PROFILE TAB -->
+            <section id="profile" class="tab-content active space-y-6">
+                <div class="glass-panel p-8">
+                    <div class="flex justify-between items-start mb-8">
+                        <div>
+                            <h3 class="text-xl font-bold mb-1">User Profile</h3>
+                            <p class="text-slate-400 text-sm">Your Referrer ID: <span class="text-indigo-400 font-mono text-xs">#{{ user.referrer_id }}</span></p>
+                        </div>
+                        <div class="text-right">
+                            <p class="text-[10px] text-slate-500 uppercase font-bold">Created At</p>
+                            <p class="text-xs text-slate-300">{{ user.created_at.strftime('%b %d, %Y %H:%M') if user.created_at else 'Dec 23, 2023 00:00' }}</p>
+                        </div>
+                    </div>
+
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                        <div class="space-y-2">
+                            <label class="text-xs font-semibold text-slate-500 uppercase">Username</label>
+                            <input type="text" id="username" value="{{ user.username }}" class="input-dark w-full px-4 py-3 rounded-xl text-sm" readonly>
+                        </div>
+                        <div class="space-y-2">
+                            <label class="text-xs font-semibold text-slate-500 uppercase">Email Address</label>
+                            <input type="email" id="email" value="{{ user.email or '' }}" class="input-dark w-full px-4 py-3 rounded-xl text-sm">
+                        </div>
+                        <div class="space-y-2">
+                            <label class="text-xs font-semibold text-slate-500 uppercase">Phone Number</label>
+                            <input type="tel" id="phone" value="{{ user.phone or '' }}" class="input-dark w-full px-4 py-3 rounded-xl text-sm">
+                        </div>
+                        <div class="space-y-2">
+                            <label class="text-xs font-semibold text-slate-500 uppercase">Account Role</label>
+                            <div class="flex gap-2 py-2">
+                                {% if user.is_admin %}
+                                <span class="badge badge-admin">Administrator</span>
+                                {% endif %}
+                                {% if user.is_reseller %}
+                                <span class="badge badge-reseller">Verified Reseller</span>
+                                {% endif %}
+                                {% if not user.is_admin and not user.is_reseller %}
+                                <span class="badge" style="background: rgba(156, 163, 175, 0.2); color: #9ca3af; border: 1px solid rgba(156, 163, 175, 0.3);">Member</span>
+                                {% endif %}
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="mt-8 pt-8 border-t border-white/5 flex justify-between items-center">
+                        <p class="text-xs text-slate-500 italic">* Only changed fields will be updated.</p>
+                        <button onclick="saveAccountChanges()" class="bg-indigo-600 hover:bg-indigo-500 text-white px-8 py-3 rounded-xl text-sm font-bold transition-all transform hover:-translate-y-1">
+                            Save Changes
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Balance History Mini-Widget -->
+                <div class="glass-panel p-8">
+                    <h3 class="text-lg font-bold mb-4">Recent Transactions</h3>
+                    <div class="space-y-4">
+                        {% if transactions %}
+                        {% for transaction in transactions %}
+                        <div class="flex justify-between items-center p-3 hover:bg-white/5 rounded-xl transition-colors">
+                            <div class="flex items-center gap-3">
+                                <div class="w-8 h-8 rounded-lg {{ 'bg-emerald-500/20 text-emerald-500' if transaction.type == 'credit' else 'bg-rose-500/20 text-rose-500' }} flex items-center justify-center">
+                                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="{{ 'M12 6v6m0 0v6m0-6h6m-6 0H6' if transaction.type == 'credit' else 'M20 12H4' }}"/>
+                                    </svg>
+                                </div>
+                                <div>
+                                    <p class="text-sm font-medium">{{ transaction.description }}</p>
+                                    <p class="text-[10px] text-slate-500">{{ transaction.created_at.strftime('%b %d, %Y') }}</p>
+                                </div>
+                            </div>
+                            <span class="text-sm font-bold {{ 'text-emerald-400' if transaction.type == 'credit' else 'text-slate-300' }}">
+                                {{ '+' if transaction.type == 'credit' else '-' }}₹{{ "%.2f"|format(transaction.amount) }}
+                            </span>
+                        </div>
+                        {% endfor %}
+                        {% else %}
+                        <div class="text-center py-8 text-slate-500">
+                            <p>No transactions found</p>
+                        </div>
+                        {% endif %}
+                    </div>
+                </div>
+            </section>
+
+            <!-- SECURITY TAB -->
+            <section id="security" class="tab-content space-y-6">
+                <div class="glass-panel p-8">
+                    <h3 class="text-xl font-bold mb-1">Security Settings</h3>
+                    <p class="text-slate-400 text-sm mb-8">Update your password to keep your account safe.</p>
+
+                    <div class="space-y-6 max-w-md">
+                        <div class="space-y-2">
+                            <label class="text-xs font-semibold text-slate-500 uppercase">Current Password</label>
+                            <input type="password" id="current-password" placeholder="••••••••" class="input-dark w-full px-4 py-3 rounded-xl text-sm">
+                        </div>
+                        <div class="space-y-2">
+                            <label class="text-xs font-semibold text-slate-500 uppercase">New Password</label>
+                            <div class="flex gap-2">
+                                <input type="password" id="new-password" placeholder="••••••••" class="input-dark flex-1 px-4 py-3 rounded-xl text-sm">
+                                <button onclick="toggleNewPasswordVisibility()" class="bg-indigo-600 hover:bg-indigo-500 text-white px-4 py-3 rounded-xl text-sm font-bold transition-all flex items-center justify-center">
+                                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"/></svg>
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="mt-8 flex justify-end">
+                        <button onclick="updatePassword()" class="bg-indigo-600 hover:bg-indigo-500 text-white px-8 py-3 rounded-xl text-sm font-bold transition-all">
+                            Update Security
+                        </button>
+                    </div>
+                </div>
+            </section>
+
+            <!-- API KEYS TAB (RESELLER ONLY) -->
+            {% if user.is_reseller %}
+            <section id="api" class="tab-content space-y-6">
+                <div class="glass-panel p-8">
+                    <h3 class="text-xl font-bold mb-1">API Keys</h3>
+                    <p class="text-slate-400 text-sm mb-8">Your API credentials for integration. Keep these secure and never share them publicly.</p>
+
+                    <div class="space-y-6">
+                        <div class="space-y-2">
+                            <label class="text-xs font-semibold text-slate-500 uppercase">Public Key</label>
+                            <div class="flex gap-2">
+                                <input type="text" id="public-key-display" value="{{ user.public_key or '' }}" class="input-dark flex-1 px-4 py-3 rounded-xl text-sm font-mono" readonly>
+                                <button onclick="copyToClipboard('public-key-display')" class="bg-indigo-600 hover:bg-indigo-500 text-white px-6 py-3 rounded-xl text-sm font-bold transition-all">
+                                    Copy
+                                </button>
+                            </div>
+                        </div>
+
+                        <div class="space-y-2">
+                            <label class="text-xs font-semibold text-slate-500 uppercase">Private Key</label>
+                            <div class="flex gap-2">
+                                <div class="relative flex-1">
+                                    <input type="password" id="private-key-display" value="{{ user.private_key or '' }}" class="input-dark w-full px-4 py-3 pr-12 rounded-xl text-sm font-mono" readonly>
+                                    <button onclick="togglePrivateKeyVisibility()" class="absolute right-2 top-1/2 -translate-y-1/2 text-indigo-400 hover:text-indigo-300 transition-colors p-1" type="button">
+                                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"/></svg>
+                                    </button>
+                                </div>
+                                <button onclick="copyToClipboard('private-key-display')" class="bg-indigo-600 hover:bg-indigo-500 text-white px-6 py-3 rounded-xl text-sm font-bold transition-all">
+                                    Copy
+                                </button>
+                            </div>
+                        </div>
+
+                        <div class="p-4 bg-rose-500/10 border border-rose-500/20 rounded-xl">
+                            <p class="text-xs text-rose-400 font-semibold mb-2">⚠️ Security Warning</p>
+                            <p class="text-xs text-rose-300">Never share your private key with anyone. Anyone with access to your private key can make API calls on your behalf.</p>
+                        </div>
+                    </div>
+                </div>
+            </section>
+            {% endif %}
+
+        </main>
+    </div>
+{% include 'footer.html' %}
+    <script>
+        const originalValues = {
+            email: document.getElementById('email')?.value || '',
+            phone: document.getElementById('phone')?.value || ''
+        };
+
+        function showTab(tabId) {
+            document.querySelectorAll('.tab-content').forEach(tab => tab.classList.remove('active'));
+            document.querySelectorAll('.sidebar-link').forEach(btn => btn.classList.remove('active'));
+            document.getElementById(tabId).classList.add('active');
+            document.getElementById('btn-' + tabId).classList.add('active');
+        }
+
+        function saveAccountChanges() {
+            const email = document.getElementById('email').value.trim();
+            const phone = document.getElementById('phone').value.trim();
+
+            // Only send fields that have changed
+            const updates = {};
+            
+            if (email !== originalValues.email && email !== '') {
+                updates.email = email;
+            }
+            if (phone !== originalValues.phone && phone !== '') {
+                updates.phone = phone;
+            }
+
+            // If no changes, show message
+            if (Object.keys(updates).length === 0) {
+                alert('No changes to save');
+                return;
+            }
+
+            // Send to backend
+            fetch('/api/update_account', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify(updates)
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    alert('Account updated successfully!');
+                    // Update original values
+                    if (updates.email) originalValues.email = email;
+                    if (updates.phone) originalValues.phone = phone;
+                } else {
+                    alert('Error: ' + (data.error || 'Failed to update account'));
+                }
+            })
+            .catch(error => {
+                console.error('Error:', error);
+                alert('Error updating account');
+            });
+        }
+
+        function copyToClipboard(elementId) {
+            const element = document.getElementById(elementId);
+            element.select();
+            document.execCommand('copy');
+            
+            // Show feedback
+            const btn = event.target;
+            const originalText = btn.textContent;
+            btn.textContent = 'Copied!';
+            setTimeout(() => {
+                btn.textContent = originalText;
+            }, 2000);
+        }
+
+        function togglePrivateKeyVisibility() {
+            const input = document.getElementById('private-key-display');
+            const btn = event.target.closest('button');
+            
+            if (input.type === 'password') {
+                input.type = 'text';
+                btn.classList.add('text-rose-400');
+                btn.classList.remove('text-indigo-400');
+            } else {
+                input.type = 'password';
+                btn.classList.remove('text-rose-400');
+                btn.classList.add('text-indigo-400');
+            }
+        }
+
+        function toggleNewPasswordVisibility() {
+            const input = document.getElementById('new-password');
+            const btn = event.target;
+            
+            if (input.type === 'password') {
+                input.type = 'text';
+                btn.classList.add('bg-rose-600', 'hover:bg-rose-500');
+                btn.classList.remove('bg-indigo-600', 'hover:bg-indigo-500');
+            } else {
+                input.type = 'password';
+                btn.classList.remove('bg-rose-600', 'hover:bg-rose-500');
+                btn.classList.add('bg-indigo-600', 'hover:bg-indigo-500');
+            }
+        }
+
+        function updatePassword() {
+            const currentPassword = document.getElementById('current-password').value.trim();
+            const newPassword = document.getElementById('new-password').value.trim();
+
+            // Validation
+            if (!currentPassword || !newPassword) {
+                alert('Please enter both current and new password');
+                return;
+            }
+
+            if (newPassword.length < 6) {
+                alert('New password must be at least 6 characters long');
+                return;
+            }
+
+            if (currentPassword === newPassword) {
+                alert('New password must be different from current password');
+                return;
+            }
+
+            // Send to backend
+            fetch('/api/update_password', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({
+                    current_password: currentPassword,
+                    new_password: newPassword
+                })
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    alert('Password updated successfully!');
+                    // Clear the fields
+                    document.getElementById('current-password').value = '';
+                    document.getElementById('new-password').value = '';
+                } else {
+                    alert('Error: ' + (data.error || 'Failed to update password'));
+                }
+            })
+            .catch(error => {
+                console.error('Error:', error);
+                alert('Error updating password');
+            });
+        }
+    </script>
+</body>
+</html>

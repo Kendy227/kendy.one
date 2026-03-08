@@ -1,0 +1,159 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <link rel="icon" href="https://kendyenterprises.in/image/logo-knd.png">
+    <title>Kendy Enterprises | Wallet History</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap');
+
+        :root {
+            --primary: #00FFAA;
+            --glass-bg: rgba(255, 255, 255, 0.03);
+            --glass-border: rgba(255, 255, 255, 0.1);
+        }
+
+        body {
+            font-family: 'Inter', sans-serif;
+            background: #000000;
+            color: #FFFFFF;
+            min-height: 100vh;
+        }
+
+        .orb {
+            position: fixed;
+            border-radius: 50%;
+            filter: blur(100px);
+            z-index: -1;
+        }
+        .orb-1 { width: 500px; height: 500px; background: rgba(0, 255, 170, 0.1); top: -200px; left: -100px; }
+
+        .glass-panel {
+            background: var(--glass-bg);
+            backdrop-filter: blur(16px);
+            border: 1px solid var(--glass-border);
+            border-radius: 20px;
+        }
+
+        .txn-card {
+            transition: all 0.3s ease;
+        }
+
+        .txn-card:hover {
+            background: rgba(255, 255, 255, 0.05);
+            transform: translateX(4px);
+        }
+
+        .type-badge {
+            padding: 2px 8px;
+            border-radius: 6px;
+            font-size: 10px;
+            font-weight: 700;
+            text-transform: uppercase;
+        }
+
+        .credit-glow { color: #34d399; text-shadow: 0 0 10px rgba(52, 211, 153, 0.3); }
+        .debit-glow { color: #f87171; text-shadow: 0 0 10px rgba(248, 113, 113, 0.3); }
+    </style>
+</head>
+<body class="bg-slate-950">
+    {% include 'header.html' %}
+    <div class="orb orb-1"></div>
+
+    <div class="max-w-xl mx-auto px-4 py-8">
+        <!-- Header -->
+        <header class="mb-8 flex flex-col md:flex-row md:items-center justify-between gap-4">
+            <div>
+                <h1 class="text-3xl font-bold tracking-tight">Wallet Ledger</h1>
+                <p class="text-gray-400 mt-1">Detailed audit of all balance movements</p>
+            </div>
+        </header>
+
+        <!-- Balance Summary Bar -->
+        <div class="glass-panel p-6 mb-8 grid grid-cols-1 md:grid-cols-3 gap-6 divide-y md:divide-y-0 md:divide-x divide-white/10">
+            <div class="text-center md:text-left">
+                <p class="text-[10px] font-bold text-gray-400 uppercase tracking-widest mb-1">Current Balance</p>
+                <h2 class="text-3xl font-bold text-white">
+                    {% if user.is_reseller %}BRL{% else %}₹{% endif %}{{ "%.2f"|format(user.brl_balance if user.is_reseller else user.balance) }}
+                </h2>
+            </div>
+            <div class="pt-4 md:pt-0 md:px-6 text-center md:text-left">
+                <p class="text-[10px] font-bold text-gray-400 uppercase tracking-widest mb-1">Total Credited</p>
+                <h2 class="text-2xl font-bold text-emerald-400">+{% if user.is_reseller %}BRL{% else %}₹{% endif %}{{ "%.2f"|format(stats.total_credited) }}</h2>
+            </div>
+            <div class="pt-4 md:pt-0 md:pl-6 text-center md:text-left">
+                <p class="text-[10px] font-bold text-gray-400 uppercase tracking-widest mb-1">Total Debited</p>
+                <h2 class="text-2xl font-bold text-rose-400">-{% if user.is_reseller %}BRL{% else %}₹{% endif %}{{ "%.2f"|format(stats.total_debited) }}</h2>
+            </div>
+        </div>
+
+        <!-- Transaction List -->
+        <div class="space-y-4">
+            <h3 class="text-sm font-bold text-gray-400 uppercase tracking-widest px-2">Detailed History</h3>
+
+            {% for txn in transactions %}
+            <div class="glass-panel p-5 txn-card group">
+                <div class="flex flex-col md:flex-row justify-between gap-4">
+                    <div class="flex gap-4">
+                        <div class="w-12 h-12 rounded-2xl 
+                            {% if txn.transaction_type == 'credit' %}bg-emerald-500/10 flex items-center justify-center text-emerald-500 border border-emerald-500/20
+                            {% elif txn.transaction_type == 'debit' %}bg-rose-500/10 flex items-center justify-center text-rose-500 border border-rose-500/20
+                            {% else %}bg-amber-500/10 flex items-center justify-center text-amber-500 border border-amber-500/20{% endif %}">
+                            {% if txn.transaction_type == 'credit' %}
+                            <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 11l5-5m0 0l5 5m-5-5v12"/></svg>
+                            {% elif txn.transaction_type == 'debit' %}
+                            <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 13l-5 5m0 0l-5-5m5 5V6"/></svg>
+                            {% else %}
+                            <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 15v-1a4 4 0 00-4-4H8m0 0l3 3m-3-3l3-3"/></svg>
+                            {% endif %}
+                        </div>
+                        <div>
+                            <div class="flex items-center gap-2 mb-1">
+                                <span class="type-badge 
+                                    {% if txn.transaction_type == 'credit' %}bg-emerald-500/20 text-emerald-400
+                                    {% elif txn.transaction_type == 'debit' %}bg-rose-500/20 text-rose-400
+                                    {% else %}bg-amber-500/20 text-amber-400{% endif %}">{{ txn.transaction_type.title() }}</span>
+                                {% if txn.utr %}<span class="text-xs text-gray-400 font-mono">UTR: {{ txn.utr }}</span>{% endif %}
+                            </div>
+                            <h4 class="font-bold text-gray-100">{{ txn.title }}</h4>
+                            <p class="text-xs text-gray-400 mt-1">{{ txn.description }}</p>
+                        </div>
+                    </div>
+                    
+                    <div class="flex flex-row md:flex-col justify-between md:text-right border-t md:border-t-0 border-white/5 pt-3 md:pt-0">
+                        <div class="text-lg font-bold 
+                            {% if txn.transaction_type == 'credit' %}credit-glow
+                            {% else %}debit-glow{% endif %}">
+                            {% if txn.transaction_type == 'credit' %}+{% else %}-{% endif %}{% if user.is_reseller %}BRL{% else %}₹{% endif %}{{ "%.2f"|format(txn.amount) }}
+                        </div>
+                        <div class="text-[10px] text-slate-500 mt-1">{{ txn.created_at.strftime('%d %b %Y, %I:%M %p') }}</div>
+                    </div>
+                </div>
+                <!-- Balance Progression Tracking -->
+                <div class="mt-4 pt-4 border-t border-white/5 flex items-center justify-between text-[11px]">
+                    <div class="flex items-center gap-4">
+                        <span class="text-gray-400">Before: <span class="text-gray-300">{% if user.is_reseller %}BRL{% else %}₹{% endif %}{{ "%.2f"|format(txn.amount_before) }}</span></span>
+                        <svg class="w-3 h-3 text-gray-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 7l5 5m0 0l-5 5m5-5H6"/></svg>
+                        <span class="text-gray-400">After: <span class="text-cyan-400 font-bold">{% if user.is_reseller %}BRL{% else %}₹{% endif %}{{ "%.2f"|format(txn.current_amount) }}</span></span>
+                    </div>
+                    <span class="hidden md:inline text-gray-600 italic">{{ txn.verified_by }}</span>
+                </div>
+            </div>
+            {% endfor %}
+
+        </div>
+
+        <!-- Load More -->
+        {% if transactions %}
+        <div class="mt-8 text-center">
+            <button class="glass-panel px-8 py-3 text-xs font-bold uppercase tracking-widest hover:bg-white/5 transition-all">
+                Load More History
+            </button>
+        </div>
+        {% endif %}
+    </div>
+    {% include 'footer.html' %}
+</body>
+</html>

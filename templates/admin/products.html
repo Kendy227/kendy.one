@@ -1,0 +1,457 @@
+{% extends "admin/layout.html" %}
+
+{% block title %}Products Management | Xtream Admin{% endblock %}
+
+{% block page_title %}
+    <div class="d-flex justify-content-between align-items-center w-100">
+        <div class="d-flex align-items-center">
+            <div class="bg-primary text-white rounded-3 p-2 me-3 shadow-sm">
+                <i class="fas fa-boxes fa-lg"></i>
+            </div>
+            <h4 class="mb-0 fw-bold text-dark">Inventory Management</h4>
+        </div>
+        <button class="btn btn-primary rounded-pill px-4 shadow-sm fw-bold" data-bs-toggle="modal" data-bs-target="#addProductModal">
+            <i class="fas fa-plus-circle me-2"></i> Add New Product
+        </button>
+    </div>
+{% endblock %}
+
+{% block content %}
+<div class="container-fluid">
+    <div class="card border-0 shadow-sm mb-4" style="border-radius: 15px;">
+        <div class="card-body p-4">
+            <form id="filterForm" method="GET" action="{{ url_for('admin_products') }}" class="row g-3 align-items-end">
+                <div class="col-md-3">
+                    <label class="form-label small fw-bold text-muted text-uppercase mb-2">Category</label>
+                    <select class="form-select border-0 bg-light rounded-3" name="category_filter" onchange="this.form.submit()">
+                        <option value="">All Categories</option>
+                        {% for cat in categories %}
+                            <option value="{{ cat.category_name }}" {% if category_filter == cat.category_name %}selected{% endif %}>{{ cat.category_name }}</option>
+                        {% endfor %}
+                    </select>
+                </div>
+                
+                <div class="col-md-3">
+                    <label class="form-label small fw-bold text-muted text-uppercase mb-2">API Provider</label>
+                    <select class="form-select border-0 bg-light rounded-3" name="provider_filter" onchange="this.form.submit()">
+                        <option value="">All Providers</option>
+                        {% for provider in providers %}
+                            <option value="{{ provider.api_provider }}" {% if provider_filter == provider.api_provider %}selected{% endif %}>{{ provider.api_provider|upper }}</option>
+                        {% endfor %}
+                    </select>
+                </div>
+                
+                <div class="col-md-6 text-md-end">
+                    <a href="{{ url_for('admin_products') }}" class="btn btn-outline-secondary rounded-pill border-0 bg-light px-4">
+                        <i class="fas fa-undo-alt me-2"></i>Reset View
+                    </a>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <div class="card border-0 shadow-sm" style="border-radius: 15px; overflow: hidden;">
+        <div class="card-body p-0">
+            <div class="table-responsive">
+                <table class="table table-hover align-middle mb-0">
+                    <thead class="bg-light-subtle border-bottom">
+                        <tr class="text-muted small fw-bold text-uppercase">
+                            <th class="ps-4 py-3">ID</th>
+                            <th>Product Info</th>
+                            <th>Category</th>
+                            <th>Pricing</th>
+                            <th>Provider</th>
+                            <th>Status</th>
+                            <th class="text-end pe-4">Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for product in products %}
+                            <tr class="transition-row">
+                                <td class="ps-4 text-muted small">#{{ product.id }}</td>
+                                <td>
+                                    <div class="d-flex align-items-center">
+                                        <div class="flex-shrink-0">
+                                            {% if product.image %}
+                                                <img src="{{ product.image }}" class="rounded-3 shadow-sm border" style="width: 48px; height: 48px; object-fit: cover;"/>
+                                            {% else %}
+                                                <div class="bg-light rounded-3 d-flex align-items-center justify-content-center border" style="width: 48px; height: 48px;">💎</div>
+                                            {% endif %}
+                                        </div>
+                                        <div class="ms-3">
+                                            <div class="fw-bold text-dark mb-0">{{ product.product_name }}</div>
+                                            <div class="text-muted" style="font-size: 0.75rem;">{{ product.region }} Region</div>
+                                        </div>
+                                    </div>
+                                </td>
+                                <td><span class="badge bg-white text-dark border rounded-pill px-3">{{ product.category_name or product.category }}</span></td>
+                                <td>
+                                    <div class="fw-bold text-success">₹{{ "%.2f"|format(product.price) }}</div>
+                                    <div class="text-muted small">Reseller: {{ "%.2f"|format(product.reseller_price or 0) }}</div>
+                                </td>
+                                <td><span class="provider-badge">{{ product.api_provider|upper }}</span></td>
+                                <td>
+                                    {% if product.status == 'active' %}
+                                        <span class="status-indicator bg-success"></span><span class="small fw-bold text-success">Active</span>
+                                    {% else %}
+                                        <span class="status-indicator bg-secondary"></span><span class="small fw-bold text-muted">Inactive</span>
+                                    {% endif %}
+                                </td>
+                                <td class="text-end pe-4">
+                                    <div class="btn-group rounded-3 shadow-none">
+                                        <button class="btn btn-light-primary btn-sm mx-1 rounded-circle" onclick="editProduct('{{ product.id }}')" title="Edit">
+                                            <i class="fas fa-edit"></i>
+                                        </button>
+                                        <button class="btn btn-light-danger btn-sm mx-1 rounded-circle" onclick="deleteProduct('{{ product.id }}')" title="Delete">
+                                            <i class="fas fa-trash"></i>
+                                        </button>
+                                    </div>
+                                </td>
+                            </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+
+            {% if not products %}
+                <div class="text-center py-5">
+                    <img src="https://cdn-icons-png.flaticon.com/512/4076/4076432.png" style="width: 120px; opacity: 0.5; margin-bottom: 20px;" />
+                    <h5 class="text-muted fw-bold">No products matched your criteria</h5>
+                    <p class="text-muted">Try adjusting your filters or add a new product entry.</p>
+                </div>
+            {% endif %}
+        </div>
+    </div>
+</div>
+
+<div class="modal fade" id="addProductModal" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog modal-lg modal-dialog-centered">
+        <div class="modal-content border-0 shadow-lg" style="border-radius: 20px;">
+            <div class="modal-header border-0 pt-4 px-4">
+                <h5 class="modal-title fw-bold" id="productModalTitle">Product Configuration</h5>
+                <button type="button" class="btn-close shadow-none" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body p-4">
+                <form id="productForm">
+                    <div class="row g-4">
+                        <div class="col-md-6">
+                            <label class="form-label small fw-bold text-uppercase text-muted">Display Name</label>
+                            <input type="text" class="form-control border-0 bg-light p-3" id="productName" placeholder="e.g. 1000 G-Coins" required>
+                        </div>
+                        <div class="col-md-6">
+                            <label class="form-label small fw-bold text-uppercase text-muted">Category</label>
+                            <select class="form-select border-0 bg-light p-3" id="productCategory" data-placeholder="1">
+                                <option value="" selected disabled>Select Category</option>
+                                {% for cat in categories %}
+                                    <option value="{{ cat.id|string }}" data-name="{{ cat.category_name }}">{{ cat.category_name }}</option>
+                                {% endfor %}
+                            </select>
+                        </div>
+                        <div class="col-md-6">
+                            <label class="form-label small fw-bold text-uppercase text-muted">Standard Price (₹)</label>
+                            <input type="number" class="form-control border-0 bg-light p-3" id="productPrice" step="0.01" required>
+                        </div>
+                        <div class="col-md-6">
+                            <label class="form-label small fw-bold text-uppercase text-muted">Reseller Price (₹)</label>
+                            <input type="number" class="form-control border-0 bg-light p-3" id="productResellerPrice" step="0.01">
+                        </div>
+                        <div class="col-md-6">
+                            <label class="form-label small fw-bold text-uppercase text-muted">API Product ID</label>
+                            <input type="text" class="form-control border-0 bg-light p-3" id="productId" required>
+                        </div>
+                        <div class="col-md-6">
+                            <label class="form-label small fw-bold text-uppercase text-muted">Provider</label>
+                            <select class="form-select border-0 bg-light p-3" id="productProvider" required onchange="toggleRegionField()">
+                                <option value="smile">Smile</option>
+                                <option value="bushan">Bushan</option>
+                                <option value="hopestore">HopeStore</option>
+                                <option value="other">Manual/Other</option>
+                            </select>
+                        </div>
+                        <div class="col-md-6" id="regionFieldContainer" style="display: none;">
+                            <label class="form-label small fw-bold text-uppercase text-muted">Region (Smile Only)</label>
+                            <select class="form-select border-0 bg-light p-3" id="productRegion">
+                                <option value="PH">Philippines (PH)</option>
+                                <option value="BR">Brazil (BR)</option>
+                                <option value="RU">Russia (RU)</option>
+                            </select>
+                        </div>
+                        <div class="col-md-6">
+                            <label class="form-label small fw-bold text-uppercase text-muted">Status</label>
+                            <select class="form-select border-0 bg-light p-3" id="productStatus" required>
+                                <option value="active">Active</option>
+                                <option value="inactive">Inactive</option>
+                            </select>
+                        </div>
+                        <div class="col-md-6">
+                            <label class="form-label small fw-bold text-uppercase text-muted">Product Image</label>
+                            <div class="input-group">
+                                <input type="file" class="form-control border-0 bg-light" id="productImage" accept="image/*" />
+                            </div>
+                            <small class="text-muted d-block mt-2">
+                                <img id="imagePreview" src="" style="max-width: 100px; display: none; margin-top: 10px; border-radius: 6px;" />
+                            </small>
+                        </div>
+                    </div>
+                </form>
+            </div>
+            <div class="modal-footer border-0 p-4">
+                <button type="button" class="btn btn-light rounded-pill px-4 fw-bold" data-bs-dismiss="modal">Cancel</button>
+                <button type="button" class="btn btn-primary rounded-pill px-5 fw-bold" id="saveProductBtn" onclick="saveProduct()">
+                    <span id="btnText">Apply Changes</span>
+                    <span id="btnLoader" class="spinner-border spinner-border-sm d-none"></span>
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<style>
+    .bg-light-primary { background: rgba(13, 110, 253, 0.1); color: #0d6efd; }
+    .bg-light-danger { background: rgba(220, 53, 69, 0.1); color: #dc3545; }
+    .provider-badge { font-size: 0.7rem; font-weight: 800; padding: 4px 10px; border-radius: 6px; background: #e0e7ff; color: #4338ca; }
+    .status-indicator { width: 8px; height: 8px; border-radius: 50%; display: inline-block; margin-right: 8px; }
+    .transition-row { transition: all 0.2s ease; cursor: pointer; }
+    .transition-row:hover { background-color: #f8fbff !important; transform: scale(1.002); }
+    .form-control:focus, .form-select:focus { background-color: #fff !important; box-shadow: 0 0 0 4px rgba(13, 110, 253, 0.1); border-color: #0d6efd !important; }
+</style>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+let currentEditProductId = null;
+let originalProductData = null;
+
+// Improved Alert System
+function showAlert(message, type = 'info') {
+    const alertId = 'alert-' + Date.now();
+    const alertHTML = `
+        <div id="${alertId}" class="alert alert-${type} shadow-lg border-0 alert-dismissible fade show position-fixed" 
+             style="top: 25px; right: 25px; z-index: 10000; min-width: 320px; border-radius: 12px;">
+            <div class="d-flex align-items-center">
+                <i class="fas ${type === 'success' ? 'fa-check-circle' : 'fa-exclamation-circle'} me-3 fa-lg"></i>
+                <div><strong>${type.toUpperCase()}</strong><br>${message}</div>
+            </div>
+            <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+        </div>
+    `;
+    document.body.insertAdjacentHTML('beforeend', alertHTML);
+    setTimeout(() => { const el = document.getElementById(alertId); if (el) el.remove(); }, 4000);
+}
+
+// Reset form when modal is hidden
+document.getElementById('addProductModal')?.addEventListener('hide.bs.modal', function() {
+    currentEditProductId = null;
+    originalProductData = null;
+    document.getElementById('productForm').reset();
+    document.getElementById('imagePreview').style.display = 'none';
+    document.getElementById('productStatus').value = 'active';
+    document.getElementById('productRegion').value = 'PH';
+    document.getElementById('productModalTitle').textContent = 'Product Configuration';
+});
+
+// Show region field when modal is shown for new product
+document.getElementById('addProductModal')?.addEventListener('show.bs.modal', function() {
+    if (!currentEditProductId) {
+        // For new products, initialize with default provider and show region field
+        document.getElementById('productProvider').value = 'smile';
+        toggleRegionField();
+    }
+});
+
+// Convert file to base64
+function fileToBase64(file) {
+    return new Promise((resolve, reject) => {
+        const reader = new FileReader();
+        reader.onload = () => resolve(reader.result);
+        reader.onerror = reject;
+        reader.readAsDataURL(file);
+    });
+}
+
+// Image preview handler
+document.getElementById('productImage')?.addEventListener('change', async function(e) {
+    const file = e.target.files[0];
+    if (file) {
+        const preview = document.getElementById('imagePreview');
+        const reader = new FileReader();
+        reader.onload = () => {
+            preview.src = reader.result;
+            preview.style.display = 'block';
+        };
+        reader.readAsDataURL(file);
+    }
+});
+
+// Toggle region field visibility based on provider selection
+function toggleRegionField() {
+    const provider = document.getElementById('productProvider').value;
+    const regionContainer = document.getElementById('regionFieldContainer');
+    if (provider.toLowerCase() === 'smile') {
+        regionContainer.style.display = 'block';
+    } else {
+        regionContainer.style.display = 'none';
+    }
+}
+
+// Optimized Save Function with Fix for Auto-Refresh
+async function saveProduct() {
+    const btn = document.getElementById('saveProductBtn');
+    const btnText = document.getElementById('btnText');
+    const btnLoader = document.getElementById('btnLoader');
+
+    const categorySelect = document.getElementById('productCategory');
+
+    // FORCE READ VALUE AFTER UI UPDATE
+    const selectedValue = String(categorySelect.value || "").trim();
+
+    // Still placeholder or empty
+    if (selectedValue === "" || categorySelect.selectedOptions.length === 0) {
+        showAlert('Please select a category from the dropdown', 'warning');
+        return;
+    }
+
+    const selectedOption = categorySelect.selectedOptions[0];
+
+    const categoryId = Number(selectedValue);
+    const categoryName = selectedOption.getAttribute('data-name') || selectedOption.textContent.trim();
+
+    // HARD SAFETY CHECK
+    if (!categoryId || Number.isNaN(categoryId)) {
+        showAlert('Invalid category selected. Please reselect.', 'danger');
+        return;
+    }
+
+    // UI loading
+    btn.disabled = true;
+    btnText.classList.add('d-none');
+    btnLoader.classList.remove('d-none');
+
+    try {
+        const formData = {
+            product_name: document.getElementById('productName').value.trim(),
+            price: Number(document.getElementById('productPrice').value),
+            reseller_price: document.getElementById('productResellerPrice').value
+                ? Number(document.getElementById('productResellerPrice').value)
+                : null,
+            product_id: document.getElementById('productId').value.trim(),
+            api_provider: document.getElementById('productProvider').value,
+            status: document.getElementById('productStatus').value || 'active',
+            category_id: categoryId,
+            category: categoryName,
+            region: document.getElementById('productProvider').value.toLowerCase() === 'smile' 
+                ? document.getElementById('productRegion').value 
+                : null
+        };
+
+        // Edit mode: remove unchanged category
+        if (
+            currentEditProductId &&
+            originalProductData &&
+            String(originalProductData.category_id) === String(categoryId)
+        ) {
+            delete formData.category_id;
+            delete formData.category;
+        }
+
+        // Image handling
+        const imageFile = document.getElementById('productImage').files[0];
+        if (imageFile) {
+            formData.image = await fileToBase64(imageFile);
+        }
+
+        if (currentEditProductId) {
+            formData.id = currentEditProductId;
+        }
+
+        const response = await fetch('/api/admin/product', {
+            method: currentEditProductId ? 'PUT' : 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify(formData)
+        });
+
+        const data = await response.json();
+
+        if (!data.success) {
+            throw new Error(data.error || 'Server error');
+        }
+
+        showAlert('Product saved successfully!', 'success');
+        setTimeout(() => location.reload(), 800);
+
+    } catch (err) {
+        showAlert(err.message, 'danger');
+        btn.disabled = false;
+        btnText.classList.remove('d-none');
+        btnLoader.classList.add('d-none');
+    }
+}
+
+function editProduct(productId) {
+    fetch(`/api/admin/product?id=${productId}`)
+        .then(r => r.json())
+        .then(res => {
+            if (res.success) {
+                const p = res.data;
+                currentEditProductId = productId;
+                originalProductData = p; // Store original data for comparison
+                
+                // Populate all fields
+                document.getElementById('productName').value = p.product_name;
+                document.getElementById('productPrice').value = p.price;
+                document.getElementById('productResellerPrice').value = p.reseller_price || '';
+                document.getElementById('productId').value = p.product_id;
+                document.getElementById('productProvider').value = p.api_provider;
+                document.getElementById('productStatus').value = p.status || 'active';
+                document.getElementById('productRegion').value = p.region || 'PH';
+                
+                // Show/hide region field based on provider
+                toggleRegionField();
+                
+                // Handle category dropdown - ensure the current category is shown
+                const categorySelect = document.getElementById('productCategory');
+
+                // Force string match
+                categorySelect.value = String(p.category_id);
+
+                // If still not matched, inject option
+                if (categorySelect.value === "") {
+                    const opt = document.createElement('option');
+                    opt.value = String(p.category_id);
+                    opt.textContent = p.category_name || p.category || 'Unknown Category';
+                    opt.selected = true;
+                    categorySelect.appendChild(opt);
+                }
+                
+                // Handle image preview
+                const imagePreview = document.getElementById('imagePreview');
+                if (p.image) {
+                    imagePreview.src = p.image;
+                    imagePreview.style.display = 'block';
+                } else {
+                    imagePreview.style.display = 'none';
+                }
+                
+                // Clear file input
+                document.getElementById('productImage').value = '';
+                
+                document.getElementById('productModalTitle').textContent = 'Edit Gateway Product';
+                new bootstrap.Modal(document.getElementById('addProductModal')).show();
+            }
+        })
+        .catch(err => showAlert('Failed to load product: ' + err.message, 'danger'));
+}
+
+function deleteProduct(productId) {
+    if (confirm('Delete this product? Users will no longer see it.')) {
+        fetch('/api/admin/product', {
+            method: 'DELETE',
+            headers: {'Content-Type': 'application/json'},
+            body: JSON.stringify({ id: productId })
+        }).then(r => r.json()).then(data => {
+            if(data.success) location.reload();
+        });
+    }
+}
+</script>
+{% endblock %}

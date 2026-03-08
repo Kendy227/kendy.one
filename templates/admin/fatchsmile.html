@@ -1,0 +1,255 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Smile.one Product Fetcher</title>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --primary: #4f46e5;
+      --primary-hover: #4338ca;
+      --bg: #f8fafc;
+      --card-bg: #ffffff;
+      --text-main: #1e293b;
+      --text-muted: #64748b;
+      --border: #e2e8f0;
+    }
+
+    body {
+      font-family: 'Inter', sans-serif;
+      background-color: var(--bg);
+      color: var(--text-main);
+      margin: 0;
+      padding: 40px 20px;
+      line-height: 1.5;
+    }
+
+    .container {
+      max-width: 900px;
+      margin: 0 auto;
+      background: var(--card-bg);
+      padding: 32px;
+      border-radius: 16px;
+      box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.1);
+    }
+
+    h2 {
+      margin-top: 0;
+      font-weight: 600;
+      color: var(--text-main);
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+
+    .controls {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+      gap: 16px;
+      background: #f1f5f9;
+      padding: 20px;
+      border-radius: 12px;
+      margin-bottom: 24px;
+      align-items: end;
+    }
+
+    .input-group {
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+    }
+
+    label {
+      font-size: 0.875rem;
+      font-weight: 600;
+      color: var(--text-muted);
+    }
+
+    input, select {
+      padding: 10px 12px;
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      font-size: 1rem;
+      outline: none;
+      transition: border-color 0.2s;
+    }
+
+    input:focus, select:focus {
+      border-color: var(--primary);
+      box-shadow: 0 0 0 3px rgba(79, 70, 229, 0.1);
+    }
+
+    button {
+      background: var(--primary);
+      color: white;
+      border: none;
+      padding: 11px 20px;
+      border-radius: 8px;
+      font-weight: 600;
+      cursor: pointer;
+      transition: background 0.2s;
+      height: 42px;
+    }
+
+    button:hover {
+      background: var(--primary-hover);
+    }
+
+    #status {
+      font-size: 0.875rem;
+      color: var(--primary);
+      font-weight: 500;
+    }
+
+    /* Table Styling */
+    .table-container {
+      overflow-x: auto;
+      border-radius: 8px;
+      border: 1px solid var(--border);
+    }
+
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      background: white;
+    }
+
+    th {
+      background: #f8fafc;
+      color: var(--text-muted);
+      font-weight: 600;
+      text-transform: uppercase;
+      font-size: 0.75rem;
+      letter-spacing: 0.05em;
+      padding: 12px 16px;
+      text-align: left;
+      border-bottom: 1px solid var(--border);
+    }
+
+    td {
+      padding: 14px 16px;
+      border-bottom: 1px solid var(--border);
+      font-size: 0.9375rem;
+    }
+
+    tr:last-child td { border-bottom: none; }
+    tr:hover { background-color: #f8fafc; }
+
+    pre {
+      background: #1e293b;
+      color: #e2e8f0;
+      padding: 16px;
+      border-radius: 8px;
+      font-size: 0.875rem;
+      overflow-x: auto;
+    }
+
+    .badge {
+      background: #e0e7ff;
+      color: #4338ca;
+      padding: 2px 8px;
+      border-radius: 4px;
+      font-size: 0.85rem;
+      font-weight: 600;
+    }
+  </style>
+</head>
+<body>
+
+<div class="container">
+  <h2>📦 Smile.one Product Fetcher</h2>
+
+  <div class="controls">
+    <div class="input-group">
+      <label for="region">Region</label>
+      <select id="region">
+        <option value="">Default (Global)</option>
+        <option value="br">Brazil (BR)</option>
+        <option value="ru">Russia (RU)</option>
+        <option value="ph">Philippines (PH)</option>
+      </select>
+    </div>
+
+    <div class="input-group">
+      <label for="product">Product ID</label>
+      <input id="product" placeholder="e.g. mobilelegends" value="mobilelegends" />
+    </div>
+
+    <div class="input-group">
+      <button id="fetchBtn">Fetch Data</button>
+    </div>
+  </div>
+
+  <div id="status"></div>
+
+  <div id="output">
+    <div class="table-container" id="tableWrapper" style="display:none">
+      <table id="resultTable">
+        <thead>
+          <tr>
+            <th>ID</th>
+            <th>Product Name / SPU</th>
+            <th>Price</th>
+          </tr>
+        </thead>
+        <tbody></tbody>
+      </table>
+    </div>
+    <pre id="raw" style="display:none"></pre>
+  </div>
+</div>
+
+<script>
+  const fetchBtn = document.getElementById('fetchBtn');
+  const statusEl = document.getElementById('status');
+  const tableWrapper = document.getElementById('tableWrapper');
+  const tbody = document.querySelector('#resultTable tbody');
+  const raw = document.getElementById('raw');
+
+  async function fetchProducts(){
+    const region = document.getElementById('region').value;
+    const product = document.getElementById('product').value || 'mobilelegends';
+    
+    statusEl.textContent = '⏳ Fetching products...';
+    tableWrapper.style.display = 'none';
+    raw.style.display = 'none';
+    tbody.innerHTML = '';
+
+    try {
+      const params = new URLSearchParams();
+      if(region) params.append('region', region);
+      params.append('product', product);
+
+      const resp = await fetch('/api/smile_products?' + params.toString());
+      const j = await resp.json();
+      statusEl.textContent = '';
+
+      if(j.success === true && j.data && Array.isArray(j.data.product)){
+        const list = j.data.product;
+        list.forEach(p => {
+          const tr = document.createElement('tr');
+          tr.innerHTML = `
+            <td><span class="badge">${p.id || '-'}</span></td>
+            <td style="font-weight:500">${p.spu || p.name || 'Unknown'}</td>
+            <td style="color:#059669; font-weight:600">${p.price || 'N/A'}</td>
+          `;
+          tbody.appendChild(tr);
+        });
+        tableWrapper.style.display = 'block';
+      } else {
+        raw.style.display = 'block';
+        raw.textContent = JSON.stringify(j, null, 2);
+      }
+    } catch(err) {
+      statusEl.textContent = '';
+      raw.style.display = 'block';
+      raw.textContent = '❌ Error: ' + err.message;
+    }
+  }
+
+  fetchBtn.addEventListener('click', fetchProducts);
+</script>
+
+</body>
+</html>

@@ -1,0 +1,30 @@
+<!doctype html>
+<html>
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1.0,user-scalable=no">
+    <link rel="icon" href="https://kendyenterprises.in/image/logo-knd.png">
+    <title>Redirecting...</title>
+    <script>
+      // Read token from query and redirect to /reset_password?token=...
+      (function(){
+        function getParam(name){
+          const url = new URL(window.location.href);
+          return url.searchParams.get(name);
+        }
+        const token = getParam('token');
+        if(token){
+          // Redirect to the application reset route
+          window.location.href = '/reset_password?token=' + encodeURIComponent(token);
+        } else {
+          document.addEventListener('DOMContentLoaded', function(){
+            document.body.innerHTML = '<p>No token provided.</p>';
+          });
+        }
+      })();
+    </script>
+  </head>
+  <body>
+    <p>Redirecting to password reset page…</p>
+  </body>
+</html>

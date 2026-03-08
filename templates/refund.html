@@ -1,0 +1,236 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <link rel="icon" href="https://kendyenterprises.in/image/logo-knd.png">
+    <title>Kendy Enterprises | Refund Policy</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700&display=swap');
+
+        :root {
+            --primary: #00FFAA;
+            --accent: #FF00FF;
+            --glass-bg: rgba(15, 15, 15, 0.7);
+            --glass-border: rgba(255, 255, 255, 0.08);
+        }
+
+        body {
+            font-family: 'Plus Jakarta Sans', sans-serif;
+            background: #000000;
+            color: #FFFFFF;
+            min-height: 100vh;
+            overflow-x: hidden;
+        }
+
+        /* VFX Animated Background */
+        .orb-container {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: -1;
+            overflow: hidden;
+        }
+
+        .orb {
+            position: absolute;
+            border-radius: 50%;
+            filter: blur(120px);
+            opacity: 0.3;
+            animation: move 22s infinite alternate ease-in-out;
+        }
+
+        .orb-1 { width: 550px; height: 550px; background: #00FFAA; top: -150px; left: -150px; }
+        .orb-2 { width: 450px; height: 450px; background: #FF00FF; bottom: -100px; right: 5%; animation-delay: -3s; }
+
+        @keyframes move {
+            from { transform: translate(0, 0) scale(1); }
+            to { transform: translate(100px, 50px) scale(1.05); }
+        }
+
+        .glass-card {
+            background: var(--glass-bg);
+            backdrop-filter: blur(24px);
+            -webkit-backdrop-filter: blur(24px);
+            border: 1px solid var(--glass-border);
+            border-radius: 24px;
+        }
+
+        .nav-link {
+            transition: all 0.2s ease;
+            border-left: 2px solid transparent;
+        }
+
+        .nav-link:hover {
+            color: var(--primary);
+            background: rgba(99, 102, 241, 0.05);
+            border-left-color: var(--primary);
+        }
+
+        .section-anchor {
+            scroll-margin-top: 100px;
+        }
+
+        .prose-custom h2 {
+            color: white;
+            font-weight: 700;
+            font-size: 1.5rem;
+            margin-bottom: 1rem;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .prose-custom p {
+            color: #94a3b8;
+            line-height: 1.7;
+            margin-bottom: 2rem;
+        }
+
+        .advisory-panel {
+            background: linear-gradient(90deg, rgba(239, 68, 68, 0.1) 0%, rgba(239, 68, 68, 0.02) 100%);
+            border-left: 4px solid #ef4444;
+        }
+    </style>
+</head>
+<body class="antialiased">
+    <div class="orb-container">
+        <div class="orb orb-1"></div>
+        <div class="orb orb-2"></div>
+    </div>
+
+    <!-- Header -->
+    {% include 'header.html' %}
+
+    <main class="max-w-7xl mx-auto px-6 py-16">
+        <!-- Title Section -->
+        <div class="mb-16">
+            <div class="flex items-center gap-3 mb-4">
+                <div class="h-px w-12 bg-pink-500"></div>
+                <span class="text-pink-400 font-bold tracking-widest text-xs uppercase">Financial Protection</span>
+            </div>
+            <h1 class="text-5xl md:text-6xl font-extrabold bg-clip-text text-transparent bg-gradient-to-r from-white via-white to-slate-500">
+                Refund Policy
+            </h1>
+            <p class="text-slate-400 mt-6 max-w-2xl text-lg leading-relaxed">
+                We strive for transaction transparency. This protocol defines the strict conditions under which refunds are authorized for digital asset procurement.
+            </p>
+        </div>
+
+        <div class="grid lg:grid-cols-12 gap-12">
+            <!-- Sidebar Navigation -->
+            <aside class="hidden lg:block lg:col-span-3 sticky top-24 h-fit">
+                <div class="glass-card p-6">
+                    <h4 class="text-xs font-bold text-white uppercase tracking-widest mb-6 opacity-50">Quick Reference</h4>
+                    <nav class="flex flex-col gap-1 text-sm text-slate-400">
+                        <a href="#age-advisory" class="nav-link py-2 px-3 rounded-md text-red-400">!! Age Restriction</a>
+                        <a href="#eligibility" class="nav-link py-2 px-3 rounded-md">1. Eligibility</a>
+                        <a href="#process" class="nav-link py-2 px-3 rounded-md">2. Request Process</a>
+                        <a href="#methods" class="nav-link py-2 px-3 rounded-md">3. Refund Methods</a>
+                        <a href="#non-refundable" class="nav-link py-2 px-3 rounded-md">4. Exclusions</a>
+                        <a href="#processing" class="nav-link py-2 px-3 rounded-md">5. Timelines</a>
+                    </nav>
+                </div>
+            </aside>
+
+            <!-- Main Content -->
+            <div class="lg:col-span-9 space-y-8">
+                <!-- Age Advisory Panel -->
+                <section id="age-advisory" class="glass-card p-6 advisory-panel section-anchor">
+                    <div class="flex items-start gap-4">
+                        <div class="p-2 bg-red-500/20 rounded-lg">
+                            <svg class="w-6 h-6 text-red-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"></path></svg>
+                        </div>
+                        <div>
+                            <h3 class="text-red-500 font-bold text-lg mb-1">Age Restriction & Consent</h3>
+                            <p class="text-slate-300 text-sm leading-relaxed italic">
+                                This platform is not intended for users under the age of 18. Any utilization of our services by minors is strictly at your own risk. If you are under 18, you must obtain explicit permission from a parent or legal guardian before initiating any transaction. Xtreme Top-up reserves the right to request proof of age or parental consent at any time.
+                            </p>
+                        </div>
+                    </div>
+                </section>
+
+                <div class="glass-card p-8 md:p-12 prose-custom">
+                    
+                    <section id="eligibility" class="section-anchor">
+                        <h2>
+                            <span class="text-indigo-500 text-sm font-mono font-bold">01.</span>
+                            Eligibility for Refunds
+                        </h2>
+                        <p>
+                            Refunds are exclusively authorized for transactions where the digital goods or credits have failed to arrive at the designated account due to systemic failure or technical anomalies on the Xtreme Top-up side. Eligibility is determined through an internal audit of the transaction logs and publisher delivery confirmations.
+                        </p>
+                    </section>
+
+                    <section id="process" class="section-anchor">
+                        <h2>
+                            <span class="text-indigo-500 text-sm font-mono font-bold">02.</span>
+                            Refund Process
+                        </h2>
+                        <p>
+                            To initiate a claim, users must contact our Support Center within 24 hours of the original transaction timestamp. You must provide a valid Transaction ID, Player ID, and proof of non-delivery (e.g., in-game wallet screenshots). Our Compliance Team investigates all claims within 72 hours.
+                        </p>
+                    </section>
+
+                    <section id="methods" class="section-anchor">
+                        <h2>
+                            <span class="text-indigo-500 text-sm font-mono font-bold">03.</span>
+                            Refund Methods
+                        </h2>
+                        <p>
+                            Approved refunds are typically reverted to the original payment source (Credit Card, Digital Wallet, etc.). In cases where the original payment method is unavailable for reversal, Xtreme Top-up may issue a digital credit to your internal Xtreme Top-up Balance for future use.
+                        </p>
+                    </section>
+
+                    <section id="non-refundable" class="section-anchor">
+                        <h2>
+                            <span class="text-indigo-500 text-sm font-mono font-bold">04.</span>
+                            Non-Refundable Items
+                        </h2>
+                        <p>
+                            Digital assets that have been successfully provisioned to your account and confirmed as "Delivered" by the game publisher are strictly non-refundable. Additionally, Xtreme Top-up does not issue refunds for user-side errors, such as providing an incorrect Player ID or UID during checkout.
+                        </p>
+                    </section>
+
+                    <section id="processing" class="section-anchor">
+                        <h2>
+                            <span class="text-indigo-500 text-sm font-mono font-bold">05.</span>
+                            Processing Time
+                        </h2>
+                        <p>
+                            Once a refund is authorized by our team, the transfer is initiated immediately. However, financial institutions typically take 3 to 10 business days to reflect the funds in your balance. This timeframe is dictated by your bank and is outside the control of the Xtreme Top-up platform.
+                        </p>
+                    </section>
+
+                    <!-- Footer Meta -->
+                    <div class="mt-12 pt-8 border-t border-white/5 flex flex-col md:flex-row justify-between items-center gap-4">
+                        <div class="text-slate-500 text-xs font-bold uppercase tracking-widest">
+                            Policy ID: <span class="text-slate-300">XTR-REF-2025</span>
+                        </div>
+                        <div class="px-4 py-2 bg-indigo-500/10 rounded-full border border-indigo-500/20 text-indigo-400 text-xs font-bold">
+                            Effective Date: December 28, 2025
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Action Card -->
+                <div class="glass-card p-8 border-l-4 border-l-pink-500 flex flex-col md:flex-row items-center justify-between gap-6">
+                    <div>
+                        <h4 class="text-xl font-bold mb-1">Need a refund investigation?</h4>
+                        <p class="text-slate-400 text-sm">Have your Transaction ID ready for faster processing.</p>
+                    </div>
+                    <a href="/contact" class="w-full md:w-auto px-8 py-3 bg-white text-black font-bold rounded-xl hover:bg-slate-200 transition-all text-center">
+                        Contact Support
+                    </a>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <!-- Footer -->
+    {% include 'footer.html' %}
+</body>
+</html>

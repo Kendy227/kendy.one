@@ -1,0 +1,147 @@
+{% extends "base.html" %}
+
+{% block title %}Transactions - Xtream Top-up{% endblock %}
+
+{% block extra_css %}
+<style>
+    .transactions-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 2rem;
+    }
+
+    .transaction-card {
+        background-color: #141417;
+        border: 1px solid #2d2d35;
+        border-radius: 12px;
+        padding: 2rem;
+        margin-bottom: 2rem;
+    }
+
+    .transaction-row {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        padding: 1rem;
+        border-bottom: 1px solid #2d2d35;
+    }
+
+    .transaction-row:last-child {
+        border-bottom: none;
+    }
+
+    .transaction-date {
+        color: #a0a0ab;
+        font-size: 0.9rem;
+    }
+
+    .transaction-desc {
+        font-weight: 500;
+        margin-bottom: 0.25rem;
+    }
+
+    .transaction-type {
+        color: #a0a0ab;
+        font-size: 0.85rem;
+    }
+
+    .transaction-amount {
+        font-weight: 600;
+        font-size: 1.1rem;
+    }
+
+    .amount-credit {
+        color: #51cf66;
+    }
+
+    .amount-debit {
+        color: #ff6b6b;
+    }
+
+    .empty-state {
+        text-align: center;
+        padding: 3rem;
+        color: #a0a0ab;
+    }
+
+    .filter-section {
+        background-color: #141417;
+        border: 1px solid #2d2d35;
+        border-radius: 12px;
+        padding: 1.5rem;
+        margin-bottom: 2rem;
+        display: flex;
+        gap: 1rem;
+        flex-wrap: wrap;
+    }
+
+    .filter-select {
+        padding: 0.5rem 1rem;
+        background-color: #0a0a0c;
+        border: 1px solid #2d2d35;
+        color: white;
+        border-radius: 6px;
+        cursor: pointer;
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="container-fluid">
+    <div class="transactions-header">
+        <h1>Transaction History</h1>
+    </div>
+
+    <!-- Filter Section -->
+    <div class="filter-section">
+        <select class="filter-select" id="typeFilter">
+            <option value="">All Transactions</option>
+            <option value="credit">Credit</option>
+            <option value="debit">Debit</option>
+        </select>
+        <input type="date" class="filter-select" id="startDate" placeholder="Start Date">
+        <input type="date" class="filter-select" id="endDate" placeholder="End Date">
+        <button class="btn btn-primary" onclick="filterTransactions()">Apply Filter</button>
+    </div>
+
+    <!-- Transactions List -->
+    <div class="transaction-card">
+        <div id="transactionsContainer">
+            <div class="empty-state">
+                <i class="fas fa-list"></i>
+                <p>No transactions found</p>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+    async function loadTransactions() {
+        try {
+            const response = await fetch('/transactions');
+            // Data is server-side rendered
+            console.log('Transactions loaded');
+        } catch (err) {
+            console.error('Error loading transactions:', err);
+        }
+    }
+
+    function filterTransactions() {
+        const type = document.getElementById('typeFilter').value;
+        const startDate = document.getElementById('startDate').value;
+        const endDate = document.getElementById('endDate').value;
+        
+        const params = new URLSearchParams();
+        if (type) params.append('type', type);
+        if (startDate) params.append('start_date', startDate);
+        if (endDate) params.append('end_date', endDate);
+        
+        window.location.href = `/transactions?${params.toString()}`;
+    }
+
+    loadTransactions();
+</script>
+{% endblock %}

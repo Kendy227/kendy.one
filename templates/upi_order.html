@@ -1,0 +1,539 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <link rel="icon" href="https://kendyenterprises.in/image/logo-knd.png">
+    <title>Kendy Enterprises | Secure UPI Payment</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700&display=swap');
+
+        :root {
+            --primary: #00FFAA;
+            --bg-dark: #000000;
+            --glass: rgba(255, 255, 255, 0.03);
+            --border: rgba(255, 255, 255, 0.08);
+        }
+
+        body {
+            font-family: 'Plus Jakarta Sans', sans-serif;
+            background-color: var(--bg-dark);
+            color: #FFFFFF;
+            min-height: 100vh;
+        }
+
+        .glass-card {
+            background: rgba(15, 15, 15, 0.5);
+            backdrop-filter: blur(12px);
+            border: 1px solid var(--border);
+            border-radius: 24px;
+        }
+
+        .qr-container {
+            background: white;
+            padding: 16px;
+            border-radius: 20px;
+            box-shadow: 0 0 30px rgba(0, 255, 170, 0.2);
+        }
+
+        .input-field {
+            background: rgba(15, 23, 42, 0.6);
+            border: 1px solid var(--border);
+            color: white;
+            padding: 14px 18px;
+            border-radius: 14px;
+            width: 100%;
+            transition: all 0.3s;
+        }
+
+        .input-field:focus {
+            outline: none;
+            border-color: var(--primary);
+            box-shadow: 0 0 0 4px rgba(99, 102, 241, 0.1);
+        }
+
+        .btn-primary {
+            background: linear-gradient(135deg, var(--primary), #4f46e5);
+            color: white;
+            padding: 14px 20px;
+            border-radius: 12px;
+            font-weight: 600;
+            border: none;
+            cursor: pointer;
+            transition: all 0.3s;
+            box-shadow: 0 4px 15px rgba(99, 102, 241, 0.3);
+        }
+
+        .btn-primary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(99, 102, 241, 0.4);
+        }
+
+        .btn-verify {
+            background: linear-gradient(135deg, var(--primary), #4f46e5);
+            color: white;
+            padding: 16px;
+            border-radius: 16px;
+            font-weight: 700;
+            width: 100%;
+            transition: all 0.3s;
+            box-shadow: 0 4px 15px rgba(99, 102, 241, 0.3);
+            border: none;
+            cursor: pointer;
+        }
+
+        .btn-verify:hover:not(:disabled) {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(99, 102, 241, 0.4);
+        }
+
+        .btn-verify:disabled {
+            opacity: 0.6;
+            cursor: not-allowed;
+        }
+
+        .step-badge {
+            background: rgba(99, 102, 241, 0.1);
+            color: #818cf8;
+            padding: 4px 12px;
+            border-radius: 99px;
+            font-size: 11px;
+            font-weight: 700;
+            text-transform: uppercase;
+        }
+
+        .alert {
+            padding: 12px 16px;
+            border-radius: 12px;
+            font-size: 14px;
+            margin-bottom: 16px;
+        }
+
+        .alert-error {
+            background: rgba(239, 68, 68, 0.1);
+            border: 1px solid rgba(239, 68, 68, 0.3);
+            color: #fca5a5;
+        }
+
+        .alert-success {
+            background: rgba(34, 197, 94, 0.1);
+            border: 1px solid rgba(34, 197, 94, 0.3);
+            color: #86efac;
+        }
+
+        .select-field {
+            background: rgba(15, 23, 42, 0.6);
+            border: 1px solid var(--border);
+            color: white;
+            padding: 14px 18px;
+            border-radius: 14px;
+            width: 100%;
+            transition: all 0.3s;
+            cursor: pointer;
+        }
+
+        .select-field:focus {
+            outline: none;
+            border-color: var(--primary);
+            box-shadow: 0 0 0 4px rgba(99, 102, 241, 0.1);
+        }
+
+        .select-field option {
+            background: #0f172a;
+            color: white;
+        }
+
+        .spinner {
+            display: inline-block;
+            animation: spin 1s linear infinite;
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+    </style>
+</head>
+<body class="p-4 md:p-8">
+    <div class="max-w-2xl mx-auto">
+        <!-- Back Button -->
+        <a href="/dashboard" class="inline-flex items-center gap-2 text-slate-400 hover:text-white transition-colors mb-6 text-sm font-medium">
+            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-width="2" d="M15 19l-7-7 7-7"/></svg>
+            Back to Dashboard
+        </a>
+
+        <!-- Alert Messages -->
+        <div id="alert-container"></div>
+        <!-- FORM TAB -->
+        <div id="tab-form-content" class="glass-card p-6 md:p-8 block">
+            <h1 class="text-2xl font-bold mb-2">Create UPI Order</h1>
+            <p class="text-slate-400 text-sm mb-8">Fill in your details and select a product</p>
+
+            <div class="space-y-5">
+                <!-- User ID -->
+                <div>
+                    <label class="text-xs font-bold text-slate-400 uppercase ml-2 mb-2 block">Player ID / User ID</label>
+                    <input type="text" id="input-userid" placeholder="Enter your in-game User ID" class="input-field">
+                </div>
+
+                <!-- Zone ID -->
+                <div>
+                    <label class="text-xs font-bold text-slate-400 uppercase ml-2 mb-2 block">Zone ID / Server ID</label>
+                    <input type="text" id="input-zoneid" placeholder="e.g., (2012)" class="input-field">
+                </div>
+
+                <!-- Product Selection -->
+                <div>
+                    <label class="text-xs font-bold text-slate-400 uppercase ml-2 mb-2 block">Select Product</label>
+                    <select id="product-select" class="select-field" onchange="updateSelectedProduct()">
+                        <option value="">-- Choose a Product --</option>
+                    </select>
+                </div>
+
+                <!-- Product Details -->
+                <div class="bg-slate-900/50 rounded-2xl p-4 border border-white/5">
+                    <div class="grid grid-cols-2 gap-4">
+                        <div>
+                            <span class="text-[10px] text-slate-500 uppercase font-bold">Selected Product</span>
+                            <p class="font-bold text-sm text-indigo-300" id="display-product">None Selected</p>
+                        </div>
+                        <div>
+                            <span class="text-[10px] text-slate-500 uppercase font-bold">Price</span>
+                            <p class="font-bold text-lg text-green-400" id="display-price">₹0.00</p>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Proceed Button -->
+                <button onclick="proceedToPayment()" class="btn-verify mt-6">
+                    Proceed to Payment
+                </button>
+            </div>
+        </div>
+
+        <!-- PAYMENT TAB -->
+        <div id="tab-payment-content" class="glass-card p-6 md:p-8 hidden">
+            <div class="flex justify-between items-start mb-8">
+                <div>
+                    <h1 class="text-2xl font-bold">Complete Payment</h1>
+                    <p class="text-slate-400 text-sm mt-1">Scan QR or use UPI ID to pay</p>
+                </div>
+                <div class="text-right">
+                    <span class="text-xs text-slate-500 block uppercase font-bold tracking-widest">Amount</span>
+                    <span class="text-2xl font-bold text-indigo-400" id="display-price-payment">₹0.00</span>
+                </div>
+            </div>
+
+            <!-- Order Summary -->
+            <div class="bg-slate-900/50 rounded-2xl p-4 border border-white/5 mb-8 grid grid-cols-2 gap-4">
+                <div>
+                    <span class="text-[10px] text-slate-500 uppercase font-bold">User ID</span>
+                    <p class="font-bold text-sm" id="display-userid">-</p>
+                </div>
+                <div>
+                    <span class="text-[10px] text-slate-500 uppercase font-bold">Zone ID</span>
+                    <p class="font-bold text-sm" id="display-zoneid">-</p>
+                </div>
+                <div class="col-span-2">
+                    <span class="text-[10px] text-slate-500 uppercase font-bold">Product</span>
+                    <p class="font-bold text-sm text-indigo-300" id="display-product-payment">-</p>
+                </div>
+            </div>
+
+            <!-- Step 1: Scan QR -->
+            <div class="mb-10 text-center">
+                <div class="flex justify-center mb-4">
+                    <span class="step-badge">Step 1: Scan & Pay</span>
+                </div>
+                <div class="inline-block qr-container">
+                    <img id="upi-qr" src="" alt="UPI QR Code" class="w-48 h-48">
+                </div>
+                <p class="text-xs text-slate-500 mt-4 italic" id="upi-id-display">Loading UPI ID...</p>
+            </div>
+
+            <!-- Step 2: UTR Verification -->
+            <div class="space-y-4">
+                <div class="flex justify-center mb-2">
+                    <span class="step-badge">Step 2: Enter UTR Number</span>
+                </div>
+                <div>
+                    <label class="text-xs font-bold text-slate-400 uppercase ml-2 mb-2 block">UTR / Ref Number</label>
+                    <input type="text" id="utr-input" placeholder="12 Digit Transaction ID (from your bank)" class="input-field">
+                </div>
+                <button onclick="verifyOrder()" class="btn-verify mt-2">
+                    Verify & Place Order
+                </button>
+                <p class="text-[10px] text-center text-slate-500 px-4">
+                    Please do not close this page until verification is complete. Orders are typically processed within 2-5 minutes.
+                </p>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        const UPI_ID = 'BHARATPE.8I0L1X1V4I78982@fbpe'; // Your actual UPI ID
+        const UPI_NAME = 'Xtreme-topup';
+        let currentOrder = {
+            userId: '',
+            zoneId: '',
+            productId: null,
+            productName: '',
+            price: 0,
+            category: ''
+        };
+
+        // Initialize page
+        async function initPage() {
+            // Check if coming from product.html with order_token
+            const urlParams = new URLSearchParams(window.location.search);
+            const orderToken = urlParams.get('order_token');
+            if (orderToken) {
+                const data = parseOrderToken(orderToken);
+                if (data) {
+                    currentOrder = {
+                        userId: data.userid,
+                        zoneId: data.zoneid,
+                        productId: data.productId,
+                        productName: data.product,
+                        price: parseFloat(data.price),
+                        category: ''
+                    };
+                    
+                    // Auto-populate form fields
+                    document.getElementById('input-userid').value = data.userid;
+                    document.getElementById('input-zoneid').value = data.zoneid;
+                    document.getElementById('display-product').textContent = data.product;
+                    document.getElementById('display-price').textContent = `₹${data.price}`;
+                    
+                    // Skip to payment tab if all details are already filled
+                    setTimeout(() => {
+                        proceedToPaymentAuto();
+                    }, 500);
+                }
+            } else {
+                // Load products from backend if not coming from product page
+                await loadProducts();
+            }
+        }
+
+        // Parse order token
+        function parseOrderToken(token) {
+            const parts = token.split('+');
+            const data = {};
+            parts.forEach(part => {
+                const [key, value] = part.split('=', 2);
+                data[key] = value;
+            });
+            return data;
+        }
+
+        // Load products from backend
+        async function loadProducts() {
+            try {
+                const response = await fetch('/api/products?category=MLBB');
+                const data = await response.json();
+                
+                if (data.products && data.products.length > 0) {
+                    const select = document.getElementById('product-select');
+                    data.products.forEach(product => {
+                        const option = document.createElement('option');
+                        option.value = JSON.stringify({
+                            id: product.id,
+                            name: product.product_name,
+                            price: product.price,
+                            productId: product.product_id,
+                            apiProvider: product.api_provider,
+                            region: product.region
+                        });
+                        option.textContent = `${product.product_name} - ₹${product.price}`;
+                        select.appendChild(option);
+                    });
+                } else {
+                    showAlert('No products available', 'error');
+                }
+            } catch (error) {
+                console.error('Error loading products:', error);
+                showAlert('Failed to load products', 'error');
+            }
+        }
+
+        // Update selected product
+        function updateSelectedProduct() {
+            const select = document.getElementById('product-select');
+            if (select.value) {
+                const product = JSON.parse(select.value);
+                currentOrder.productId = product.id;
+                currentOrder.productName = product.name;
+                currentOrder.price = product.price;
+                
+                document.getElementById('display-product').textContent = product.name;
+                document.getElementById('display-price').textContent = `₹${product.price}`;
+            } else {
+                currentOrder.productId = null;
+                currentOrder.productName = '';
+                currentOrder.price = 0;
+                
+                document.getElementById('display-product').textContent = 'None Selected';
+                document.getElementById('display-price').textContent = '₹0.00';
+            }
+        }
+
+        // Switch between tabs
+        function switchTab(tab) {
+            const formContent = document.getElementById('tab-form-content');
+            const paymentContent = document.getElementById('tab-payment-content');
+            const formBtn = document.getElementById('tab-form');
+            const paymentBtn = document.getElementById('tab-payment');
+
+            if (tab === 'form') {
+                formContent.classList.remove('hidden');
+                paymentContent.classList.add('hidden');
+                formBtn.classList.add('bg-indigo-600', 'text-white');
+                formBtn.classList.remove('bg-slate-700', 'text-slate-300');
+                paymentBtn.classList.remove('bg-indigo-600', 'text-white');
+                paymentBtn.classList.add('bg-slate-700', 'text-slate-300');
+            } else {
+                formContent.classList.add('hidden');
+                paymentContent.classList.remove('hidden');
+                formBtn.classList.remove('bg-indigo-600', 'text-white');
+                formBtn.classList.add('bg-slate-700', 'text-slate-300');
+                paymentBtn.classList.add('bg-indigo-600', 'text-white');
+                paymentBtn.classList.remove('bg-slate-700', 'text-slate-300');
+            }
+        }
+
+        // Proceed to payment
+        function proceedToPayment() {
+            const userId = document.getElementById('input-userid').value.trim();
+            const zoneId = document.getElementById('input-zoneid').value.trim();
+            
+            if (!userId) {
+                showAlert('Please enter Player ID', 'error');
+                return;
+            }
+            if (!zoneId) {
+                showAlert('Please enter Zone ID', 'error');
+                return;
+            }
+            if (!currentOrder.productId) {
+                showAlert('Please select a product', 'error');
+                return;
+            }
+
+            currentOrder.userId = userId;
+            currentOrder.zoneId = zoneId;
+
+            // Update payment tab display
+            document.getElementById('display-userid').textContent = userId;
+            document.getElementById('display-zoneid').textContent = zoneId;
+            document.getElementById('display-product-payment').textContent = currentOrder.productName;
+            document.getElementById('display-price-payment').textContent = `₹${currentOrder.price}`;
+
+            // Generate QR Code
+            generateQRCode();
+
+            // Switch to payment tab
+            switchTab('payment');
+        }
+
+        // Auto-proceed when product details are already loaded from product.html
+        function proceedToPaymentAuto() {
+            // Update payment tab display
+            document.getElementById('display-userid').textContent = currentOrder.userId;
+            document.getElementById('display-zoneid').textContent = currentOrder.zoneId;
+            document.getElementById('display-product-payment').textContent = currentOrder.productName;
+            document.getElementById('display-price-payment').textContent = `₹${currentOrder.price}`;
+
+            // Generate QR Code
+            generateQRCode();
+
+            // Switch to payment tab
+            switchTab('payment');
+        }
+
+        // Generate QR Code with UPI data
+        function generateQRCode() {
+            const upiString = `upi://pay?pa=${UPI_ID}&pn=${UPI_NAME}&am=${currentOrder.price}&cu=INR`;
+            const qrUrl = `https://api.qrserver.com/v1/create-qr-code/?size=250x250&data=${encodeURIComponent(upiString)}`;
+            document.getElementById('upi-qr').src = qrUrl;
+            document.getElementById('upi-id-display').textContent = UPI_ID;
+        }
+
+        // Verify order with BharatPe
+        async function verifyOrder() {
+            const utr = document.getElementById('utr-input').value.trim();
+            
+            if (!utr) {
+                showAlert('Please enter UTR number', 'error');
+                return;
+            }
+            if (utr.length < 10) {
+                showAlert('UTR number must be at least 10 characters', 'error');
+                return;
+            }
+
+            const btn = document.querySelector('.btn-verify');
+            btn.disabled = true;
+            btn.innerHTML = `
+                <svg class="spinner w-5 h-5 inline-block mr-2" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                    <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+                    <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                </svg>
+                Verifying...
+            `;
+
+            try {
+                const response = await fetch('/api/verify_upi_order', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({
+                        utr: utr,
+                        userId: currentOrder.userId,
+                        zoneId: currentOrder.zoneId,
+                        productId: currentOrder.productId,
+                        amount: currentOrder.price,
+                        paymentMethod: 'UPI'
+                    })
+                });
+
+                const result = await response.json();
+                
+                if (result.success) {
+                    showAlert('✓ Payment verified! Order created successfully.', 'success');
+                    setTimeout(() => {
+                        window.location.href = `/order_status/${result.order_id}`;
+                    }, 2000);
+                } else {
+                    showAlert(result.error || 'Verification failed. Please try again.', 'error');
+                    btn.disabled = false;
+                    btn.innerHTML = 'Verify & Place Order';
+                }
+            } catch (error) {
+                console.error('Error verifying order:', error);
+                showAlert('Error verifying order: ' + error.message, 'error');
+                btn.disabled = false;
+                btn.innerHTML = 'Verify & Place Order';
+            }
+        }
+
+        // Show alert message
+        function showAlert(message, type) {
+            const alertContainer = document.getElementById('alert-container');
+            const alertDiv = document.createElement('div');
+            alertDiv.className = `alert alert-${type}`;
+            alertDiv.textContent = message;
+            alertContainer.appendChild(alertDiv);
+            
+            setTimeout(() => {
+                alertDiv.remove();
+            }, 5000);
+        }
+
+        // Initialize on page load
+        window.onload = initPage;
+    </script>
+</body>
+</html>
